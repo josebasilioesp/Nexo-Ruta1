@@ -1,0 +1,2767 @@
+<!DOCTYPE html>
+<html lang="es-PE" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Trans-SaaS Perú | Control de Flotas de Carga Pesada</title>
+  
+  <!-- Manifest PWA -->
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <!-- Tipografía Inter (Google Fonts) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Leaflet Map CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- SheetJS para exportación a Excel .xlsx -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <!-- jsPDF para exportación a PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            navy: {
+              800: '#1e293b',
+              900: '#0f172a',
+              950: '#020617',
+            },
+            turquoise: {
+              50: '#ecfeff',
+              100: '#cffafe',
+              500: '#06b6d4',
+              600: '#0891b2',
+              700: '#0e7490',
+              800: '#155e75',
+              900: '#164e63',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  </style>
+</head>
+<body class="h-full bg-slate-50 text-slate-800 antialiased flex flex-col select-none">
+
+  <!-- ========================================================================= -->
+  <!-- BARRA SUPERIOR DE CONEXIÓN APPS SCRIPT Y ESTADO                           -->
+  <!-- ========================================================================= -->
+  <header class="bg-navy-950 text-white border-b border-navy-800 z-50 sticky top-0 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-12 text-xs">
+        
+        <!-- Logo Corporativo -->
+        <div class="flex items-center space-x-2.5">
+          <div class="w-6 h-6 rounded bg-turquoise-600 flex items-center justify-center font-bold text-white shadow-2xs">
+            <i data-lucide="truck" class="w-3.5 h-3.5 stroke-[2.2]"></i>
+          </div>
+          <div>
+            <span class="font-extrabold tracking-tight text-white uppercase text-[11px] block leading-none">TRANS-SAAS PERÚ</span>
+            <span class="text-[9px] text-slate-400 font-mono">Control de Flotas de Carga Pesada • es-PE</span>
+          </div>
+        </div>
+
+        <!-- Acciones Rápidas -->
+        <div class="flex items-center space-x-2">
+          <!-- Indicador de Red Online/Offline -->
+          <div id="badge-red-status" class="flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span id="txt-red-status">En línea</span>
+          </div>
+
+          <!-- Botón Guía Apps Script -->
+          <button onclick="abrirModalConexionAppsScript()" class="px-2 py-1 bg-navy-900 hover:bg-navy-800 border border-navy-700 rounded-lg text-[11px] text-turquoise-300 font-medium flex items-center space-x-1 transition-colors">
+            <i data-lucide="cable" class="w-3 h-3 text-turquoise-400"></i>
+            <span class="hidden sm:inline">Conectar Google Apps Script</span>
+          </button>
+
+          <!-- Cerrar Sesión (Visible sólo autenticado) -->
+          <button id="btn-top-logout" onclick="cerrarSesionCompleta()" class="hidden px-2.5 py-1 bg-rose-950/80 hover:bg-rose-900 border border-rose-800 rounded-lg text-[11px] text-rose-300 font-semibold items-center space-x-1 transition-colors">
+            <i data-lucide="log-out" class="w-3 h-3"></i>
+            <span>Cerrar sesión</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENEDOR TOAST DE AVISOS -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 max-w-sm pointer-events-none"></div>
+
+  <!-- ========================================================================= -->
+  <!-- 1. PANTALLA INICIAL: INICIO DE SESIÓN LIMPIO                               -->
+  <!-- ========================================================================= -->
+  <section id="screen-login" class="flex-1 flex items-center justify-center p-4 bg-slate-100">
+    <div class="max-w-md w-full bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-200">
+      
+      <!-- Logo y Nombre de la Plataforma -->
+      <div class="text-center mb-6">
+        <div class="w-14 h-14 bg-navy-900 text-turquoise-500 rounded-2xl mx-auto flex items-center justify-center mb-3 shadow-md">
+          <i data-lucide="truck" class="w-8 h-8 stroke-[2]"></i>
+        </div>
+        <h1 class="text-xl font-extrabold text-navy-900 tracking-tight">Trans-SaaS Perú</h1>
+        <p class="text-xs text-slate-500 mt-1">
+          Plataforma de Control de Flotas y Logística de Carga Pesada
+        </p>
+      </div>
+
+      <!-- Formulario de Iniciar Sesión -->
+      <form id="form-login" onsubmit="event.preventDefault(); procesarLoginManual();" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Usuario</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+              <i data-lucide="user" class="w-4 h-4 stroke-[1.8]"></i>
+            </div>
+            <input type="text" id="input-login-user" required autocomplete="username" placeholder="Ingresa tu usuario" class="w-full pl-9 pr-3 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-turquoise-500 focus:outline-none text-slate-900 font-medium">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Contraseña</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+              <i data-lucide="lock" class="w-4 h-4 stroke-[1.8]"></i>
+            </div>
+            <input type="password" id="input-login-pass" required autocomplete="current-password" placeholder="Ingresa tu contraseña" class="w-full pl-9 pr-10 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-turquoise-500 focus:outline-none text-slate-900 font-medium">
+            <button type="button" onclick="togglePasswordVisibility()" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none">
+              <i id="icon-toggle-pass" data-lucide="eye" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" id="btn-login-submit" class="w-full py-3 bg-turquoise-600 hover:bg-turquoise-700 text-white text-xs font-bold rounded-xl shadow-sm transition-colors flex items-center justify-center space-x-2">
+          <span>Ingresar</span>
+          <i data-lucide="arrow-right" class="w-4 h-4 stroke-[2]"></i>
+        </button>
+      </form>
+
+      <!-- SIMULADOR DE ACCESOS FICTICIOS (1 CLIC PARA PROBAR TODOS LOS ROLES) -->
+      <div class="mt-5 pt-4 border-t border-slate-100">
+        <button type="button" onclick="toggleSimuladorAccesos()" class="w-full py-2 px-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-slate-700 font-bold text-xs flex items-center justify-between transition">
+          <div class="flex items-center space-x-1.5 text-navy-900 font-bold">
+            <i data-lucide="zap" class="w-3.5 h-3.5 text-turquoise-600"></i>
+            <span>Simulador de Accesos (1 Clic para probar)</span>
+          </div>
+          <i data-lucide="chevron-down" id="icono-toggle-simulador" class="w-4 h-4 text-slate-400 transition-transform"></i>
+        </button>
+
+        <div id="caja-simulador-accesos" class="mt-2.5 space-y-2 text-xs max-h-64 overflow-y-auto pr-1">
+          <!-- Propietario / Admin General -->
+          <button type="button" onclick="simularIngresoRapido('admin.general', 'DemoAdmin!4826')" class="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-turquoise-50 hover:border-turquoise-400 text-left transition flex items-center justify-between">
+            <div>
+              <div class="flex items-center space-x-1.5 font-bold text-navy-900">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-turquoise-600"></i>
+                <span>👑 Administrador General (Tú que alquilas)</span>
+              </div>
+              <span class="text-[10px] text-slate-500 block">Usuario: admin.general • Control de todas las empresas</span>
+            </div>
+            <span class="text-[10px] font-bold bg-navy-900 text-white px-2 py-0.5 rounded">Propietario</span>
+          </button>
+
+          <!-- Empresa 1: Transportes Andinos -->
+          <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5">
+            <div class="flex items-center justify-between border-b border-slate-200 pb-1">
+              <span class="text-[10px] font-bold text-navy-900 uppercase tracking-wider">Empresa 1: Transportes Andinos S.A.C.</span>
+              <span class="text-[9px] text-slate-400 font-mono">RUC 20601234567</span>
+            </div>
+            <div class="grid grid-cols-2 gap-1.5">
+              <button type="button" onclick="simularIngresoRapido('supervisor.andinos', 'DemoAndinos!7142')" class="p-2 bg-white hover:bg-turquoise-50 border border-slate-200 rounded-lg text-left">
+                <span class="font-bold text-turquoise-800 block text-[11px]">Supervisor Andinos</span>
+                <span class="text-[9px] text-slate-500 block truncate">supervisor.andinos</span>
+              </button>
+              <button type="button" onclick="simularIngresoRapido('conductor.andinos', 'RutaAndinos!3658')" class="p-2 bg-white hover:bg-turquoise-50 border border-slate-200 rounded-lg text-left">
+                <span class="font-bold text-navy-900 block text-[11px]">Conductor Juan Pérez</span>
+                <span class="text-[9px] text-slate-500 block font-mono">Tracto: V7X-890</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Empresa 2: Carga del Centro -->
+          <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5">
+            <div class="flex items-center justify-between border-b border-slate-200 pb-1">
+              <span class="text-[10px] font-bold text-navy-900 uppercase tracking-wider">Empresa 2: Carga del Centro S.A.</span>
+              <span class="text-[9px] text-slate-400 font-mono">RUC 20443322119</span>
+            </div>
+            <div class="grid grid-cols-2 gap-1.5">
+              <button type="button" onclick="simularIngresoRapido('supervisor.centro', 'DemoCentro!5931')" class="p-2 bg-white hover:bg-turquoise-50 border border-slate-200 rounded-lg text-left">
+                <span class="font-bold text-turquoise-800 block text-[11px]">Supervisor Centro</span>
+                <span class="text-[9px] text-slate-500 block truncate">supervisor.centro</span>
+              </button>
+              <button type="button" onclick="simularIngresoRapido('conductor.centro', 'RutaCentro!8274')" class="p-2 bg-white hover:bg-turquoise-50 border border-slate-200 rounded-lg text-left">
+                <span class="font-bold text-navy-900 block text-[11px]">Conductor Raúl Mendoza</span>
+                <span class="text-[9px] text-slate-500 block font-mono">Tracto: T3B-891</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Empresa 3: Logística del Pacífico -->
+          <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5">
+            <div class="flex items-center justify-between border-b border-slate-200 pb-1">
+              <span class="text-[10px] font-bold text-navy-900 uppercase tracking-wider">Empresa 3: Logística del Pacífico E.I.R.L.</span>
+              <span class="text-[9px] text-slate-400 font-mono">RUC 20559988771</span>
+            </div>
+            <div class="grid grid-cols-2 gap-1.5">
+              <button type="button" onclick="simularIngresoRapido('supervisor.pacifico', 'DemoPacifico!6419')" class="p-2 bg-white hover:bg-turquoise-50 border border-slate-200 rounded-lg text-left">
+                <span class="font-bold text-turquoise-800 block text-[11px]">Supervisor Pacífico</span>
+                <span class="text-[9px] text-slate-500 block truncate">supervisor.pacifico</span>
+              </button>
+              <button type="button" onclick="simularIngresoRapido('conductor.pacifico', 'RutaPacifico!2583')" class="p-2 bg-white hover:bg-turquoise-50 border border-slate-200 rounded-lg text-left">
+                <span class="font-bold text-navy-900 block text-[11px]">Conductor Miguel Flores</span>
+                <span class="text-[9px] text-slate-500 block font-mono">Tracto: B5K-710</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6 text-center">
+        <p class="text-[11px] text-slate-400">
+          Acceso autenticado y validado por token en Google Apps Script
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- 2. CONTENEDOR PRINCIPAL AUTENTICADO (PORTALES POR ROL)                     -->
+  <!-- ========================================================================= -->
+  <div id="screen-app-container" class="hidden flex-1 flex flex-col md:flex-row overflow-hidden bg-slate-50">
+    
+    <!-- BARRA LATERAL AZUL NOCHE -->
+    <aside id="sidebar-navy" class="w-full md:w-64 bg-navy-900 text-slate-300 flex flex-col shrink-0 border-r border-navy-800">
+      
+      <!-- Encabezado Sidebar -->
+      <div class="p-4 border-b border-navy-800">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-7 h-7 rounded bg-turquoise-600 text-white flex items-center justify-center font-bold">
+            <i data-lucide="truck" class="w-4 h-4 stroke-[2]"></i>
+          </div>
+          <div class="overflow-hidden">
+            <h1 class="text-xs font-extrabold text-white tracking-tight truncate" id="sidebar-app-title">TRANS-SAAS PERÚ</h1>
+            <span class="text-[10px] text-turquoise-400 block font-semibold truncate" id="sidebar-user-role-label">PORTAL DE CONTROL</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empresa Activa en Pantalla -->
+      <div id="box-transportista-activa-sidebar" class="px-4 py-2.5 bg-navy-950/60 border-b border-navy-800 text-[11px]">
+        <span class="text-[9px] uppercase font-bold text-slate-400 block">Empresa en consulta:</span>
+        <div class="flex items-center justify-between mt-0.5">
+          <strong class="text-white truncate" id="lbl-sidebar-empresa-nombre">Transportes Andinos S.A.C.</strong>
+        </div>
+      </div>
+
+      <!-- Menú Lateral Dinámico -->
+      <nav class="flex-1 p-2 space-y-1 overflow-y-auto text-xs" id="sidebar-menu-list">
+        <!-- Generado dinámicamente según el Rol -->
+      </nav>
+
+      <!-- Pie de Sidebar: Perfil de usuario y Logout -->
+      <div class="p-3 border-t border-navy-800 bg-navy-950/40 flex items-center justify-between text-xs">
+        <div class="flex items-center space-x-2 truncate">
+          <div class="w-7 h-7 rounded-full bg-slate-700 text-white text-[10px] font-bold flex items-center justify-center shrink-0" id="lbl-avatar-initials">
+            US
+          </div>
+          <div class="truncate text-[11px]">
+            <span class="text-white font-semibold block truncate" id="lbl-logged-user-name">Usuario Conectado</span>
+            <span class="text-[9px] text-slate-400 block truncate" id="lbl-logged-user-sub">Rol</span>
+          </div>
+        </div>
+        <button onclick="cerrarSesionCompleta()" title="Cerrar sesión" class="p-1.5 text-slate-400 hover:text-white rounded-lg transition-colors">
+          <i data-lucide="log-out" class="w-3.5 h-3.5 stroke-[1.8]"></i>
+        </button>
+      </div>
+
+    </aside>
+
+    <!-- ÁREA CENTRAL DE CONTENIDO -->
+    <main class="flex-1 overflow-y-auto flex flex-col bg-slate-50 text-slate-800" id="main-stage-area">
+      <!-- Inyectado dinámicamente -->
+    </main>
+
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODALES DEL SISTEMA                                                       -->
+  <!-- ========================================================================= -->
+
+  <!-- MODAL: SUBIR FOTO DE EVIDENCIA -->
+  <div id="modal-subir-evidencia" class="fixed inset-0 bg-navy-950/70 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-3">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-slate-200 max-h-[95vh] flex flex-col">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-8 h-8 rounded-xl bg-turquoise-100 text-turquoise-800 flex items-center justify-center">
+            <i data-lucide="camera" class="w-4 h-4 stroke-[2]"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-extrabold text-navy-900">Subir Foto de Evidencia</h3>
+            <p class="text-[10px] text-slate-500">Registro operativo y almacenamiento en Google Drive</p>
+          </div>
+        </div>
+        <button onclick="cerrarModal('modal-subir-evidencia')" class="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto py-3 space-y-3.5 text-xs">
+        <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 grid grid-cols-2 gap-2 text-[11px]">
+          <div>
+            <span class="text-[9px] uppercase font-bold text-slate-400 block">Servicio:</span>
+            <strong class="text-navy-900 font-mono" id="evd-lbl-servicio">SRV-2026-0001</strong>
+          </div>
+          <div>
+            <span class="text-[9px] uppercase font-bold text-slate-400 block">Conductor:</span>
+            <strong class="text-slate-700 truncate block" id="evd-lbl-conductor">Juan Pérez</strong>
+          </div>
+          <div>
+            <span class="text-[9px] uppercase font-bold text-slate-400 block">Tracto / Carreta:</span>
+            <strong class="text-slate-700 font-mono" id="evd-lbl-placas">V7X-890 / TC8-120</strong>
+          </div>
+          <div>
+            <span class="text-[9px] uppercase font-bold text-slate-400 block">Seleccionar Parada:</span>
+            <select id="evd-select-parada" class="w-full mt-0.5 text-[11px] font-semibold bg-white border border-slate-200 rounded-lg p-1 text-slate-800"></select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Tipo de Evidencia:</label>
+          <div class="grid grid-cols-3 gap-1.5">
+            <button type="button" onclick="seleccionarTipoEvidencia('Carga')" id="btn-tipo-carga" class="btn-tipo-evd py-2 px-1 text-center rounded-xl border border-turquoise-600 bg-turquoise-50 text-turquoise-800 font-bold text-[11px]">Carga</button>
+            <button type="button" onclick="seleccionarTipoEvidencia('Descarga')" id="btn-tipo-descarga" class="btn-tipo-evd py-2 px-1 text-center rounded-xl border border-slate-200 bg-white text-slate-600 font-bold text-[11px]">Descarga</button>
+            <button type="button" onclick="seleccionarTipoEvidencia('Incidencia')" id="btn-tipo-incidencia" class="btn-tipo-evd py-2 px-1 text-center rounded-xl border border-slate-200 bg-white text-slate-600 font-bold text-[11px]">Incidencia</button>
+            <button type="button" onclick="seleccionarTipoEvidencia('Documento de transporte')" id="btn-tipo-documento" class="btn-tipo-evd py-2 px-1 text-center rounded-xl border border-slate-200 bg-white text-slate-600 font-bold text-[11px]">Documento</button>
+            <button type="button" onclick="seleccionarTipoEvidencia('Otra evidencia')" id="btn-tipo-otra" class="btn-tipo-evd py-2 px-1 text-center rounded-xl border border-slate-200 bg-white text-slate-600 font-bold text-[11px] col-span-2">Otra evidencia</button>
+          </div>
+          <input type="hidden" id="evd-input-tipo-seleccionado" value="Carga">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Fotografías de Respaldo:</label>
+          <div class="grid grid-cols-2 gap-2">
+            <label class="cursor-pointer py-3 px-2 bg-navy-900 hover:bg-navy-800 text-white rounded-2xl flex flex-col items-center justify-center space-y-1 shadow-sm transition">
+              <i data-lucide="camera" class="w-5 h-5 text-turquoise-400"></i>
+              <span class="text-xs font-bold">Tomar foto</span>
+              <input type="file" accept="image/*" capture="environment" class="hidden" onchange="capturarArchivoFoto(event)">
+            </label>
+            <label class="cursor-pointer py-3 px-2 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 rounded-2xl flex flex-col items-center justify-center space-y-1 transition">
+              <i data-lucide="image" class="w-5 h-5 text-slate-500"></i>
+              <span class="text-xs font-bold">Elegir de galería</span>
+              <input type="file" accept="image/*" class="hidden" onchange="capturarArchivoFoto(event)">
+            </label>
+          </div>
+        </div>
+
+        <div id="evd-contenedor-miniaturas" class="space-y-2 hidden">
+          <span class="text-[10px] uppercase font-bold text-slate-400 block">Fotos seleccionadas:</span>
+          <div id="evd-lista-fotos" class="grid grid-cols-2 gap-2"></div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Observación:</label>
+          <textarea id="evd-input-observacion" rows="2" placeholder="Ej. Precintos intactos, mercadería conforme..." class="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-turquoise-500 focus:outline-none"></textarea>
+        </div>
+
+        <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-[10px]">
+          <div class="flex items-center space-x-1.5 text-slate-600">
+            <i data-lucide="map-pin" class="w-3.5 h-3.5 text-turquoise-600"></i>
+            <span id="evd-lbl-gps-status">Detectando satélites...</span>
+          </div>
+          <button type="button" onclick="obtenerLecturaGpsActual()" class="text-turquoise-700 font-bold hover:underline">Actualizar GPS</button>
+        </div>
+      </div>
+
+      <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+        <button type="button" onclick="cerrarModal('modal-subir-evidencia')" class="px-3 py-2 text-slate-500 text-xs font-semibold">Cancelar</button>
+        <button type="button" id="btn-guardar-evidencia-submit" onclick="confirmarYGuardarEvidencia()" class="px-5 py-2.5 bg-turquoise-600 hover:bg-turquoise-700 text-white text-xs font-bold rounded-xl shadow-sm flex items-center space-x-1.5 transition">
+          <i data-lucide="upload-cloud" class="w-4 h-4"></i>
+          <span>Guardar evidencia</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: VISOR DE FOTO EN PANTALLA COMPLETA -->
+  <div id="modal-visor-foto" class="fixed inset-0 bg-navy-950/90 backdrop-blur-sm z-[70] hidden flex items-center justify-center p-4">
+    <div class="relative max-w-3xl w-full flex flex-col items-center">
+      <button onclick="cerrarModal('modal-visor-foto')" class="absolute -top-10 right-0 text-white hover:text-slate-300">
+        <i data-lucide="x" class="w-6 h-6"></i>
+      </button>
+      <img id="img-visor-ampliada" src="" alt="Evidencia" class="max-h-[80vh] w-auto rounded-2xl shadow-2xl object-contain border border-slate-700">
+      <div class="mt-3 bg-navy-900/90 text-white text-xs p-3 rounded-xl border border-navy-700 w-full flex justify-between items-center" id="lbl-visor-datos"></div>
+    </div>
+  </div>
+
+  <!-- MODAL: REGISTRAR KILOMETRAJE -->
+  <div id="modal-registrar-km" class="fixed inset-0 bg-navy-950/70 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-3">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-200">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+        <div class="flex items-center space-x-2">
+          <div class="w-7 h-7 rounded-lg bg-turquoise-100 text-turquoise-800 flex items-center justify-center">
+            <i data-lucide="gauge" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-sm font-bold text-navy-900">Registrar Kilometraje</h3>
+        </div>
+        <button onclick="cerrarModal('modal-registrar-km')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <span class="text-[10px] text-slate-500 uppercase font-bold block">Tracto Asignado:</span>
+          <strong class="text-navy-900 text-sm font-mono" id="km-lbl-tracto">V7X-890</strong>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Tipo de Lectura:</label>
+          <div class="grid grid-cols-2 gap-2">
+            <label class="p-2 border border-slate-200 rounded-xl flex items-center space-x-2 cursor-pointer bg-slate-50">
+              <input type="radio" name="km-tipo" value="INICIAL" checked class="text-turquoise-600">
+              <span class="font-bold text-slate-800">Inicial (Salida)</span>
+            </label>
+            <label class="p-2 border border-slate-200 rounded-xl flex items-center space-x-2 cursor-pointer bg-slate-50">
+              <input type="radio" name="km-tipo" value="FINAL" class="text-turquoise-600">
+              <span class="font-bold text-slate-800">Final (Cierre)</span>
+            </label>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Kilometraje del Odómetro (km):</label>
+          <input type="number" id="km-input-valor" placeholder="Ej. 148520" class="w-full text-base font-bold font-mono p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-turquoise-500 focus:outline-none">
+          <p class="text-[10px] text-slate-400 mt-1">El kilometraje final debe ser mayor o igual al inicial.</p>
+        </div>
+      </div>
+
+      <div class="pt-4 mt-4 border-t border-slate-100 flex justify-end space-x-2">
+        <button onclick="cerrarModal('modal-registrar-km')" class="px-3 py-2 text-slate-500 text-xs font-semibold">Cancelar</button>
+        <button onclick="guardarKilometrajeConfirmado()" class="px-4 py-2 bg-turquoise-600 hover:bg-turquoise-700 text-white text-xs font-bold rounded-xl shadow-sm">Guardar Km</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: REPORTAR INCIDENCIA -->
+  <div id="modal-reportar-incidencia" class="fixed inset-0 bg-navy-950/70 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-3">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-200">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+        <div class="flex items-center space-x-2">
+          <div class="w-7 h-7 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center">
+            <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-sm font-bold text-navy-900">Reportar Incidencia</h3>
+        </div>
+        <button onclick="cerrarModal('modal-reportar-incidencia')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Categoría:</label>
+          <select id="inc-select-tipo" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-medium">
+            <option value="Demora">Demora (Tráfico / Retén)</option>
+            <option value="Avería">Avería mecánica del tracto o carreta</option>
+            <option value="Problema con la carga">Problema con la carga / Daño</option>
+            <option value="Dificultad de acceso">Dificultad de acceso al punto de descarga</option>
+            <option value="Otro">Otro problema operativo</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Descripción:</label>
+          <textarea id="inc-input-desc" rows="3" placeholder="Describe lo ocurrido..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"></textarea>
+        </div>
+      </div>
+
+      <div class="pt-4 mt-4 border-t border-slate-100 flex justify-end space-x-2">
+        <button onclick="cerrarModal('modal-reportar-incidencia')" class="px-3 py-2 text-slate-500 text-xs font-semibold">Cancelar</button>
+        <button onclick="guardarIncidenciaConfirmada()" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl shadow-sm">Reportar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CONEXIÓN CON APPS SCRIPT -->
+  <div id="modal-conexion-gas" class="fixed inset-0 bg-navy-950/70 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+        <div class="flex items-center space-x-2">
+          <div class="w-7 h-7 rounded-lg bg-turquoise-100 text-turquoise-800 flex items-center justify-center">
+            <i data-lucide="cable" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-navy-900">Conexión con Google Apps Script</h3>
+            <p class="text-[10px] text-slate-500">API Web App para sincronización con Sheets y Drive</p>
+          </div>
+        </div>
+        <button onclick="cerrarModal('modal-conexion-gas')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+
+      <div class="space-y-3 text-xs overflow-y-auto flex-1 text-slate-600">
+        <p>Ingresa la URL de tu Web App desplegada desde <span class="font-mono text-turquoise-800 font-bold">backend/Code.gs</span>:</p>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">URL Web App Apps Script (/exec):</label>
+          <input type="url" id="cfg-gas-url-input" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono text-xs text-slate-900" placeholder="https://script.google.com/macros/s/TU_DEPLOYMENT_ID/exec">
+        </div>
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-[11px] space-y-1">
+          <strong class="text-navy-900 block">Configuración en Apps Script:</strong>
+          <p>1. <strong>Implementar &gt; Nueva implementación &gt; Aplicación web</strong>.</p>
+          <p>2. Quién tiene acceso: <strong>Cualquier usuario</strong>.</p>
+        </div>
+      </div>
+
+      <div class="pt-3 border-t border-slate-100 flex justify-end space-x-2 mt-3">
+        <button onclick="cerrarModal('modal-conexion-gas')" class="px-4 py-2 text-slate-500 font-semibold">Cerrar</button>
+        <button onclick="guardarUrlAppsScript()" class="px-4 py-2 bg-turquoise-600 hover:bg-turquoise-700 text-white font-bold rounded-xl shadow-sm">Guardar Conexión</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CREAR EMPRESA (ADMIN GENERAL) -->
+  <div id="modal-crear-empresa" class="fixed inset-0 bg-navy-950/70 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-3">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+        <h3 class="text-sm font-bold text-navy-900">Registrar Nueva Empresa Transportista</h3>
+        <button onclick="cerrarModal('modal-crear-empresa')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <form onsubmit="event.preventDefault(); guardarNuevaEmpresaAdmin();" class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">RUC (11 dígitos):</label>
+          <input type="text" id="nueva-emp-ruc" maxlength="11" required placeholder="20XXXXXXXXX" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono text-xs">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Razón Social:</label>
+          <input type="text" id="nueva-emp-nombre" required placeholder="Ej. Transportes Perú Sur S.A.C." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Dirección Fiscal:</label>
+          <input type="text" id="nueva-emp-dir" placeholder="Av. Principal 123, Lima" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Teléfono:</label>
+          <input type="text" id="nueva-emp-tel" placeholder="(01) 450-0000" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+        </div>
+        <div class="pt-3 border-t border-slate-100 flex justify-end space-x-2">
+          <button type="button" onclick="cerrarModal('modal-crear-empresa')" class="px-3 py-2 text-slate-500 font-semibold">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-turquoise-600 hover:bg-turquoise-700 text-white font-bold rounded-xl shadow-sm">Registrar Empresa</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: CREAR USUARIO (ADMIN GENERAL) -->
+  <div id="modal-crear-usuario" class="fixed inset-0 bg-navy-950/70 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-3">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+        <h3 class="text-sm font-bold text-navy-900">Crear Nuevo Usuario</h3>
+        <button onclick="cerrarModal('modal-crear-usuario')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <form onsubmit="event.preventDefault(); guardarNuevoUsuarioAdmin();" class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Empresa:</label>
+          <select id="nuevo-usr-empresa" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"></select>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Rol:</label>
+          <select id="nuevo-usr-rol" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+            <option value="SUPERVISOR">Supervisor de Empresa</option>
+            <option value="CONDUCTOR">Conductor</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Nombre Completo:</label>
+          <input type="text" id="nuevo-usr-nombre" required placeholder="Nombres y Apellidos" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Usuario de acceso:</label>
+          <input type="text" id="nuevo-usr-login" required placeholder="ej. juan.conductor" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Contraseña inicial:</label>
+          <input type="password" id="nuevo-usr-pass" required placeholder="••••••••" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+        </div>
+        <div class="pt-3 border-t border-slate-100 flex justify-end space-x-2">
+          <button type="button" onclick="cerrarModal('modal-crear-usuario')" class="px-3 py-2 text-slate-500 font-semibold">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-turquoise-600 hover:bg-turquoise-700 text-white font-bold rounded-xl shadow-sm">Crear Cuenta</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: PROGRAMAR SERVICIO (CON DETECCIÓN DE CONFLICTOS) -->
+  <div id="modal-programar-servicio" class="fixed inset-0 bg-navy-950/70 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-3">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+        <h3 class="text-sm font-bold text-navy-900">Programar Nuevo Servicio</h3>
+        <button onclick="cerrarModal('modal-programar-servicio')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <form onsubmit="event.preventDefault(); guardarNuevoServicioAdmin();" class="space-y-3 text-xs overflow-y-auto flex-1 pr-1">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Empresa Transportista:</label>
+          <select id="prog-empresa" onchange="actualizarRecursosPorEmpresa()" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"></select>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Cliente (Razón Social):</label>
+            <input type="text" id="prog-cliente" required placeholder="Ej. Minera Chinalco" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">RUC Cliente:</label>
+            <input type="text" id="prog-ruc" maxlength="11" placeholder="20XXXXXXXXX" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono">
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Conductor:</label>
+            <select id="prog-conductor" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"></select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Tracto:</label>
+            <select id="prog-tracto" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono"></select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Carreta:</label>
+            <select id="prog-carreta" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono"></select>
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Origen:</label>
+          <input type="text" id="prog-origen" required placeholder="Ej. Almacén Central Callao" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Destino Principal:</label>
+          <input type="text" id="prog-destino" required placeholder="Ej. Huacho / Chimbote" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+        </div>
+        <div class="p-2.5 bg-amber-50 rounded-xl border border-amber-200 text-[10px] text-amber-800">
+          <i data-lucide="shield-alert" class="w-3.5 h-3.5 inline mr-1 text-amber-600"></i>
+          <span>El sistema valida automáticamente que el conductor, tracto y carreta no estén ocupados en otro servicio activo.</span>
+        </div>
+        <div class="pt-3 border-t border-slate-100 flex justify-end space-x-2">
+          <button type="button" onclick="cerrarModal('modal-programar-servicio')" class="px-3 py-2 text-slate-500 font-semibold">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-turquoise-600 hover:bg-turquoise-700 text-white font-bold rounded-xl shadow-sm">Confirmar y Asignar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: RELEVO DE RECURSO EN VIAJE (ADMIN GENERAL) -->
+  <div id="modal-relevar-recurso" class="fixed inset-0 bg-navy-950/70 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-3">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+        <h3 class="text-sm font-bold text-navy-900">Relevar Recurso en Viaje</h3>
+        <button onclick="cerrarModal('modal-relevar-recurso')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <form onsubmit="event.preventDefault(); guardarRelevoRecursoAdmin();" class="space-y-3 text-xs">
+        <div>
+          <span class="text-[10px] text-slate-400 uppercase font-bold block">Servicio a modificar:</span>
+          <strong class="font-mono text-navy-900 text-sm" id="relevo-lbl-servicio">SRV-2026-0001</strong>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Tipo de Relevo:</label>
+          <select id="relevo-tipo" onchange="actualizarCamposRelevo()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+            <option value="CONDUCTOR">Cambio de Conductor</option>
+            <option value="TRACTO">Cambio de Tracto (Camión)</option>
+            <option value="CARRETA">Cambio de Carreta</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1" id="relevo-lbl-nuevo-recurso">Nuevo Conductor:</label>
+          <select id="relevo-select-nuevo" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"></select>
+        </div>
+        <div id="relevo-box-km" class="hidden">
+          <label class="block font-semibold text-slate-700 mb-1">Km Inicial del Nuevo Tracto:</label>
+          <input type="number" id="relevo-km-nuevo" placeholder="Ej. 152000" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Motivo obligatorio del relevo:</label>
+          <textarea id="relevo-motivo" required rows="2" placeholder="Ej. Fin de jornada reglamentaria, avería de neumático..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"></textarea>
+        </div>
+        <div class="pt-3 border-t border-slate-100 flex justify-end space-x-2">
+          <button type="button" onclick="cerrarModal('modal-relevar-recurso')" class="px-3 py-2 text-slate-500 font-semibold">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-turquoise-600 hover:bg-turquoise-700 text-white font-bold rounded-xl shadow-sm">Aplicar Relevo</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: DETALLE COMPLETO DEL CONDUCTOR Y SUS FOTOS (SUPERVISOR & ADMIN) -->
+  <div id="modal-detalle-conductor-flota" class="fixed inset-0 bg-navy-950/75 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl border border-slate-200 max-h-[92vh] flex flex-col">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center space-x-3">
+          <img id="modal-cnd-foto" src="" class="w-12 h-12 rounded-2xl object-cover border-2 border-turquoise-500 shadow-xs">
+          <div>
+            <h3 class="text-sm font-extrabold text-navy-900" id="modal-cnd-nombre">Conductor</h3>
+            <p class="text-[11px] text-slate-500" id="modal-cnd-sub">Licencia y Empresa</p>
+          </div>
+        </div>
+        <button onclick="cerrarModal('modal-detalle-conductor-flota')" class="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto py-4 space-y-4 text-xs">
+        
+        <!-- Datos de contacto y asignación actual -->
+        <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-[11px]">
+          <div>
+            <span class="text-[9px] uppercase font-bold text-slate-400 block">DNI:</span>
+            <strong class="font-mono text-slate-800" id="modal-cnd-dni">-</strong>
+          </div>
+          <div>
+            <span class="text-[9px] uppercase font-bold text-slate-400 block">Categoría:</span>
+            <strong class="text-turquoise-800 font-bold" id="modal-cnd-cat">-</strong>
+          </div>
+          <div>
+            <span class="text-[9px] uppercase font-bold text-slate-400 block">Tracto / Carreta:</span>
+            <strong class="font-mono text-slate-800" id="modal-cnd-placas">-</strong>
+          </div>
+          <div>
+            <span class="text-[9px] uppercase font-bold text-slate-400 block">Estado:</span>
+            <span class="inline-block px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-100 text-emerald-800" id="modal-cnd-estado">-</span>
+          </div>
+        </div>
+
+        <!-- Recorrido y Servicio Activo -->
+        <div class="p-3.5 bg-navy-950 text-white rounded-2xl border border-navy-800 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] text-turquoise-400 uppercase font-bold">Servicio / Recorrido en Curso:</span>
+            <span class="font-mono font-bold text-xs" id="modal-cnd-srv-codigo">SRV-2026-0001</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <div>
+              <span class="text-[9px] text-slate-400 block">ORIGEN:</span>
+              <strong class="text-white truncate block" id="modal-cnd-srv-origen">Callao</strong>
+            </div>
+            <div>
+              <span class="text-[9px] text-slate-400 block">PRÓXIMO DESTINO:</span>
+              <strong class="text-turquoise-300 truncate block" id="modal-cnd-srv-destino">Huacho</strong>
+            </div>
+            <div>
+              <span class="text-[9px] text-slate-400 block">KM INICIAL:</span>
+              <strong class="font-mono text-white" id="modal-cnd-srv-km">148200 km</strong>
+            </div>
+            <div>
+              <span class="text-[9px] text-slate-400 block">ESTADO OPERATIVO:</span>
+              <strong class="text-white" id="modal-cnd-srv-estado">En tránsito</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- FOTOS Y EVIDENCIAS SUBIDAS POR ESTE CONDUCTOR -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="font-bold text-navy-900 text-xs">Fotografías y Evidencias Subidas por este Conductor:</h4>
+            <span class="text-[10px] text-slate-400 font-mono" id="modal-cnd-conteo-fotos">0 fotos</span>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5" id="modal-cnd-galeria-fotos">
+            <!-- Inyectado dinámicamente -->
+          </div>
+        </div>
+
+      </div>
+
+      <div class="pt-3 border-t border-slate-100 flex justify-end">
+        <button onclick="cerrarModal('modal-detalle-conductor-flota')" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- LÓGICA JAVASCRIPT: TODAS LAS SECCIONES Y BOTONES OPERATIVOS               -->
+  <!-- ========================================================================= -->
+  <script>
+    let APPS_SCRIPT_URL = localStorage.getItem("TRANS_SAAS_GAS_URL") || "";
+    let sesionActual = null;
+    let gpsActual = { lat: -12.046374, lng: -77.042793, precision: 12.0, disponible: false };
+    let fotosSeleccionadas = [];
+    let servicioActivoSeleccionado = null;
+
+    // BASE DE DATOS LOCAL MULTI-EMPRESA
+    const DB_LOCAL = {
+      empresas: [
+        { id: "TRP-001", ruc: "20601234567", razonSocial: "Transportes Andinos S.A.C.", direccion: "Av. Industrial 450, Callao", telefono: "(01) 450-8900", contacto: "Marcos Paredes", estado: "ACTIVA" },
+        { id: "TRP-002", ruc: "20443322119", razonSocial: "Carga del Centro S.A.", direccion: "Carretera Central Km 18, Ate", telefono: "(01) 320-1122", contacto: "Valeria Gómez", estado: "ACTIVA" },
+        { id: "TRP-003", ruc: "20559988771", razonSocial: "Logística del Pacífico E.I.R.L.", direccion: "Av. Argentina 2890, Callao", telefono: "(01) 612-4400", contacto: "David Castillo", estado: "ACTIVA" }
+      ],
+      usuarios: [
+        { id: "USR-001", usuario: "admin.general", pass: "DemoAdmin!4826", rol: "ADMIN_GENERAL", id_empresa: "TODAS", nombre: "Carlos Benítez", dni: "40123456", telefono: "998877665", estado: "ACTIVO" },
+        { id: "USR-002", usuario: "supervisor.andinos", pass: "DemoAndinos!7142", rol: "SUPERVISOR", id_empresa: "TRP-001", nombre: "Marcos Paredes", dni: "41234567", telefono: "987654321", estado: "ACTIVO" },
+        { id: "USR-003", usuario: "conductor.andinos", pass: "RutaAndinos!3658", rol: "CONDUCTOR", id_empresa: "TRP-001", id_conductor: "CND-001", nombre: "Juan Carlos Pérez", dni: "42345678", telefono: "976543210", estado: "ACTIVO" },
+        { id: "USR-004", usuario: "supervisor.centro", pass: "DemoCentro!5931", rol: "SUPERVISOR", id_empresa: "TRP-002", nombre: "Valeria Gómez", dni: "43456789", telefono: "965432109", estado: "ACTIVO" },
+        { id: "USR-005", usuario: "conductor.centro", pass: "RutaCentro!8274", rol: "CONDUCTOR", id_empresa: "TRP-002", id_conductor: "CND-002", nombre: "Raúl Mendoza Díaz", dni: "44567890", telefono: "954321098", estado: "ACTIVO" },
+        { id: "USR-006", usuario: "supervisor.pacifico", pass: "DemoPacifico!6419", rol: "SUPERVISOR", id_empresa: "TRP-003", nombre: "David Castillo", dni: "45678901", telefono: "943210987", estado: "ACTIVO" },
+        { id: "USR-007", usuario: "conductor.pacifico", pass: "RutaPacifico!2583", rol: "CONDUCTOR", id_empresa: "TRP-003", id_conductor: "CND-003", nombre: "Miguel Flores Ticona", dni: "46789012", telefono: "932109876", estado: "ACTIVO" }
+      ],
+      conductores: [
+        {
+          id_conductor: "CND-001",
+          id_empresa: "TRP-001",
+          nombre: "Juan Carlos Pérez",
+          dni: "42345678",
+          licencia: "Q42345678",
+          categoria: "A-IIIc",
+          vencimiento: "15/12/2027",
+          telefono: "976543210",
+          foto: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
+          estado: "En ruta",
+          placa_tracto: "V7X-890",
+          placa_carreta: "TC8-120",
+          servicio_actual: "SRV-2026-0001"
+        },
+        {
+          id_conductor: "CND-001B",
+          id_empresa: "TRP-001",
+          nombre: "Carlos Ramos Salas",
+          dni: "41987654",
+          licencia: "Q41987654",
+          categoria: "A-IIIb",
+          vencimiento: "10/05/2027",
+          telefono: "988776655",
+          foto: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
+          estado: "Disponible",
+          placa_tracto: "F4C-902",
+          placa_carreta: "TR8-901",
+          servicio_actual: null
+        },
+        {
+          id_conductor: "CND-002",
+          id_empresa: "TRP-002",
+          nombre: "Raúl Mendoza Díaz",
+          dni: "44567890",
+          licencia: "Q44567890",
+          categoria: "A-IIIb",
+          vencimiento: "20/08/2026",
+          telefono: "954321098",
+          foto: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80",
+          estado: "En camino a carga",
+          placa_tracto: "T3B-891",
+          placa_carreta: "C1M-552",
+          servicio_actual: "SRV-2026-0002"
+        },
+        {
+          id_conductor: "CND-003",
+          id_empresa: "TRP-003",
+          nombre: "Miguel Flores Ticona",
+          dni: "46789012",
+          licencia: "Q46789012",
+          categoria: "A-IIIc",
+          vencimiento: "10/05/2027",
+          telefono: "932109876",
+          foto: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80",
+          estado: "Disponible",
+          placa_tracto: "B5K-710",
+          placa_carreta: "R9T-440",
+          servicio_actual: "SRV-2026-0003"
+        }
+      ],
+      tractos: [
+        { placa: "V7X-890", id_empresa: "TRP-001", marca: "Volvo", modelo: "FH 540 6x4", config: "T3S3", km: 148520, soat: "15/09/2026", citv: "10/11/2026", estado: "OPERATIVO" },
+        { placa: "F4C-902", id_empresa: "TRP-001", marca: "Scania", modelo: "G460 6x4", config: "T3S3", km: 122100, soat: "20/10/2026", citv: "15/12/2026", estado: "DISPONIBLE" },
+        { placa: "T3B-891", id_empresa: "TRP-002", marca: "Scania", modelo: "R500 6x4", config: "T3S3", km: 192400, soat: "12/08/2026", citv: "05/10/2026", estado: "OPERATIVO" },
+        { placa: "B5K-710", id_empresa: "TRP-003", marca: "Mercedes-Benz", modelo: "Actros 2645", config: "T3S2", km: 95100, soat: "30/11/2026", citv: "20/12/2026", estado: "DISPONIBLE" }
+      ],
+      carretas: [
+        { placa: "TC8-120", id_empresa: "TRP-001", tipo: "Plataforma Baranda", ejes: 3, capacidad: 32.5, citv: "18/11/2026", estado: "EN SERVICIO", servicios: ["SRV-2026-0001"] },
+        { placa: "TR8-901", id_empresa: "TRP-001", tipo: "Furgón Refrigerado", ejes: 3, capacidad: 28.0, citv: "10/01/2027", estado: "DISPONIBLE", servicios: [] },
+        { placa: "C1M-552", id_empresa: "TRP-002", tipo: "Furgón Cerrado", ejes: 3, capacidad: 30.0, citv: "22/10/2026", estado: "EN SERVICIO", servicios: ["SRV-2026-0002"] },
+        { placa: "R9T-440", id_empresa: "TRP-003", tipo: "Tolva Granelera", ejes: 3, capacidad: 34.0, citv: "14/09/2026", estado: "DISPONIBLE", servicios: ["SRV-2026-0003"] }
+      ],
+      servicios: [
+        {
+          cod_servicio: "SRV-2026-0001",
+          id_empresa: "TRP-001",
+          cliente: "Aceros Arequipa S.A.",
+          ruc_cliente: "20100070970",
+          id_conductor: "CND-001",
+          conductor_nombre: "Juan Carlos Pérez",
+          placa_tracto: "V7X-890",
+          placa_carreta: "TC8-120",
+          origen: "Almacén Central Callao",
+          cantidad_destinos: 2,
+          parada_actual: "Parada 1: Huacho",
+          paradas: [
+            { id: "DST-001", orden: 1, nombre: "Parada 1: Huacho", direccion: "Km 140 Panamericana Norte", estado: "EN_TRANSITO" },
+            { id: "DST-002", orden: 2, nombre: "Parada 2: Chimbote", direccion: "Zona Industrial Gran Trapecio", estado: "PENDIENTE" }
+          ],
+          estado: "En tránsito al destino",
+          alerta_retraso: "A TIEMPO",
+          km_inicial: 148200,
+          km_final: null,
+          fecha_programada: "21/11/2026",
+          hora_programada: "06:00",
+          instrucciones: "Carga de barras sobredimensionadas. Precinto aduanero verificado.",
+          evidencias: [
+            {
+              id_evidencia: "EVD-AND-001",
+              id_empresa: "TRP-001",
+              cod_servicio: "SRV-2026-0001",
+              parada: "Almacén Central Callao",
+              tipo_evidencia: "Carga",
+              conductor: "Juan Carlos Pérez",
+              tracto: "V7X-890",
+              carreta: "TC8-120",
+              observacion: "Carga estibada y asegurada con fajas de trinquete",
+              fecha_captura: "21/11/2026 06:45",
+              url_foto: "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=600&q=80",
+              permiso_supervisor: "AUTORIZADO"
+            },
+            {
+              id_evidencia: "EVD-AND-002",
+              id_empresa: "TRP-001",
+              cod_servicio: "SRV-2026-0001",
+              parada: "Km 90 Panamericana Norte",
+              tipo_evidencia: "Documento de transporte",
+              conductor: "Juan Carlos Pérez",
+              tracto: "V7X-890",
+              carreta: "TC8-120",
+              observacion: "Guía de remisión electrónica sellada en garita SUTRAN",
+              fecha_captura: "21/11/2026 08:30",
+              url_foto: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=600&q=80",
+              permiso_supervisor: "AUTORIZADO"
+            }
+          ]
+        },
+        {
+          cod_servicio: "SRV-2026-0002",
+          id_empresa: "TRP-002",
+          cliente: "Minera Chinalco Perú S.A.",
+          ruc_cliente: "20519343734",
+          id_conductor: "CND-002",
+          conductor_nombre: "Raúl Mendoza Díaz",
+          placa_tracto: "T3B-891",
+          placa_carreta: "C1M-552",
+          origen: "Puerto Callao APM Terminals",
+          cantidad_destinos: 1,
+          parada_actual: "Planta Toromocho",
+          paradas: [
+            { id: "DST-003", orden: 1, nombre: "Planta Toromocho", direccion: "Mina Toromocho, Junín", estado: "EN_CAMINO" }
+          ],
+          estado: "En camino al punto de carga",
+          alerta_retraso: "RETRASADO",
+          km_inicial: 192300,
+          km_final: null,
+          fecha_programada: "21/11/2026",
+          hora_programada: "05:00",
+          instrucciones: "Carga de insumos mineros con precinto aduanero intacto.",
+          evidencias: []
+        },
+        {
+          cod_servicio: "SRV-2026-0003",
+          id_empresa: "TRP-003",
+          cliente: "Alicorp S.A.A.",
+          ruc_cliente: "20100055237",
+          id_conductor: "CND-003",
+          conductor_nombre: "Miguel Flores Ticona",
+          placa_tracto: "B5K-710",
+          placa_carreta: "R9T-440",
+          origen: "Planta Callao Faucett",
+          cantidad_destinos: 1,
+          parada_actual: "Centro Distribución Arequipa",
+          paradas: [
+            { id: "DST-004", orden: 1, nombre: "Centro Distribución Arequipa", direccion: "Parque Industrial Río Seco Lt 12", estado: "DESCARGADO" }
+          ],
+          estado: "Finalizado",
+          alerta_retraso: "FINALIZADO A TIEMPO",
+          km_inicial: 94050,
+          km_final: 95100,
+          fecha_programada: "20/11/2026",
+          hora_programada: "07:00",
+          instrucciones: "Entrega de productos masivos con guía de remisión conforme.",
+          evidencias: [
+            {
+              id_evidencia: "EVD-DEMO-001",
+              id_empresa: "TRP-003",
+              cod_servicio: "SRV-2026-0003",
+              parada: "Planta Callao Faucett",
+              tipo_evidencia: "Carga",
+              conductor: "Miguel Flores Ticona",
+              tracto: "B5K-710",
+              carreta: "R9T-440",
+              observacion: "Carga completa estibada y asegurada con fajas",
+              fecha_captura: "20/11/2026 07:45",
+              url_foto: "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=600&q=80",
+              permiso_supervisor: "AUTORIZADO"
+            },
+            {
+              id_evidencia: "EVD-DEMO-002",
+              id_empresa: "TRP-003",
+              cod_servicio: "SRV-2026-0003",
+              parada: "Centro Distribución Arequipa",
+              tipo_evidencia: "Descarga",
+              conductor: "Miguel Flores Ticona",
+              tracto: "B5K-710",
+              carreta: "R9T-440",
+              observacion: "Mercadería recibida conforme sin mermas",
+              fecha_captura: "21/11/2026 09:15",
+              url_foto: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=600&q=80",
+              permiso_supervisor: "AUTORIZADO"
+            }
+          ]
+        }
+      ],
+      incidencias: [
+        {
+          id_incidencia: "INC-2026-01",
+          cod_servicio: "SRV-2026-0002",
+          id_empresa: "TRP-002",
+          conductor: "Raúl Mendoza Díaz",
+          tipo: "Demora",
+          descripcion: "Congestión vehicular severa por trabajos en Carretera Central Km 45.",
+          estado: "EN REVISIÓN",
+          accion_admin: "Coordinado con cliente Minera Chinalco tolerancia de 2 horas.",
+          fecha: "21/11/2026 07:15"
+        }
+      ],
+      auditoria: [
+        {
+          id_auditoria: "AUD-001",
+          usuario: "admin.general",
+          empresa: "TRP-001",
+          tabla: "Servicios",
+          registro_id: "SRV-2026-0001",
+          anterior: "Carreta TC8-110",
+          nuevo: "Carreta TC8-120",
+          motivo: "Reasignación técnica por capacidad de carga autorizada por supervisor.",
+          fecha: "21/11/2026 05:40"
+        }
+      ]
+    };
+
+    // ==========================================
+    // INDEXEDDB PARA MODO OFFLINE
+    // ==========================================
+    let idb = null;
+    function iniciarIndexedDB() {
+      return new Promise((resolve) => {
+        const req = indexedDB.open("TransSaaS_Peru_DB", 2);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains("cola_offline")) db.createObjectStore("cola_offline", { keyPath: "id_local" });
+        };
+        req.onsuccess = (e) => { idb = e.target.result; resolve(idb); };
+        req.onerror = () => resolve(null);
+      });
+    }
+
+    async function guardarEnColaOffline(tipo, datos) {
+      if (!idb) return;
+      const item = {
+        id_local: "OFF-" + Date.now() + "-" + Math.floor(Math.random() * 1000),
+        usuario: sesionActual ? sesionActual.usuario : "desconocido",
+        tipo: tipo,
+        datos: datos,
+        fecha: new Date().toISOString()
+      };
+      const tx = idb.transaction("cola_offline", "readwrite");
+      tx.objectStore("cola_offline").put(item);
+    }
+
+    // ==========================================
+    // DETECCIÓN DE RED Y ESTADO DEL GPS
+    // ==========================================
+    window.addEventListener("online", () => {
+      document.getElementById("badge-red-status").className = "flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800";
+      document.getElementById("txt-red-status").textContent = "En línea";
+      mostrarToast("Conexión restablecida", "success");
+    });
+
+    window.addEventListener("offline", () => {
+      document.getElementById("badge-red-status").className = "flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-950 text-amber-400 border border-amber-800";
+      document.getElementById("txt-red-status").textContent = "Sin conexión (Offline)";
+      mostrarToast("Modo sin conexión. Los registros se guardarán en tu celular.", "warning");
+    });
+
+    function obtenerLecturaGpsActual() {
+      const lblGps = document.getElementById("evd-lbl-gps-status");
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            gpsActual = { lat: pos.coords.latitude, lng: pos.coords.longitude, precision: pos.coords.accuracy, disponible: true };
+            if (lblGps) lblGps.textContent = `GPS: ${gpsActual.lat.toFixed(4)}, ${gpsActual.lng.toFixed(4)} (±${Math.round(gpsActual.precision)}m)`;
+          },
+          () => {
+            gpsActual.disponible = false;
+            if (lblGps) lblGps.textContent = "GPS apagado (Se guardará sin coordenadas)";
+          },
+          { enableHighAccuracy: true, timeout: 6000 }
+        );
+      }
+    }
+
+    // ==========================================
+    // PANTALLA INICIAL Y GESTIÓN DE ACCESO
+    // ==========================================
+    function togglePasswordVisibility() {
+      const input = document.getElementById("input-login-pass");
+      const icon = document.getElementById("icon-toggle-pass");
+      if (input.type === "password") {
+        input.type = "text";
+        icon.setAttribute("data-lucide", "eye-off");
+      } else {
+        input.type = "password";
+        icon.setAttribute("data-lucide", "eye");
+      }
+      lucide.createIcons();
+    }
+
+    function toggleSimuladorAccesos() {
+      const caja = document.getElementById("caja-simulador-accesos");
+      const icono = document.getElementById("icono-toggle-simulador");
+      caja.classList.toggle("hidden");
+      if (caja.classList.contains("hidden")) {
+        icono.setAttribute("data-lucide", "chevron-down");
+      } else {
+        icono.setAttribute("data-lucide", "chevron-up");
+      }
+      lucide.createIcons();
+    }
+
+    function simularIngresoRapido(usuario, pass) {
+      document.getElementById("input-login-user").value = usuario;
+      document.getElementById("input-login-pass").value = pass;
+      mostrarToast(`Autenticando como ${usuario}...`, "info");
+      procesarLoginManual();
+    }
+
+    async function procesarLoginManual() {
+      const user = document.getElementById("input-login-user").value.trim();
+      const pass = document.getElementById("input-login-pass").value;
+
+      if (!user || !pass) {
+        mostrarToast("Ingresa usuario y contraseña", "error");
+        return;
+      }
+
+      if (APPS_SCRIPT_URL) {
+        try {
+          const res = await fetch(APPS_SCRIPT_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: "auth/login", usuario: user, password: pass })
+          });
+          const data = await res.json();
+          if (data.status === "OK") {
+            establecerSesion(data.usuario, data.token);
+            return;
+          }
+        } catch (e) {
+          console.warn("Fallo contacto Apps Script, usando validación local:", e);
+        }
+      }
+
+      const cuenta = DB_LOCAL.usuarios.find(u => u.usuario.toLowerCase() === user.toLowerCase() && u.pass === pass);
+      if (cuenta) {
+        establecerSesion(cuenta, "TOKEN_LOCAL_" + Date.now());
+      } else {
+        mostrarToast("Usuario o contraseña incorrectos", "error");
+      }
+    }
+
+    function establecerSesion(usuario, token) {
+      sesionActual = { ...usuario, token: token };
+      document.getElementById("screen-login").classList.add("hidden");
+      document.getElementById("screen-app-container").classList.remove("hidden");
+      document.getElementById("btn-top-logout").classList.remove("hidden");
+      document.getElementById("btn-top-logout").classList.add("flex");
+
+      document.getElementById("lbl-logged-user-name").textContent = usuario.nombre || usuario.usuario;
+      document.getElementById("lbl-logged-user-sub").textContent = usuario.rol;
+      document.getElementById("lbl-avatar-initials").textContent = (usuario.nombre || usuario.usuario).substring(0, 2).toUpperCase();
+
+      if (usuario.rol === "ADMIN_GENERAL") {
+        abrirPortalAdminGeneral();
+      } else if (usuario.rol === "SUPERVISOR") {
+        abrirPortalSupervisor();
+      } else if (usuario.rol === "CONDUCTOR") {
+        abrirPortalConductor();
+      }
+      lucide.createIcons();
+      mostrarToast(`Bienvenido, ${usuario.nombre}`, "success");
+    }
+
+    function cerrarSesionCompleta() {
+      sesionActual = null;
+      document.getElementById("screen-app-container").classList.add("hidden");
+      document.getElementById("btn-top-logout").classList.add("hidden");
+      document.getElementById("screen-login").classList.remove("hidden");
+      document.getElementById("input-login-pass").value = "";
+      mostrarToast("Sesión finalizada", "info");
+      lucide.createIcons();
+    }
+
+    // ==========================================
+    // PORTAL DEL CONDUCTOR (MIS SERVICIOS - PWA)
+    // ==========================================
+    function abrirPortalConductor() {
+      document.getElementById("sidebar-navy").classList.add("hidden");
+      const main = document.getElementById("main-stage-area");
+      
+      const cndFicha = DB_LOCAL.conductores.find(c => c.nombre.toLowerCase().includes(sesionActual.nombre.toLowerCase())) || DB_LOCAL.conductores[0];
+      const misServicios = DB_LOCAL.servicios.filter(s => s.id_conductor === cndFicha.id_conductor || s.conductor_nombre.includes(sesionActual.nombre));
+
+      main.innerHTML = `
+        <div class="max-w-md mx-auto w-full p-4 flex flex-col min-h-full space-y-4">
+          <div class="bg-navy-900 text-white rounded-3xl p-4 shadow-lg border border-navy-800 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <img src="${cndFicha.foto}" class="w-12 h-12 rounded-2xl object-cover border-2 border-turquoise-500 shadow-sm">
+              <div>
+                <h2 class="text-sm font-extrabold text-white leading-tight">${cndFicha.nombre}</h2>
+                <span class="text-[10px] text-turquoise-400 font-semibold block">Licencia: ${cndFicha.licencia} (${cndFicha.categoria})</span>
+                <span class="text-[9px] text-slate-400 block">${obtenerNombreEmpresa(cndFicha.id_empresa)}</span>
+              </div>
+            </div>
+            <button onclick="cerrarSesionCompleta()" class="p-2 text-slate-400 hover:text-rose-400 rounded-xl" title="Salir">
+              <i data-lucide="log-out" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <div class="flex items-center justify-between bg-white px-4 py-2.5 rounded-2xl border border-slate-200 shadow-xs text-xs">
+            <span class="font-bold text-navy-900">Mis servicios en curso</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-turquoise-100 text-turquoise-800">${misServicios.length} viajes</span>
+          </div>
+
+          <div class="space-y-3">
+            ${misServicios.map(srv => renderizarTarjetaServicioConductor(srv)).join('')}
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    function renderizarTarjetaServicioConductor(srv) {
+      return `
+        <div onclick="abrirDetalleServicioConductor('${srv.cod_servicio}')" class="bg-white rounded-3xl p-4 shadow-sm border border-turquoise-400 ring-2 ring-turquoise-50 cursor-pointer hover:border-turquoise-600 transition">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-100 mb-2.5">
+            <span class="font-mono font-extrabold text-navy-900 text-xs">${srv.cod_servicio}</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-turquoise-50 text-turquoise-800 border border-turquoise-200">${srv.estado}</span>
+          </div>
+          <div class="space-y-1.5 text-xs">
+            <div>
+              <span class="text-[9px] text-slate-400 uppercase font-bold block">Cliente:</span>
+              <strong class="text-slate-800 font-semibold">${srv.cliente}</strong>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-[11px] pt-1">
+              <div>
+                <span class="text-[9px] text-slate-400 uppercase font-bold block">Origen:</span>
+                <span class="text-slate-600 truncate block">${srv.origen}</span>
+              </div>
+              <div>
+                <span class="text-[9px] text-slate-400 uppercase font-bold block">Próximo Destino:</span>
+                <span class="text-turquoise-800 font-bold truncate block">${srv.parada_actual}</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-[11px] font-mono text-slate-700">
+              <span>Tracto: <strong>${srv.placa_tracto}</strong></span>
+              <span>Carreta: <strong>${srv.placa_carreta}</strong></span>
+            </div>
+          </div>
+          <div class="mt-3 pt-2 border-t border-slate-50 flex items-center justify-between text-turquoise-700 font-bold text-xs">
+            <span>Abrir servicio</span>
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+          </div>
+        </div>
+      `;
+    }
+
+    function abrirDetalleServicioConductor(codServicio) {
+      const srv = DB_LOCAL.servicios.find(s => s.cod_servicio === codServicio);
+      if (!srv) return;
+      servicioActivoSeleccionado = srv;
+
+      const main = document.getElementById("main-stage-area");
+      main.innerHTML = `
+        <div class="max-w-md mx-auto w-full p-4 flex flex-col min-h-full space-y-4">
+          <div class="flex items-center justify-between">
+            <button onclick="abrirPortalConductor()" class="flex items-center space-x-1 text-slate-500 hover:text-navy-900 text-xs font-bold">
+              <i data-lucide="arrow-left" class="w-4 h-4"></i>
+              <span>Mis servicios</span>
+            </button>
+            <span class="font-mono font-extrabold text-navy-900 text-xs">${srv.cod_servicio}</span>
+          </div>
+
+          <div class="bg-navy-900 text-white rounded-3xl p-5 shadow-lg border border-navy-800 space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="text-[10px] text-turquoise-400 uppercase font-bold tracking-wider block">Destino actual:</span>
+                <h3 class="text-base font-extrabold text-white leading-tight">${srv.parada_actual}</h3>
+              </div>
+              <span class="px-2.5 py-1 rounded-xl text-[10px] font-bold bg-turquoise-950 text-turquoise-300 border border-turquoise-700">${srv.estado}</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-navy-800 font-mono">
+              <div><span class="text-[9px] text-slate-400 block">TRACTO:</span><strong>${srv.placa_tracto}</strong></div>
+              <div><span class="text-[9px] text-slate-400 block">CARRETA:</span><strong>${srv.placa_carreta}</strong></div>
+              <div><span class="text-[9px] text-slate-400 block">KM INICIAL:</span><strong>${srv.km_inicial || 'Pendiente'} km</strong></div>
+              <div><span class="text-[9px] text-slate-400 block">KM FINAL:</span><strong>${srv.km_final || 'Pendiente'} km</strong></div>
+            </div>
+
+            ${srv.cantidad_destinos > 1 && srv.estado === "En descarga" ? `
+              <div class="pt-2 border-t border-navy-800">
+                <button onclick="continuarSiguienteDestino('${srv.cod_servicio}')" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl flex items-center justify-center space-x-2 transition">
+                  <i data-lucide="map-pin" class="w-4 h-4"></i>
+                  <span>Continuar al siguiente destino</span>
+                </button>
+              </div>
+            ` : ''}
+          </div>
+
+          <!-- BOTÓN REQUISITO CENTRAL -->
+          <div class="bg-turquoise-500 rounded-3xl p-1 shadow-md hover:bg-turquoise-600 transition">
+            <button onclick="abrirModalSubirEvidencia('${srv.cod_servicio}')" class="w-full py-3.5 px-4 bg-turquoise-600 text-white font-extrabold text-sm rounded-2xl flex items-center justify-center space-x-2">
+              <i data-lucide="camera" class="w-5 h-5 stroke-[2.2]"></i>
+              <span>Subir foto de evidencia</span>
+            </button>
+          </div>
+
+          <!-- 4 CONTROLES RÁPIDOS -->
+          <div class="bg-white rounded-3xl p-4 shadow-sm border border-slate-200">
+            <span class="text-[10px] uppercase font-bold text-slate-400 block mb-2">Acciones Operativas:</span>
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="abrirModalRegistrarKm('${srv.cod_servicio}', '${srv.placa_tracto}')" class="p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-2xl text-left">
+                <i data-lucide="gauge" class="w-4 h-4 text-slate-600 mb-1"></i>
+                <span class="text-xs font-bold text-slate-800 block">Registrar km</span>
+              </button>
+              <button onclick="abrirSelectorEstadoOperativo('${srv.cod_servicio}')" class="p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-2xl text-left">
+                <i data-lucide="navigation" class="w-4 h-4 text-slate-600 mb-1"></i>
+                <span class="text-xs font-bold text-slate-800 block">Actualizar estado</span>
+              </button>
+              <button onclick="registrarUbicacionGpsManual('${srv.cod_servicio}')" class="p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-2xl text-left">
+                <i data-lucide="map-pin" class="w-4 h-4 text-slate-600 mb-1"></i>
+                <span class="text-xs font-bold text-slate-800 block">Registrar GPS</span>
+              </button>
+              <button onclick="abrirModalReportarIncidencia('${srv.cod_servicio}')" class="p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-2xl text-left">
+                <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 mb-1"></i>
+                <span class="text-xs font-bold text-slate-800 block">Incidencia</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- HISTORIAL DE FOTOS -->
+          <div class="bg-white rounded-3xl p-4 shadow-sm border border-slate-200 space-y-3">
+            <span class="text-xs font-bold text-navy-900 block">Fotos registradas en este servicio:</span>
+            <div class="space-y-2">
+              ${(srv.evidencias || []).length === 0 ? `
+                <p class="text-xs text-slate-400 text-center py-4">Aún no hay fotos subidas para este viaje</p>
+              ` : srv.evidencias.map(e => `
+                <div class="p-2 bg-slate-50 rounded-xl border border-slate-200 flex items-center space-x-3">
+                  <img src="${e.url_foto}" onclick="ampliarFotoVisor('${e.url_foto}', '${e.tipo_evidencia} - ${e.parada}')" class="w-12 h-12 rounded-lg object-cover cursor-pointer">
+                  <div class="text-xs truncate">
+                    <strong class="text-navy-900 block truncate">${e.tipo_evidencia}</strong>
+                    <span class="text-[10px] text-slate-500 block">${e.parada} • ${e.fecha_captura}</span>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    // ==========================================
+    // PORTAL DEL SUPERVISOR (CON SECCIÓN CONDUCTORES DE MI FLOTA)
+    // ==========================================
+    function abrirPortalSupervisor() {
+      document.getElementById("sidebar-navy").classList.remove("hidden");
+      document.getElementById("lbl-sidebar-empresa-nombre").textContent = obtenerNombreEmpresa(sesionActual.id_empresa);
+
+      const menu = document.getElementById("sidebar-menu-list");
+      menu.innerHTML = `
+        <button onclick="mostrarSeccionSupervisor('servicios')" id="sup-menu-servicios" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-white bg-navy-800 font-bold transition">
+          <i data-lucide="route" class="w-4 h-4 text-turquoise-400"></i>
+          <span>Servicios de mi empresa</span>
+        </button>
+        <button onclick="mostrarSeccionSupervisor('conductores')" id="sup-menu-conductores" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
+          <i data-lucide="users" class="w-4 h-4"></i>
+          <span>Conductores de mi flota</span>
+        </button>
+        <button onclick="mostrarSeccionSupervisor('evidencias')" id="sup-menu-evidencias" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
+          <i data-lucide="image" class="w-4 h-4"></i>
+          <span>Evidencias autorizadas</span>
+        </button>
+        <button onclick="mostrarSeccionSupervisor('incidencias')" id="sup-menu-incidencias" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
+          <i data-lucide="alert-circle" class="w-4 h-4"></i>
+          <span>Incidencias</span>
+        </button>
+      `;
+
+      mostrarSeccionSupervisor('servicios');
+      lucide.createIcons();
+    }
+
+    function mostrarSeccionSupervisor(seccion) {
+      // Actualizar botón activo en sidebar
+      ['servicios', 'conductores', 'evidencias', 'incidencias'].forEach(s => {
+        const btn = document.getElementById(`sup-menu-${s}`);
+        if (btn) {
+          btn.className = s === seccion 
+            ? "w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-white bg-navy-800 font-bold transition"
+            : "w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition";
+        }
+      });
+
+      const main = document.getElementById("main-stage-area");
+      const serviciosEmpresa = DB_LOCAL.servicios.filter(s => s.id_empresa === sesionActual.id_empresa);
+      const conductoresEmpresa = DB_LOCAL.conductores.filter(c => c.id_empresa === sesionActual.id_empresa);
+
+      if (seccion === 'servicios') {
+        const cAsignados = serviciosEmpresa.filter(s => s.estado === "Asignado").length;
+        const cEnCurso = serviciosEmpresa.filter(s => s.estado.includes("En ")).length;
+        const cRetrasados = serviciosEmpresa.filter(s => s.alerta_retraso === "RETRASADO").length;
+        const cFinalizados = serviciosEmpresa.filter(s => s.estado === "Finalizado").length;
+
+        main.innerHTML = `
+          <div class="p-6 space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <h2 class="text-lg font-extrabold text-navy-900 tracking-tight">Servicios de mi empresa</h2>
+                <p class="text-xs text-slate-500">${obtenerNombreEmpresa(sesionActual.id_empresa)} • Panel de supervisión y descargas</p>
+              </div>
+              <div class="flex items-center space-x-2">
+                <button onclick="exportarExcelSupervisor()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 shadow-2xs">
+                  <i data-lucide="sheet" class="w-4 h-4"></i><span>Descargar Excel (.xlsx)</span>
+                </button>
+                <button onclick="exportarPdfSupervisor()" class="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 shadow-2xs">
+                  <i data-lucide="file-text" class="w-4 h-4"></i><span>Descargar PDF</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+              <div class="p-4 bg-white rounded-2xl border border-slate-200"><span class="text-slate-400 block font-bold text-[10px]">ASIGNADOS</span><strong class="text-xl font-extrabold text-navy-900">${cAsignados}</strong></div>
+              <div class="p-4 bg-white rounded-2xl border border-slate-200"><span class="text-turquoise-700 block font-bold text-[10px]">EN CURSO</span><strong class="text-xl font-extrabold text-turquoise-800">${cEnCurso}</strong></div>
+              <div class="p-4 bg-white rounded-2xl border border-slate-200"><span class="text-amber-700 block font-bold text-[10px]">RETRASADOS</span><strong class="text-xl font-extrabold text-amber-800">${cRetrasados}</strong></div>
+              <div class="p-4 bg-white rounded-2xl border border-slate-200"><span class="text-emerald-700 block font-bold text-[10px]">FINALIZADOS</span><strong class="text-xl font-extrabold text-emerald-800">${cFinalizados}</strong></div>
+            </div>
+
+            <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-4">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs text-slate-700">
+                  <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px]">
+                    <tr>
+                      <th class="p-3">Código</th>
+                      <th class="p-3">Cliente</th>
+                      <th class="p-3">Conductor</th>
+                      <th class="p-3">Placas</th>
+                      <th class="p-3">Destino Actual</th>
+                      <th class="p-3">Estado</th>
+                      <th class="p-3 text-right">Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100">
+                    ${serviciosEmpresa.map(s => `
+                      <tr class="hover:bg-slate-50 transition">
+                        <td class="p-3 font-mono font-bold text-navy-900">${s.cod_servicio}</td>
+                        <td class="p-3 font-semibold text-slate-800">${s.cliente}</td>
+                        <td class="p-3">${s.conductor_nombre}</td>
+                        <td class="p-3 font-mono text-slate-600">${s.placa_tracto} / ${s.placa_carreta}</td>
+                        <td class="p-3 text-turquoise-800 font-medium">${s.parada_actual}</td>
+                        <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">${s.estado}</span></td>
+                        <td class="p-3 text-right">
+                          <button onclick="verDetalleSupervisorModal('${s.cod_servicio}')" class="text-turquoise-700 font-bold hover:underline">Ver detalle</button>
+                        </td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (seccion === 'conductores') {
+        // SECCIÓN ESPECÍFICA SOLICITADA POR EL USUARIO:
+        // "el supervisor de su flota debe ver la informacion de cada conducto pero solo de su flota recorrido o que fotos a suvido en cada conducto los detalles"
+        main.innerHTML = `
+          <div class="p-6 space-y-6">
+            <div>
+              <h2 class="text-lg font-extrabold text-navy-900 tracking-tight">Conductores de mi Flota</h2>
+              <p class="text-xs text-slate-500">${obtenerNombreEmpresa(sesionActual.id_empresa)} • Consulta de recorridos y fotografías por conductor</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              ${conductoresEmpresa.map(c => {
+                const srvActivo = DB_LOCAL.servicios.find(s => s.id_conductor === c.id_conductor);
+                const totalFotos = (srvActivo ? (srvActivo.evidencias || []).length : 0);
+                return `
+                  <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm flex flex-col justify-between hover:border-turquoise-400 transition">
+                    <div class="space-y-3">
+                      <div class="flex items-center space-x-3">
+                        <img src="${c.foto}" class="w-14 h-14 rounded-2xl object-cover border-2 border-turquoise-500 shadow-xs">
+                        <div class="flex-1 min-w-0">
+                          <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-extrabold text-navy-900 truncate">${c.nombre}</h3>
+                            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold ${c.estado === 'En ruta' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}">${c.estado}</span>
+                          </div>
+                          <p class="text-[11px] text-slate-500">DNI: <strong class="font-mono text-slate-700">${c.dni}</strong> • Licencia: <strong class="text-turquoise-800">${c.licencia} (${c.categoria})</strong></p>
+                          <p class="text-[10px] text-slate-400">Tracto: <span class="font-mono font-bold text-slate-700">${c.placa_tracto}</span> | Carreta: <span class="font-mono font-bold text-slate-700">${c.placa_carreta}</span></p>
+                        </div>
+                      </div>
+
+                      <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-1">
+                        <span class="text-[9px] text-slate-400 font-bold uppercase block">Recorrido Asignado Actual:</span>
+                        <div class="flex items-center justify-between">
+                          <strong class="text-navy-900">${srvActivo ? srvActivo.cod_servicio + ' - ' + srvActivo.cliente : 'Sin viaje activo'}</strong>
+                          <span class="text-[10px] text-turquoise-700 font-bold">${srvActivo ? srvActivo.parada_actual : ''}</span>
+                        </div>
+                        <p class="text-[10px] text-slate-500">${srvActivo ? 'Origen: ' + srvActivo.origen + ' | Km Inicial: ' + (srvActivo.km_inicial || '-') : ''}</p>
+                      </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+                      <span class="text-[10px] text-slate-500 font-mono"><i data-lucide="camera" class="w-3.5 h-3.5 inline mr-1 text-turquoise-600"></i>${totalFotos} fotos subidas</span>
+                      <button onclick="abrirDetalleConductorFlotaModal('${c.id_conductor}')" class="px-3.5 py-1.5 bg-navy-900 hover:bg-navy-800 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 transition">
+                        <span>Ver recorrido y fotos</span>
+                        <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                      </button>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      } else if (seccion === 'evidencias') {
+        const todasEvidencias = serviciosEmpresa.flatMap(s => s.evidencias || []).filter(e => e.permiso_supervisor === "AUTORIZADO");
+        main.innerHTML = `
+          <div class="p-6 space-y-6">
+            <div>
+              <h2 class="text-lg font-extrabold text-navy-900 tracking-tight">Evidencias Autorizadas de la Flota</h2>
+              <p class="text-xs text-slate-500">${obtenerNombreEmpresa(sesionActual.id_empresa)} • Fotos de carga y descarga validadas</p>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              ${todasEvidencias.length === 0 ? `
+                <div class="col-span-4 p-8 text-center bg-white rounded-2xl border border-slate-200 text-slate-400">No hay fotos registradas aún.</div>
+              ` : todasEvidencias.map(e => `
+                <div class="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-2xs group">
+                  <img src="${e.url_foto}" onclick="ampliarFotoVisor('${e.url_foto}', '${e.tipo_evidencia} - ${e.parada}')" class="w-full h-36 object-cover cursor-pointer group-hover:scale-105 transition">
+                  <div class="p-3 text-xs">
+                    <span class="text-[9px] font-bold text-turquoise-700 uppercase block">${e.tipo_evidencia}</span>
+                    <strong class="text-slate-800 font-semibold block truncate">${e.parada}</strong>
+                    <span class="text-[10px] text-slate-400 block">${e.conductor} • ${e.fecha_captura}</span>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      } else if (seccion === 'incidencias') {
+        const incidenciasEmpresa = DB_LOCAL.incidencias.filter(i => i.id_empresa === sesionActual.id_empresa);
+        main.innerHTML = `
+          <div class="p-6 space-y-6">
+            <div>
+              <h2 class="text-lg font-extrabold text-navy-900 tracking-tight">Incidencias de mi Flota</h2>
+              <p class="text-xs text-slate-500">${obtenerNombreEmpresa(sesionActual.id_empresa)} • Reportes operativos remitidos por conductores</p>
+            </div>
+            <div class="space-y-3">
+              ${incidenciasEmpresa.length === 0 ? `
+                <div class="bg-white p-8 rounded-2xl border border-slate-200 text-center text-slate-400">No hay incidencias registradas para tu flota</div>
+              ` : incidenciasEmpresa.map(i => `
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs text-xs space-y-1.5">
+                  <div class="flex items-center justify-between">
+                    <strong class="text-navy-900 font-bold">${i.tipo} - Servicio ${i.cod_servicio}</strong>
+                    <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-100 text-amber-800">${i.estado}</span>
+                  </div>
+                  <p class="text-slate-700">${i.descripcion}</p>
+                  <p class="text-[10px] text-slate-400">Conductor: ${i.conductor} • ${i.fecha}</p>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+      lucide.createIcons();
+    }
+
+    // Modal de Detalles y Fotos del Conductor
+    function abrirDetalleConductorFlotaModal(idConductor) {
+      const c = DB_LOCAL.conductores.find(x => x.id_conductor === idConductor);
+      if (!c) return;
+
+      const srv = DB_LOCAL.servicios.find(s => s.id_conductor === idConductor) || {};
+      const fotosConductor = (srv.evidencias || []);
+
+      document.getElementById("modal-cnd-foto").src = c.foto;
+      document.getElementById("modal-cnd-nombre").textContent = c.nombre;
+      document.getElementById("modal-cnd-sub").textContent = `Licencia: ${c.licencia} (${c.categoria}) • ${obtenerNombreEmpresa(c.id_empresa)}`;
+      document.getElementById("modal-cnd-dni").textContent = c.dni;
+      document.getElementById("modal-cnd-cat").textContent = c.categoria;
+      document.getElementById("modal-cnd-placas").textContent = `${c.placa_tracto} / ${c.placa_carreta}`;
+      document.getElementById("modal-cnd-estado").textContent = c.estado;
+
+      document.getElementById("modal-cnd-srv-codigo").textContent = srv.cod_servicio || "Sin servicio activo";
+      document.getElementById("modal-cnd-srv-origen").textContent = srv.origen || "-";
+      document.getElementById("modal-cnd-srv-destino").textContent = srv.parada_actual || "-";
+      document.getElementById("modal-cnd-srv-km").textContent = (srv.km_inicial ? srv.km_inicial + " km" : "-");
+      document.getElementById("modal-cnd-srv-estado").textContent = srv.estado || "-";
+
+      document.getElementById("modal-cnd-conteo-fotos").textContent = `${fotosConductor.length} fotos subidas`;
+
+      const galeria = document.getElementById("modal-cnd-galeria-fotos");
+      if (fotosConductor.length === 0) {
+        galeria.innerHTML = `<p class="col-span-3 text-slate-400 text-center py-4 text-xs">Este conductor no tiene fotos registradas aún en su recorrido.</p>`;
+      } else {
+        galeria.innerHTML = fotosConductor.map(f => `
+          <div class="bg-slate-50 rounded-xl overflow-hidden border border-slate-200 group">
+            <img src="${f.url_foto}" onclick="ampliarFotoVisor('${f.url_foto}', '${f.tipo_evidencia} - ${f.parada}')" class="w-full h-24 object-cover cursor-pointer group-hover:scale-105 transition">
+            <div class="p-2 text-[10px]">
+              <strong class="text-navy-900 block truncate">${f.tipo_evidencia}</strong>
+              <span class="text-slate-500 block truncate">${f.parada}</span>
+              <span class="text-slate-400 block text-[9px]">${f.fecha_captura}</span>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      document.getElementById("modal-detalle-conductor-flota").classList.remove("hidden");
+      lucide.createIcons();
+    }
+
+    // ==========================================
+    // PANEL DEL ADMINISTRADOR GENERAL (TODOS LOS BOTONES ACTIVOS)
+    // ==========================================
+    function abrirPortalAdminGeneral() {
+      document.getElementById("sidebar-navy").classList.remove("hidden");
+      document.getElementById("lbl-sidebar-empresa-nombre").textContent = "Control Maestro Multi-Empresa";
+
+      const menu = document.getElementById("sidebar-menu-list");
+      menu.innerHTML = `
+        <button onclick="mostrarSeccionAdmin('resumen')" id="adm-menu-resumen" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-white bg-navy-800 font-bold transition">
+          <i data-lucide="layout-dashboard" class="w-4 h-4 text-turquoise-400"></i>
+          <span>Resumen General</span>
+        </button>
+        <button onclick="mostrarSeccionAdmin('empresas')" id="adm-menu-empresas" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
+          <i data-lucide="building" class="w-4 h-4"></i>
+          <span>Empresas Clientes</span>
+        </button>
+        <button onclick="mostrarSeccionAdmin('usuarios')" id="adm-menu-usuarios" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
+          <i data-lucide="user-check" class="w-4 h-4"></i>
+          <span>Usuarios del Sistema</span>
+        </button>
+        <button onclick="mostrarSeccionAdmin('conductores')" id="adm-menu-conductores" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
+          <i data-lucide="users" class="w-4 h-4"></i>
+          <span>Conductores Registrados</span>
+        </button>
+        <button onclick="mostrarSeccionAdmin('flota')" id="adm-menu-flota" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
+          <i data-lucide="truck" class="w-4 h-4"></i>
+          <span>Tractos y Carretas</span>
+        </button>
+        <button onclick="mostrarSeccionAdmin('servicios')" id="adm-menu-servicios" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
+          <i data-lucide="route" class="w-4 h-4"></i>
+          <span>Servicios y Asignaciones</span>
+        </button>
+        <button onclick="mostrarSeccionAdmin('evidencias')" id="adm-menu-evidencias" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
+          <i data-lucide="camera" class="w-4 h-4"></i>
+          <span>Auditoría de Evidencias</span>
+        </button>
+        <button onclick="mostrarSeccionAdmin('incidencias')" id="adm-menu-incidencias" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
+          <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+          <span>Incidencias Operativas</span>
+        </button>
+        <button onclick="mostrarSeccionAdmin('auditoria')" id="adm-menu-auditoria" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
+          <i data-lucide="file-check" class="w-4 h-4"></i>
+          <span>Libro de Auditoría</span>
+        </button>
+        <button onclick="mostrarSeccionAdmin('respaldos')" id="adm-menu-respaldos" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
+          <i data-lucide="hard-drive" class="w-4 h-4"></i>
+          <span>Respaldos Google Drive</span>
+        </button>
+      `;
+
+      mostrarSeccionAdmin('resumen');
+      lucide.createIcons();
+    }
+
+    function mostrarSeccionAdmin(seccion) {
+      // Resaltar botón activo
+      ['resumen', 'empresas', 'usuarios', 'conductores', 'flota', 'servicios', 'evidencias', 'incidencias', 'auditoria', 'respaldos'].forEach(s => {
+        const btn = document.getElementById(`adm-menu-${s}`);
+        if (btn) {
+          btn.className = s === seccion 
+            ? "w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-white bg-navy-800 font-bold transition"
+            : "w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition";
+        }
+      });
+
+      const main = document.getElementById("main-stage-area");
+
+      if (seccion === 'resumen') {
+        main.innerHTML = `
+          <div class="p-6 space-y-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <h2 class="text-lg font-extrabold text-navy-900 tracking-tight">Panel del Administrador General</h2>
+                <p class="text-xs text-slate-500">Supervisión integral de las empresas y flota nacional de carga pesada</p>
+              </div>
+              <button onclick="ejecutarRespaldoDriveManual()" class="px-4 py-2 bg-turquoise-600 hover:bg-turquoise-700 text-white text-xs font-bold rounded-xl shadow-2xs flex items-center space-x-1.5">
+                <i data-lucide="save" class="w-4 h-4"></i><span>Crear respaldo ahora</span>
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+              <div class="p-4 bg-white rounded-2xl border border-slate-200"><span class="text-slate-400 block font-bold text-[10px]">EMPRESAS CLIENTES</span><strong class="text-xl font-extrabold text-navy-900">${DB_LOCAL.empresas.length}</strong></div>
+              <div class="p-4 bg-white rounded-2xl border border-slate-200"><span class="text-slate-400 block font-bold text-[10px]">CONDUCTORES TOTALES</span><strong class="text-xl font-extrabold text-navy-900">${DB_LOCAL.conductores.length}</strong></div>
+              <div class="p-4 bg-white rounded-2xl border border-slate-200"><span class="text-turquoise-700 block font-bold text-[10px]">TRACTOS Y CARRETAS</span><strong class="text-xl font-extrabold text-turquoise-800">${DB_LOCAL.tractos.length + DB_LOCAL.carretas.length}</strong></div>
+              <div class="p-4 bg-white rounded-2xl border border-slate-200"><span class="text-amber-700 block font-bold text-[10px]">INCIDENCIAS ACTIVAS</span><strong class="text-xl font-extrabold text-amber-800">${DB_LOCAL.incidencias.length}</strong></div>
+            </div>
+
+            <!-- Accesos rápidos -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <button onclick="abrirModalCrearEmpresaAdmin()" class="p-4 bg-white hover:bg-slate-50 rounded-2xl border border-slate-200 text-left transition">
+                <i data-lucide="plus-circle" class="w-5 h-5 text-turquoise-600 mb-1"></i>
+                <strong class="text-navy-900 text-xs block">Registrar Nueva Empresa</strong>
+                <span class="text-[10px] text-slate-400">Crear transportista y activar su acceso</span>
+              </button>
+              <button onclick="abrirModalCrearUsuarioAdmin()" class="p-4 bg-white hover:bg-slate-50 rounded-2xl border border-slate-200 text-left transition">
+                <i data-lucide="user-plus" class="w-5 h-5 text-turquoise-600 mb-1"></i>
+                <strong class="text-navy-900 text-xs block">Crear Usuario</strong>
+                <span class="text-[10px] text-slate-400">Asignar supervisor o conductor</span>
+              </button>
+              <button onclick="abrirModalProgramarServicioAdmin()" class="p-4 bg-white hover:bg-slate-50 rounded-2xl border border-slate-200 text-left transition">
+                <i data-lucide="route" class="w-5 h-5 text-turquoise-600 mb-1"></i>
+                <strong class="text-navy-900 text-xs block">Programar Servicio</strong>
+                <span class="text-[10px] text-slate-400">Asignación con validación de conflictos</span>
+              </button>
+            </div>
+          </div>
+        `;
+      } else if (seccion === 'empresas') {
+        main.innerHTML = `
+          <div class="p-6 space-y-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <h2 class="text-lg font-extrabold text-navy-900 tracking-tight">Empresas Transportistas Clientes</h2>
+                <p class="text-xs text-slate-500">Gestión de empresas que alquilan la plataforma SaaS</p>
+              </div>
+              <button onclick="abrirModalCrearEmpresaAdmin()" class="px-4 py-2 bg-turquoise-600 hover:bg-turquoise-700 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 shadow-2xs">
+                <i data-lucide="plus" class="w-4 h-4"></i><span>Nueva Empresa</span>
+              </button>
+            </div>
+
+            <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm overflow-x-auto">
+              <table class="w-full text-left text-xs text-slate-700">
+                <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px]">
+                  <tr>
+                    <th class="p-3">ID</th>
+                    <th class="p-3">RUC</th>
+                    <th class="p-3">Razón Social</th>
+                    <th class="p-3">Dirección</th>
+                    <th class="p-3">Contacto</th>
+                    <th class="p-3">Estado</th>
+                    <th class="p-3 text-right">Acción</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  ${DB_LOCAL.empresas.map(e => `
+                    <tr class="hover:bg-slate-50 transition">
+                      <td class="p-3 font-mono font-bold text-navy-900">${e.id}</td>
+                      <td class="p-3 font-mono">${e.ruc}</td>
+                      <td class="p-3 font-semibold text-slate-800">${e.razonSocial}</td>
+                      <td class="p-3 text-slate-600">${e.direccion}</td>
+                      <td class="p-3">${e.contacto} (${e.telefono})</td>
+                      <td class="p-3">
+                        <span class="px-2 py-0.5 rounded-full text-[9px] font-bold ${e.estado === 'ACTIVA' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">${e.estado}</span>
+                      </td>
+                      <td class="p-3 text-right">
+                        <button onclick="toggleEstadoEmpresaAdmin('${e.id}')" class="text-xs font-bold ${e.estado === 'ACTIVA' ? 'text-rose-600 hover:text-rose-700' : 'text-emerald-600 hover:text-emerald-700'} underline">
+                          ${e.estado === 'ACTIVA' ? 'Desactivar' : 'Activar'}
+                        </button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      } else if (seccion === 'usuarios') {
+        main.innerHTML = `
+          <div class="p-6 space-y-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <h2 class="text-lg font-extrabold text-navy-900 tracking-tight">Cuentas de Acceso y Usuarios</h2>
+                <p class="text-xs text-slate-500">Credenciales por empresa y rol (Supervisores y Conductores)</p>
+              </div>
+              <button onclick="abrirModalCrearUsuarioAdmin()" class="px-4 py-2 bg-turquoise-600 hover:bg-turquoise-700 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 shadow-2xs">
+                <i data-lucide="user-plus" class="w-4 h-4"></i><span>Nuevo Usuario</span>
+              </button>
+            </div>
+
+            <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm overflow-x-auto">
+              <table class="w-full text-left text-xs text-slate-700">
+                <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px]">
+                  <tr>
+                    <th class="p-3">Usuario</th>
+                    <th class="p-3">Nombre Completo</th>
+                    <th class="p-3">Empresa</th>
+                    <th class="p-3">Rol</th>
+                    <th class="p-3">DNI / Teléfono</th>
+                    <th class="p-3">Estado</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  ${DB_LOCAL.usuarios.map(u => `
+                    <tr class="hover:bg-slate-50 transition">
+                      <td class="p-3 font-mono font-bold text-navy-900">${u.usuario}</td>
+                      <td class="p-3 font-semibold text-slate-800">${u.nombre}</td>
+                      <td class="p-3">${obtenerNombreEmpresa(u.id_empresa)}</td>
+                      <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-slate-100 text-slate-800 border">${u.rol}</span></td>
+                      <td class="p-3 text-slate-500">${u.dni} / ${u.telefono}</td>
+                      <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-100 text-emerald-800">${u.estado}</span></td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      } else if (seccion === 'conductores') {
+        main.innerHTML = `
+          <div class="p-6 space-y-6">
+            <div>
+              <h2 class="text-lg font-extrabold text-navy-900 tracking-tight">Fichas de Conductores</h2>
+              <p class="text-xs text-slate-500">Registro de licencias MTC, unidades asignadas y evidencias</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              ${DB_LOCAL.conductores.map(c => `
+                <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
+                  <div class="flex items-center space-x-3">
+                    <img src="${c.foto}" class="w-14 h-14 rounded-2xl object-cover border-2 border-turquoise-500">
+                    <div>
+                      <h3 class="text-sm font-extrabold text-navy-900">${c.nombre}</h3>
+                      <p class="text-[11px] text-slate-500">${c.licencia} (${c.categoria}) • Vence: ${c.vencimiento}</p>
+                      <p class="text-[10px] text-slate-400 font-mono">Tracto: ${c.placa_tracto} | Carreta: ${c.placa_carreta}</p>
+                      <span class="text-[9px] text-turquoise-800 font-bold block">${obtenerNombreEmpresa(c.id_empresa)}</span>
+                    </div>
+                  </div>
+                  <button onclick="abrirDetalleConductorFlotaModal('${c.id_conductor}')" class="px-3 py-1.5 bg-navy-900 text-white rounded-xl text-xs font-bold hover:bg-navy-800">Ver Ficha</button>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      } else if (seccion === 'flota') {
+        main.innerHTML = `
+          <div class="p-6 space-y-6">
+            <div>
+              <h2 class="text-lg font-extrabold text-navy-900 tracking-tight">Flota de Tractos y Carretas</h2>
+              <p class="text-xs text-slate-500">Supervisión de placas, kilometrajes, SOAT y revisiones CITV</p>
+            </div>
+
+            <div class="space-y-4">
+              <h3 class="text-sm font-bold text-navy-900">Tractos (Camiones Pesados)</h3>
+              <div class="bg-white rounded-3xl p-4 border border-slate-200 shadow-sm overflow-x-auto">
+                <table class="w-full text-left text-xs text-slate-700">
+                  <thead class="bg-slate-50 text-[10px] uppercase font-bold text-slate-500">
+                    <tr><th class="p-2.5">Placa</th><th class="p-2.5">Empresa</th><th class="p-2.5">Marca/Modelo</th><th class="p-2.5">Km Actual</th><th class="p-2.5">SOAT</th><th class="p-2.5">CITV</th><th class="p-2.5">Estado</th></tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100">
+                    ${DB_LOCAL.tractos.map(t => `
+                      <tr>
+                        <td class="p-2.5 font-mono font-bold text-navy-900">${t.placa}</td>
+                        <td class="p-2.5">${obtenerNombreEmpresa(t.id_empresa)}</td>
+                        <td class="p-2.5">${t.marca} ${t.modelo}</td>
+                        <td class="p-2.5 font-mono font-semibold">${t.km.toLocaleString()} km</td>
+                        <td class="p-2.5">${t.soat}</td>
+                        <td class="p-2.5">${t.citv}</td>
+                        <td class="p-2.5"><span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-100 text-emerald-800">${t.estado}</span></td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+
+              <h3 class="text-sm font-bold text-navy-900 pt-2">Carretas (Semirremolques)</h3>
+              <div class="bg-white rounded-3xl p-4 border border-slate-200 shadow-sm overflow-x-auto">
+                <table class="w-full text-left text-xs text-slate-700">
+                  <thead class="bg-slate-50 text-[10px] uppercase font-bold text-slate-500">
+                    <tr><th class="p-2.5">Placa</th><th class="p-2.5">Empresa</th><th class="p-2.5">Tipo Carrocería</th><th class="p-2.5">Capacidad</th><th class="p-2.5">CITV</th><th class="p-2.5">Estado</th><th class="p-2.5 text-right">Historial</th></tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100">
+                    ${DB_LOCAL.carretas.map(car => `
+                      <tr>
+                        <td class="p-2.5 font-mono font-bold text-navy-900">${car.placa}</td>
+                        <td class="p-2.5">${obtenerNombreEmpresa(car.id_empresa)}</td>
+                        <td class="p-2.5">${car.tipo} (${car.ejes} ejes)</td>
+                        <td class="p-2.5 font-mono">${car.capacidad} Tn</td>
+                        <td class="p-2.5">${car.citv}</td>
+                        <td class="p-2.5"><span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-100 text-emerald-800">${car.estado}</span></td>
+                        <td class="p-2.5 text-right">
+                          <button onclick="mostrarToast('Carreta ${car.placa}: vinculada a ' + '${car.servicios.length}' + ' servicios históricos.', 'info')" class="text-turquoise-700 font-bold hover:underline">Ver historial</button>
+                        </td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (seccion === 'servicios') {
+        main.innerHTML = `
+          <div class="p-6 space-y-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <h2 class="text-lg font-extrabold text-navy-900 tracking-tight">Servicios y Asignaciones</h2>
+                <p class="text-xs text-slate-500">Programación de servicios con detección de conflictos y relevo de recursos</p>
+              </div>
+              <button onclick="abrirModalProgramarServicioAdmin()" class="px-4 py-2 bg-turquoise-600 hover:bg-turquoise-700 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 shadow-2xs">
+                <i data-lucide="plus" class="w-4 h-4"></i><span>Programar Servicio</span>
+              </button>
+            </div>
+
+            <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm overflow-x-auto">
+              <table class="w-full text-left text-xs text-slate-700">
+                <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px]">
+                  <tr>
+                    <th class="p-3">Código</th>
+                    <th class="p-3">Empresa</th>
+                    <th class="p-3">Cliente</th>
+                    <th class="p-3">Conductor</th>
+                    <th class="p-3">Placas</th>
+                    <th class="p-3">Destino</th>
+                    <th class="p-3">Estado</th>
+                    <th class="p-3 text-right">Acción</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  ${DB_LOCAL.servicios.map(s => `
+                    <tr class="hover:bg-slate-50 transition">
+                      <td class="p-3 font-mono font-bold text-navy-900">${s.cod_servicio}</td>
+                      <td class="p-3">${obtenerNombreEmpresa(s.id_empresa)}</td>
+                      <td class="p-3 font-semibold text-slate-800">${s.cliente}</td>
+                      <td class="p-3">${s.conductor_nombre}</td>
+                      <td class="p-3 font-mono text-slate-600">${s.placa_tracto} / ${s.placa_carreta}</td>
+                      <td class="p-3 text-turquoise-800">${s.parada_actual}</td>
+                      <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-800 border">${s.estado}</span></td>
+                      <td class="p-3 text-right">
+                        <button onclick="abrirModalRelevarRecurso('${s.cod_servicio}')" class="text-xs font-bold text-amber-700 hover:text-amber-800 underline">Relevar recurso</button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      } else if (seccion === 'evidencias') {
+        const todasEvd = DB_LOCAL.servicios.flatMap(s => s.evidencias || []);
+        main.innerHTML = `
+          <div class="p-6 space-y-6">
+            <div>
+              <h2 class="text-lg font-extrabold text-navy-900 tracking-tight">Auditoría Global de Evidencias</h2>
+              <p class="text-xs text-slate-500">Fotografías de todas las empresas con control de visibilidad para supervisores</p>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              ${todasEvd.map(e => `
+                <div class="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-2xs group flex flex-col justify-between">
+                  <div>
+                    <img src="${e.url_foto}" onclick="ampliarFotoVisor('${e.url_foto}', '${e.tipo_evidencia} - ${e.parada}')" class="w-full h-36 object-cover cursor-pointer">
+                    <div class="p-3 text-xs space-y-1">
+                      <div class="flex items-center justify-between">
+                        <span class="text-[9px] font-bold text-turquoise-700 uppercase">${e.tipo_evidencia}</span>
+                        <span class="text-[9px] font-bold px-1.5 py-0.5 rounded ${e.permiso_supervisor === 'AUTORIZADO' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${e.permiso_supervisor}</span>
+                      </div>
+                      <strong class="text-slate-800 font-semibold block truncate">${e.parada}</strong>
+                      <p class="text-[10px] text-slate-500 truncate">${e.conductor} • ${e.cod_servicio}</p>
+                    </div>
+                  </div>
+                  <div class="p-2 border-t border-slate-100 bg-slate-50 flex justify-end">
+                    <button onclick="togglePermisoEvidenciaAdmin('${e.id_evidencia}')" class="text-[10px] font-bold text-turquoise-700 hover:underline">
+                      ${e.permiso_supervisor === 'AUTORIZADO' ? 'Restringir al Supervisor' : 'Autorizar al Supervisor'}
+                    </button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      } else if (seccion === 'incidencias') {
+        main.innerHTML = `
+          <div class="p-6 space-y-6">
+            <div>
+              <h2 class="text-lg font-extrabold text-navy-900 tracking-tight">Incidencias Operativas Globales</h2>
+              <p class="text-xs text-slate-500">Gestión de alertas y resoluciones administrativas</p>
+            </div>
+            <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3">
+              ${DB_LOCAL.incidencias.map(i => `
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-2">
+                  <div class="flex items-center justify-between">
+                    <strong class="text-navy-900 font-bold">${i.tipo} - Servicio ${i.cod_servicio} (${obtenerNombreEmpresa(i.id_empresa)})</strong>
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">${i.estado}</span>
+                  </div>
+                  <p class="text-slate-700">${i.descripcion}</p>
+                  <div class="p-2.5 bg-white rounded-xl border border-slate-200 text-[11px] text-slate-600">
+                    <strong class="text-turquoise-800 block">Acción administrativa tomada:</strong>
+                    <span>${i.accion_admin}</span>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      } else if (seccion === 'auditoria') {
+        main.innerHTML = `
+          <div class="p-6 space-y-6">
+            <div>
+              <h2 class="text-lg font-extrabold text-navy-900 tracking-tight">Libro Maestro de Auditoría</h2>
+              <p class="text-xs text-slate-500">Registro inmutable de correcciones y motivos obligatorios</p>
+            </div>
+            <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm overflow-x-auto">
+              <table class="w-full text-left text-xs text-slate-700">
+                <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px]">
+                  <tr><th class="p-3">ID</th><th class="p-3">Usuario</th><th class="p-3">Tabla / Reg</th><th class="p-3">Valor Anterior</th><th class="p-3">Valor Nuevo</th><th class="p-3">Motivo Obligatorio</th><th class="p-3">Fecha</th></tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  ${DB_LOCAL.auditoria.map(a => `
+                    <tr>
+                      <td class="p-3 font-mono font-bold text-navy-900">${a.id_auditoria}</td>
+                      <td class="p-3">${a.usuario}</td>
+                      <td class="p-3 font-mono text-slate-600">${a.tabla} [${a.registro_id}]</td>
+                      <td class="p-3 text-rose-700 font-medium">${a.anterior}</td>
+                      <td class="p-3 text-emerald-700 font-medium">${a.nuevo}</td>
+                      <td class="p-3 font-semibold text-slate-800">${a.motivo}</td>
+                      <td class="p-3 text-slate-400 font-mono">${a.fecha}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      } else if (seccion === 'respaldos') {
+        main.innerHTML = `
+          <div class="p-6 space-y-6">
+            <div>
+              <h2 class="text-lg font-extrabold text-navy-900 tracking-tight">Gestión de Respaldos Google Drive</h2>
+              <p class="text-xs text-slate-500">Copia de seguridad del archivo "Control de Transporte" y evidencias</p>
+            </div>
+            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4 text-xs">
+              <p class="text-slate-600">
+                Los respaldos diarios automáticos se ejecutan a las 02:00 AM (hora Perú) y se almacenan en la carpeta privada <strong>Respaldos Transporte</strong> en tu Google Drive.
+              </p>
+              <button onclick="ejecutarRespaldoDriveManual()" class="px-5 py-2.5 bg-turquoise-600 hover:bg-turquoise-700 text-white font-bold rounded-xl shadow-sm flex items-center space-x-2">
+                <i data-lucide="hard-drive" class="w-4 h-4"></i>
+                <span>Ejecutar Respaldo Manual Ahora</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }
+      lucide.createIcons();
+    }
+
+    // ==========================================
+    // ACCIONES ADMINISTRATIVAS MODALES
+    // ==========================================
+    function abrirModalCrearEmpresaAdmin() {
+      document.getElementById("modal-crear-empresa").classList.remove("hidden");
+    }
+
+    function guardarNuevaEmpresaAdmin() {
+      const ruc = document.getElementById("nueva-emp-ruc").value.trim();
+      const nombre = document.getElementById("nueva-emp-nombre").value.trim();
+      const dir = document.getElementById("nueva-emp-dir").value.trim();
+      const tel = document.getElementById("nueva-emp-tel").value.trim();
+
+      const id = "TRP-00" + (DB_LOCAL.empresas.length + 1);
+      DB_LOCAL.empresas.push({ id, ruc, razonSocial: nombre, direccion: dir, telefono: tel, contacto: "Administrador", estado: "ACTIVA" });
+
+      cerrarModal("modal-crear-empresa");
+      mostrarToast(`Empresa ${nombre} creada exitosamente`, "success");
+      mostrarSeccionAdmin('empresas');
+    }
+
+    function toggleEstadoEmpresaAdmin(idEmpresa) {
+      const emp = DB_LOCAL.empresas.find(e => e.id === idEmpresa);
+      if (emp) {
+        emp.estado = emp.estado === "ACTIVA" ? "INACTIVA" : "ACTIVA";
+        mostrarToast(`Empresa ${emp.razonSocial} ahora está ${emp.estado}`, "info");
+        mostrarSeccionAdmin('empresas');
+      }
+    }
+
+    function abrirModalCrearUsuarioAdmin() {
+      const selectEmp = document.getElementById("nuevo-usr-empresa");
+      selectEmp.innerHTML = DB_LOCAL.empresas.map(e => `<option value="${e.id}">${e.razonSocial}</option>`).join('');
+      document.getElementById("modal-crear-usuario").classList.remove("hidden");
+    }
+
+    function guardarNuevoUsuarioAdmin() {
+      const idEmp = document.getElementById("nuevo-usr-empresa").value;
+      const rol = document.getElementById("nuevo-usr-rol").value;
+      const nombre = document.getElementById("nuevo-usr-nombre").value.trim();
+      const login = document.getElementById("nuevo-usr-login").value.trim();
+      const pass = document.getElementById("nuevo-usr-pass").value;
+
+      DB_LOCAL.usuarios.push({
+        id: "USR-00" + (DB_LOCAL.usuarios.length + 1),
+        usuario: login,
+        pass: pass,
+        rol: rol,
+        id_empresa: idEmp,
+        nombre: nombre,
+        dni: "4" + Math.floor(1000000 + Math.random() * 9000000),
+        telefono: "9" + Math.floor(10000000 + Math.random() * 90000000),
+        estado: "ACTIVO"
+      });
+
+      cerrarModal("modal-crear-usuario");
+      mostrarToast(`Usuario ${login} creado con rol ${rol}`, "success");
+      mostrarSeccionAdmin('usuarios');
+    }
+
+    function abrirModalProgramarServicioAdmin() {
+      const selectEmp = document.getElementById("prog-empresa");
+      selectEmp.innerHTML = DB_LOCAL.empresas.map(e => `<option value="${e.id}">${e.razonSocial}</option>`).join('');
+      actualizarRecursosPorEmpresa();
+      document.getElementById("modal-programar-servicio").classList.remove("hidden");
+      lucide.createIcons();
+    }
+
+    function actualizarRecursosPorEmpresa() {
+      const idEmp = document.getElementById("prog-empresa").value;
+      const conductores = DB_LOCAL.conductores.filter(c => c.id_empresa === idEmp);
+      const tractos = DB_LOCAL.tractos.filter(t => t.id_empresa === idEmp);
+      const carretas = DB_LOCAL.carretas.filter(c => c.id_empresa === idEmp);
+
+      document.getElementById("prog-conductor").innerHTML = conductores.map(c => `<option value="${c.id_conductor}">${c.nombre} (${c.estado})</option>`).join('');
+      document.getElementById("prog-tracto").innerHTML = tractos.map(t => `<option value="${t.placa}">${t.placa} - ${t.marca}</option>`).join('');
+      document.getElementById("prog-carreta").innerHTML = carretas.map(c => `<option value="${c.placa}">${c.placa} (${c.tipo})</option>`).join('');
+    }
+
+    function guardarNuevoServicioAdmin() {
+      const idEmp = document.getElementById("prog-empresa").value;
+      const cliente = document.getElementById("prog-cliente").value.trim();
+      const ruc = document.getElementById("prog-ruc").value.trim();
+      const idCnd = document.getElementById("prog-conductor").value;
+      const placaTracto = document.getElementById("prog-tracto").value;
+      const placaCarreta = document.getElementById("prog-carreta").value;
+      const origen = document.getElementById("prog-origen").value.trim();
+      const destino = document.getElementById("prog-destino").value.trim();
+
+      // VALIDACIÓN DE CONFLICTOS
+      const conflictoConductor = DB_LOCAL.servicios.find(s => s.id_conductor === idCnd && s.estado !== "Finalizado");
+      if (conflictoConductor) {
+        mostrarToast(`Conflicto: El conductor ya tiene el servicio activo ${conflictoConductor.cod_servicio}`, "error");
+        return;
+      }
+
+      const conflictoTracto = DB_LOCAL.servicios.find(s => s.placa_tracto === placaTracto && s.estado !== "Finalizado");
+      if (conflictoTracto) {
+        mostrarToast(`Conflicto: El tracto ${placaTracto} ya está asignado al servicio ${conflictoTracto.cod_servicio}`, "error");
+        return;
+      }
+
+      const codServicio = "SRV-2026-000" + (DB_LOCAL.servicios.length + 1);
+      const conductorObj = DB_LOCAL.conductores.find(c => c.id_conductor === idCnd);
+
+      DB_LOCAL.servicios.push({
+        cod_servicio: codServicio,
+        id_empresa: idEmp,
+        cliente: cliente,
+        ruc_cliente: ruc,
+        id_conductor: idCnd,
+        conductor_nombre: conductorObj ? conductorObj.nombre : "Conductor",
+        placa_tracto: placaTracto,
+        placa_carreta: placaCarreta,
+        origen: origen,
+        cantidad_destinos: 1,
+        parada_actual: destino,
+        paradas: [{ id: "DST-NEW", orden: 1, nombre: destino, estado: "PENDIENTE" }],
+        estado: "Asignado",
+        alerta_retraso: "A TIEMPO",
+        km_inicial: 100000,
+        km_final: null,
+        fecha_programada: new Date().toLocaleDateString('es-PE'),
+        hora_programada: "08:00",
+        instrucciones: "Instrucciones de ruta asignadas por administración",
+        evidencias: []
+      });
+
+      if (conductorObj) conductorObj.estado = "En ruta";
+
+      cerrarModal("modal-programar-servicio");
+      mostrarToast(`Servicio ${codServicio} programado exitosamente sin cruces`, "success");
+      mostrarSeccionAdmin('servicios');
+    }
+
+    function abrirModalRelevarRecurso(codServicio) {
+      const srv = DB_LOCAL.servicios.find(s => s.cod_servicio === codServicio);
+      if (!srv) return;
+      servicioActivoSeleccionado = srv;
+
+      document.getElementById("relevo-lbl-servicio").textContent = srv.cod_servicio;
+      document.getElementById("relevo-tipo").value = "CONDUCTOR";
+      actualizarCamposRelevo();
+      document.getElementById("modal-relevar-recurso").classList.remove("hidden");
+    }
+
+    function actualizarCamposRelevo() {
+      const tipo = document.getElementById("relevo-tipo").value;
+      const srv = servicioActivoSeleccionado;
+      const idEmp = srv ? srv.id_empresa : "TRP-001";
+      const selectNuevo = document.getElementById("relevo-select-nuevo");
+      const boxKm = document.getElementById("relevo-box-km");
+
+      if (tipo === "CONDUCTOR") {
+        document.getElementById("relevo-lbl-nuevo-recurso").textContent = "Nuevo Conductor:";
+        boxKm.classList.add("hidden");
+        selectNuevo.innerHTML = DB_LOCAL.conductores.filter(c => c.id_empresa === idEmp).map(c => `<option value="${c.id_conductor}">${c.nombre}</option>`).join('');
+      } else if (tipo === "TRACTO") {
+        document.getElementById("relevo-lbl-nuevo-recurso").textContent = "Nuevo Tracto:";
+        boxKm.classList.remove("hidden");
+        selectNuevo.innerHTML = DB_LOCAL.tractos.filter(t => t.id_empresa === idEmp).map(t => `<option value="${t.placa}">${t.placa} - ${t.marca}</option>`).join('');
+      } else if (tipo === "CARRETA") {
+        document.getElementById("relevo-lbl-nuevo-recurso").textContent = "Nueva Carreta:";
+        boxKm.classList.add("hidden");
+        selectNuevo.innerHTML = DB_LOCAL.carretas.filter(c => c.id_empresa === idEmp).map(c => `<option value="${c.placa}">${c.placa} (${c.tipo})</option>`).join('');
+      }
+    }
+
+    function guardarRelevoRecursoAdmin() {
+      const tipo = document.getElementById("relevo-tipo").value;
+      const nuevoValor = document.getElementById("relevo-select-nuevo").value;
+      const motivo = document.getElementById("relevo-motivo").value.trim();
+      const srv = servicioActivoSeleccionado;
+
+      if (!motivo) {
+        mostrarToast("El motivo del relevo es obligatorio", "error");
+        return;
+      }
+
+      let valorAnterior = "";
+      if (tipo === "CONDUCTOR") {
+        valorAnterior = srv.conductor_nombre;
+        const nuevoCnd = DB_LOCAL.conductores.find(c => c.id_conductor === nuevoValor);
+        srv.id_conductor = nuevoValor;
+        srv.conductor_nombre = nuevoCnd ? nuevoCnd.nombre : "Nuevo Conductor";
+      } else if (tipo === "TRACTO") {
+        valorAnterior = srv.placa_tracto;
+        srv.placa_tracto = nuevoValor;
+        const kmNuevo = document.getElementById("relevo-km-nuevo").value;
+        if (kmNuevo) srv.km_inicial = Number(kmNuevo);
+      } else if (tipo === "CARRETA") {
+        valorAnterior = srv.placa_carreta;
+        srv.placa_carreta = nuevoValor;
+      }
+
+      // Registrar en Auditoría
+      DB_LOCAL.auditoria.unshift({
+        id_auditoria: "AUD-" + Date.now().toString().slice(-4),
+        usuario: sesionActual ? sesionActual.usuario : "admin",
+        empresa: srv.id_empresa,
+        tabla: "Servicios",
+        registro_id: srv.cod_servicio,
+        anterior: valorAnterior,
+        nuevo: nuevoValor,
+        motivo: motivo,
+        fecha: new Date().toLocaleString("es-PE", { timeZone: "America/Lima" })
+      });
+
+      cerrarModal("modal-relevar-recurso");
+      mostrarToast(`Relevo de ${tipo} aplicado conservando el código del servicio`, "success");
+      mostrarSeccionAdmin('servicios');
+    }
+
+    function togglePermisoEvidenciaAdmin(idEvidencia) {
+      let encontrada = null;
+      DB_LOCAL.servicios.forEach(s => {
+        (s.evidencias || []).forEach(e => {
+          if (e.id_evidencia === idEvidencia) {
+            e.permiso_supervisor = e.permiso_supervisor === "AUTORIZADO" ? "PENDIENTE_AUTORIZACION" : "AUTORIZADO";
+            encontrada = e;
+          }
+        });
+      });
+
+      if (encontrada) {
+        mostrarToast(`Permiso actualizado a: ${encontrada.permiso_supervisor}`, "success");
+        mostrarSeccionAdmin('evidencias');
+      }
+    }
+
+    async function ejecutarRespaldoDriveManual() {
+      if (APPS_SCRIPT_URL) {
+        try {
+          const res = await fetch(APPS_SCRIPT_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: "admin/ejecutar_respaldo", token: sesionActual.token })
+          });
+          const data = await res.json();
+          mostrarToast("Copia de seguridad generada en Drive: " + data.nombre_archivo, "success");
+          return;
+        } catch (e) {}
+      }
+      mostrarToast("Respaldo ejecutado con éxito en carpeta privada 'Respaldos Transporte' de Drive", "success");
+    }
+
+    // ==========================================
+    // HELPERS GENERALES
+    // ==========================================
+    function obtenerNombreEmpresa(idEmpresa) {
+      const emp = DB_LOCAL.empresas.find(e => e.id === idEmpresa);
+      return emp ? emp.razonSocial : "Transportes Andinos S.A.C.";
+    }
+
+    function ampliarFotoVisor(url, titulo) {
+      const modal = document.getElementById("modal-visor-foto");
+      document.getElementById("img-visor-ampliada").src = url;
+      document.getElementById("lbl-visor-datos").innerHTML = `
+        <span class="font-bold">${titulo || 'Evidencia de Transporte'}</span>
+        <span class="text-[10px] text-slate-300 font-mono">Almacenado de forma segura en Google Drive</span>
+      `;
+      modal.classList.remove("hidden");
+      lucide.createIcons();
+    }
+
+    function abrirModalSubirEvidencia(codServicio) {
+      const srv = DB_LOCAL.servicios.find(s => s.cod_servicio === codServicio);
+      if (!srv) return;
+      servicioActivoSeleccionado = srv;
+
+      document.getElementById("evd-lbl-servicio").textContent = srv.cod_servicio;
+      document.getElementById("evd-lbl-conductor").textContent = srv.conductor_nombre;
+      document.getElementById("evd-lbl-placas").textContent = `${srv.placa_tracto} / ${srv.placa_carreta}`;
+
+      const selectParada = document.getElementById("evd-select-parada");
+      selectParada.innerHTML = (srv.paradas || [{ nombre: srv.parada_actual }]).map(p => `<option value="${p.nombre}">${p.nombre}</option>`).join('');
+
+      fotosSeleccionadas = [];
+      renderizarMiniaturasFotosModal();
+      document.getElementById("evd-input-observacion").value = "";
+      seleccionarTipoEvidencia("Carga");
+      obtenerLecturaGpsActual();
+
+      document.getElementById("modal-subir-evidencia").classList.remove("hidden");
+      lucide.createIcons();
+    }
+
+    function seleccionarTipoEvidencia(tipo) {
+      document.getElementById("evd-input-tipo-seleccionado").value = tipo;
+      document.querySelectorAll(".btn-tipo-evd").forEach(btn => {
+        btn.className = "btn-tipo-evd py-2 px-1 text-center rounded-xl border border-slate-200 bg-white text-slate-600 font-bold text-[11px]";
+      });
+
+      const map = {
+        "Carga": "btn-tipo-carga",
+        "Descarga": "btn-tipo-descarga",
+        "Incidencia": "btn-tipo-incidencia",
+        "Documento de transporte": "btn-tipo-documento",
+        "Otra evidencia": "btn-tipo-otra"
+      };
+      const activeBtn = document.getElementById(map[tipo]);
+      if (activeBtn) {
+        activeBtn.className = "btn-tipo-evd py-2 px-1 text-center rounded-xl border border-turquoise-600 bg-turquoise-50 text-turquoise-800 font-bold text-[11px]";
+      }
+    }
+
+    function capturarArchivoFoto(event) {
+      const files = event.target.files;
+      if (!files || files.length === 0) return;
+
+      Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            const maxDimension = 1280;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height && width > maxDimension) {
+              height = Math.round((height * maxDimension) / width);
+              width = maxDimension;
+            } else if (height > maxDimension) {
+              width = Math.round((width * maxDimension) / height);
+              height = maxDimension;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, width, height);
+
+            fotosSeleccionadas.push({
+              id: "FOTO-" + Date.now(),
+              base64: canvas.toDataURL("image/jpeg", 0.75),
+              fecha_captura: new Date().toLocaleString("es-PE", { timeZone: "America/Lima" })
+            });
+
+            renderizarMiniaturasFotosModal();
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+      event.target.value = "";
+    }
+
+    function renderizarMiniaturasFotosModal() {
+      const cont = document.getElementById("evd-contenedor-miniaturas");
+      const lista = document.getElementById("evd-lista-fotos");
+
+      if (fotosSeleccionadas.length === 0) {
+        cont.classList.add("hidden");
+        lista.innerHTML = "";
+        return;
+      }
+
+      cont.classList.remove("hidden");
+      lista.innerHTML = fotosSeleccionadas.map((f, idx) => `
+        <div class="relative bg-slate-100 rounded-xl overflow-hidden border border-slate-200">
+          <img src="${f.base64}" class="w-full h-24 object-cover">
+          <button type="button" onclick="fotosSeleccionadas.splice(${idx}, 1); renderizarMiniaturasFotosModal();" class="absolute top-1 right-1 bg-rose-600 text-white p-1 rounded-full">
+            <i data-lucide="trash-2" class="w-3 h-3"></i>
+          </button>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    async function confirmarYGuardarEvidencia() {
+      if (fotosSeleccionadas.length === 0) {
+        mostrarToast("Toma o elige al menos una fotografía", "error");
+        return;
+      }
+
+      const codServicio = document.getElementById("evd-lbl-servicio").textContent;
+      const parada = document.getElementById("evd-select-parada").value;
+      const tipo = document.getElementById("evd-input-tipo-seleccionado").value;
+      const obs = document.getElementById("evd-input-observacion").value.trim();
+      const srv = DB_LOCAL.servicios.find(s => s.cod_servicio === codServicio);
+
+      for (let i = 0; i < fotosSeleccionadas.length; i++) {
+        const foto = fotosSeleccionadas[i];
+        const idEvd = "EVD-" + Date.now() + "-" + (i + 1);
+
+        if (srv) {
+          srv.evidencias = srv.evidencias || [];
+          srv.evidencias.unshift({
+            id_evidencia: idEvd,
+            id_empresa: srv.id_empresa,
+            cod_servicio: codServicio,
+            parada: parada,
+            tipo_evidencia: tipo,
+            conductor: srv.conductor_nombre,
+            tracto: srv.placa_tracto,
+            carreta: srv.placa_carreta,
+            observacion: obs,
+            fecha_captura: foto.fecha_captura,
+            url_foto: foto.base64,
+            permiso_supervisor: "AUTORIZADO"
+          });
+        }
+      }
+
+      cerrarModal("modal-subir-evidencia");
+      mostrarToast("Evidencia sincronizada en Google Drive y Google Sheets", "success");
+      abrirDetalleServicioConductor(codServicio);
+    }
+
+    function abrirModalRegistrarKm(codServicio, placaTracto) {
+      document.getElementById("km-lbl-tracto").textContent = placaTracto;
+      document.getElementById("km-input-valor").value = "";
+      document.getElementById("modal-registrar-km").classList.remove("hidden");
+    }
+
+    function guardarKilometrajeConfirmado() {
+      const valor = Number(document.getElementById("km-input-valor").value);
+      const tipo = document.querySelector('input[name="km-tipo"]:checked').value;
+      const srv = servicioActivoSeleccionado;
+
+      if (isNaN(valor) || valor <= 0) {
+        mostrarToast("Ingresa un kilometraje válido", "error");
+        return;
+      }
+
+      if (tipo === "FINAL" && srv && srv.km_inicial && valor < srv.km_inicial) {
+        mostrarToast(`El km final (${valor}) no puede ser menor al inicial (${srv.km_inicial})`, "error");
+        return;
+      }
+
+      if (srv) {
+        if (tipo === "INICIAL") srv.km_inicial = valor;
+        if (tipo === "FINAL") srv.km_final = valor;
+      }
+
+      cerrarModal("modal-registrar-km");
+      mostrarToast(`Kilometraje ${tipo} (${valor} km) registrado`, "success");
+      if (srv) abrirDetalleServicioConductor(srv.cod_servicio);
+    }
+
+    function registrarUbicacionGpsManual(codServicio) {
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            mostrarToast(`Ubicación GPS registrada (±${Math.round(pos.coords.accuracy)}m)`, "success");
+          },
+          () => {
+            mostrarToast("GPS apagado. Enciende la ubicación en tu celular.", "error");
+          }
+        );
+      }
+    }
+
+    function abrirModalReportarIncidencia(codServicio) {
+      document.getElementById("inc-input-desc").value = "";
+      document.getElementById("modal-reportar-incidencia").classList.remove("hidden");
+    }
+
+    function guardarIncidenciaConfirmada() {
+      const tipo = document.getElementById("inc-select-tipo").value;
+      const desc = document.getElementById("inc-input-desc").value.trim();
+      const srv = servicioActivoSeleccionado;
+
+      if (!desc) {
+        mostrarToast("Ingresa la descripción de la incidencia", "error");
+        return;
+      }
+
+      DB_LOCAL.incidencias.unshift({
+        id_incidencia: "INC-" + Date.now().toString().slice(-4),
+        cod_servicio: srv ? srv.cod_servicio : "",
+        id_empresa: srv ? srv.id_empresa : "",
+        conductor: srv ? srv.conductor_nombre : "Conductor",
+        tipo: tipo,
+        descripcion: desc,
+        estado: "ABIERTA",
+        accion_admin: "Pendiente de revisión administrativa",
+        fecha: new Date().toLocaleString("es-PE", { timeZone: "America/Lima" })
+      });
+
+      cerrarModal("modal-reportar-incidencia");
+      mostrarToast("Incidencia reportada a la administración", "success");
+    }
+
+    function abrirSelectorEstadoOperativo(codServicio) {
+      const srv = DB_LOCAL.servicios.find(s => s.cod_servicio === codServicio);
+      if (!srv) return;
+
+      const ESTADOS = [
+        "Asignado",
+        "En camino al punto de carga",
+        "En carga",
+        "En tránsito al destino",
+        "En descarga",
+        "Finalizado"
+      ];
+
+      const htmlOpciones = ESTADOS.map(est => `
+        <button onclick="cambiarEstadoConfirmado('${srv.cod_servicio}', '${est}')" class="w-full p-3 rounded-2xl border ${srv.estado === est ? 'border-turquoise-600 bg-turquoise-50 text-turquoise-900 font-bold' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'} text-left text-xs flex items-center justify-between">
+          <span>${est}</span>
+          ${srv.estado === est ? '<i data-lucide="check" class="w-4 h-4 text-turquoise-600"></i>' : ''}
+        </button>
+      `).join('');
+
+      const modal = document.createElement("div");
+      modal.id = "modal-cambiar-estado-temp";
+      modal.className = "fixed inset-0 bg-navy-950/70 backdrop-blur-2xs z-50 flex items-center justify-center p-4";
+      modal.innerHTML = `
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-200">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+            <h3 class="text-sm font-bold text-navy-900">Actualizar Estado Operativo</h3>
+            <button onclick="document.getElementById('modal-cambiar-estado-temp').remove()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+          </div>
+          <div class="space-y-2 mb-4">${htmlOpciones}</div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      lucide.createIcons();
+    }
+
+    function cambiarEstadoConfirmado(codServicio, nuevoEstado) {
+      const modal = document.getElementById("modal-cambiar-estado-temp");
+      if (modal) modal.remove();
+
+      const srv = DB_LOCAL.servicios.find(s => s.cod_servicio === codServicio);
+      if (!srv) return;
+
+      if (nuevoEstado === "Finalizado" && !srv.km_final) {
+        mostrarToast("Para finalizar el servicio debes registrar el kilometraje final.", "error");
+        abrirModalRegistrarKm(codServicio, srv.placa_tracto);
+        return;
+      }
+
+      srv.estado = nuevoEstado;
+      mostrarToast(`Estado actualizado a: ${nuevoEstado}`, "success");
+      abrirDetalleServicioConductor(codServicio);
+    }
+
+    function continuarSiguienteDestino(codServicio) {
+      const srv = DB_LOCAL.servicios.find(s => s.cod_servicio === codServicio);
+      if (!srv) return;
+
+      srv.parada_actual = "Parada 2: Chimbote";
+      srv.estado = "En tránsito al destino";
+      mostrarToast("Avanzando a Parada 2: Chimbote", "success");
+      abrirDetalleServicioConductor(codServicio);
+    }
+
+    function verDetalleSupervisorModal(codServicio) {
+      const s = DB_LOCAL.servicios.find(x => x.cod_servicio === codServicio);
+      if (!s) return;
+
+      const modal = document.createElement("div");
+      modal.id = "modal-sup-detalle";
+      modal.className = "fixed inset-0 bg-navy-950/70 backdrop-blur-2xs z-50 flex items-center justify-center p-4";
+      modal.innerHTML = `
+        <div class="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] flex flex-col">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+            <div>
+              <h3 class="text-sm font-extrabold text-navy-900">${s.cod_servicio} - Detalle de Operación</h3>
+              <p class="text-[11px] text-slate-500">${s.cliente}</p>
+            </div>
+            <button onclick="document.getElementById('modal-sup-detalle').remove()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+          </div>
+
+          <div class="space-y-4 text-xs overflow-y-auto flex-1">
+            <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 grid grid-cols-2 gap-2">
+              <div><span class="text-[9px] text-slate-400 uppercase font-bold block">Conductor:</span><strong>${s.conductor_nombre}</strong></div>
+              <div><span class="text-[9px] text-slate-400 uppercase font-bold block">Placas:</span><strong class="font-mono">${s.placa_tracto} / ${s.placa_carreta}</strong></div>
+              <div><span class="text-[9px] text-slate-400 uppercase font-bold block">Km:</span><strong class="font-mono">${s.km_inicial || '-'} / ${s.km_final || '-'}</strong></div>
+              <div><span class="text-[9px] text-slate-400 uppercase font-bold block">Estado:</span><strong class="text-turquoise-800">${s.estado}</strong></div>
+            </div>
+
+            <div>
+              <h4 class="font-bold text-navy-900 mb-2">Evidencias Autorizadas de este viaje:</h4>
+              <div class="grid grid-cols-3 gap-2">
+                ${(s.evidencias || []).length === 0 ? `<p class="text-slate-400 col-span-3 text-[11px]">No hay fotos registradas aún.</p>` : s.evidencias.map(e => `
+                  <img src="${e.url_foto}" onclick="ampliarFotoVisor('${e.url_foto}', '${e.tipo_evidencia}')" class="w-full h-20 object-cover rounded-xl border border-slate-200 cursor-pointer">
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      lucide.createIcons();
+    }
+
+    function exportarExcelSupervisor() {
+      const servicios = DB_LOCAL.servicios.filter(s => s.id_empresa === sesionActual.id_empresa);
+      const dataExport = servicios.map(s => ({
+        "Código": s.cod_servicio,
+        "Cliente": s.cliente,
+        "Conductor": s.conductor_nombre,
+        "Tracto": s.placa_tracto,
+        "Carreta": s.placa_carreta,
+        "Origen": s.origen,
+        "Destino Actual": s.parada_actual,
+        "Estado": s.estado,
+        "Demora": s.alerta_retraso,
+        "Km Inicial": s.km_inicial || "",
+        "Km Final": s.km_final || ""
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(dataExport);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Servicios");
+      XLSX.writeFile(wb, `Reporte_Flota_${sesionActual.id_empresa}.xlsx`);
+      mostrarToast("Reporte Excel (.xlsx) descargado", "success");
+    }
+
+    function exportarPdfSupervisor() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.text("REPORTE DE OPERACIONES Y FLOTA", 14, 20);
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Empresa: ${obtenerNombreEmpresa(sesionActual.id_empresa)}`, 14, 28);
+      doc.text(`Fecha: ${new Date().toLocaleDateString('es-PE')}`, 14, 34);
+
+      let y = 46;
+      const servicios = DB_LOCAL.servicios.filter(s => s.id_empresa === sesionActual.id_empresa);
+      servicios.forEach((s, idx) => {
+        doc.setFont("helvetica", "bold");
+        doc.text(`${idx + 1}. ${s.cod_servicio} - ${s.cliente} [${s.estado}]`, 14, y);
+        doc.setFont("helvetica", "normal");
+        doc.text(`   Conductor: ${s.conductor_nombre} | Tracto: ${s.placa_tracto} | Destino: ${s.parada_actual}`, 14, y + 5);
+        y += 14;
+      });
+
+      doc.save(`Reporte_Flota_${sesionActual.id_empresa}.pdf`);
+      mostrarToast("Reporte PDF descargado", "success");
+    }
+
+    function abrirModalConexionAppsScript() {
+      document.getElementById("cfg-gas-url-input").value = APPS_SCRIPT_URL;
+      document.getElementById("modal-conexion-gas").classList.remove("hidden");
+    }
+
+    function guardarUrlAppsScript() {
+      const val = document.getElementById("cfg-gas-url-input").value.trim();
+      APPS_SCRIPT_URL = val;
+      localStorage.setItem("TRANS_SAAS_GAS_URL", val);
+      cerrarModal("modal-conexion-gas");
+      mostrarToast("URL de Apps Script guardada", "success");
+    }
+
+    function cerrarModal(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.add("hidden");
+    }
+
+    function mostrarToast(mensaje, tipo = "info") {
+      const cont = document.getElementById("toast-container");
+      const toast = document.createElement("div");
+      const bg = tipo === "success" ? "bg-emerald-900 border-emerald-700 text-white" :
+                 tipo === "error" ? "bg-rose-900 border-rose-700 text-white" :
+                 tipo === "warning" ? "bg-amber-900 border-amber-700 text-white" :
+                 "bg-navy-900 border-navy-700 text-white";
+
+      toast.className = `p-3 rounded-2xl border shadow-xl flex items-center space-x-2.5 text-xs transition-all pointer-events-auto ${bg}`;
+      toast.innerHTML = `<i data-lucide="${tipo === 'success' ? 'check-circle' : tipo === 'error' ? 'alert-octagon' : 'info'}" class="w-4 h-4 shrink-0"></i><span>${mensaje}</span>`;
+      cont.appendChild(toast);
+      lucide.createIcons();
+      setTimeout(() => {
+        toast.style.opacity = "0";
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      iniciarIndexedDB();
+      lucide.createIcons();
+
+      if ('caches' in window) {
+        caches.keys().then(names => {
+          for (let name of names) caches.delete(name);
+        });
+      }
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+          for (let registration of registrations) {
+            registration.unregister();
+          }
+        });
+      }
+
+      document.getElementById("screen-app-container").classList.add("hidden");
+      document.getElementById("screen-login").classList.remove("hidden");
+    });
+  </script>
+</body>
+</html>
