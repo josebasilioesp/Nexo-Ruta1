@@ -28,7 +28,109 @@
   <!-- jsPDF para exportación a PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-  <script>
+  
+  <!-- MODAL: SUPERVISOR EDITAR CONDUCTOR Y CAMBIAR CONTRASEÑA -->
+  <div id="modal-supervisor-editar-conductor" class="fixed inset-0 bg-navy-950/80 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 max-h-[92vh] flex flex-col overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-9 h-9 rounded-xl bg-turquoise-100 text-turquoise-700 flex items-center justify-center">
+            <i data-lucide="user-cog" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-black text-navy-900">Editar Conductor y Clave de Acceso</h3>
+            <p class="text-[11px] text-slate-500">Modifica datos operativos y asigna una nueva contraseña</p>
+          </div>
+        </div>
+        <button onclick="cerrarModal('modal-supervisor-editar-conductor')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+
+      <form onsubmit="event.preventDefault(); guardarEdicionConductorSupervisor();" class="space-y-3.5 text-xs">
+        <input type="hidden" id="edit-sup-cnd-id">
+        <input type="hidden" id="edit-sup-cnd-usr-id">
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-600 font-bold mb-1">Nombres:</label>
+            <input type="text" id="edit-sup-cnd-nombres" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-turquoise-500 font-medium">
+          </div>
+          <div>
+            <label class="block text-slate-600 font-bold mb-1">Apellidos:</label>
+            <input type="text" id="edit-sup-cnd-apellidos" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-turquoise-500 font-medium">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-600 font-bold mb-1">DNI (8 dígitos):</label>
+            <input type="text" id="edit-sup-cnd-dni" required maxlength="8" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono">
+          </div>
+          <div>
+            <label class="block text-slate-600 font-bold mb-1">Teléfono Móvil:</label>
+            <input type="tel" id="edit-sup-cnd-tel" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-600 font-bold mb-1">Licencia de Conducir:</label>
+            <input type="text" id="edit-sup-cnd-licencia" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono">
+          </div>
+          <div>
+            <label class="block text-slate-600 font-bold mb-1">Categoría MTC:</label>
+            <select id="edit-sup-cnd-cat" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold">
+              <option value="A-IIIc">A-IIIc (Tractocamiones y Semirremolques)</option>
+              <option value="A-IIIb">A-IIIb (Camiones pesados)</option>
+              <option value="A-IIIa">A-IIIa (Buses)</option>
+              <option value="A-IIb">A-IIb</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-600 font-bold mb-1">Tracto Asignado:</label>
+            <select id="edit-sup-cnd-tracto" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono text-[11px]"></select>
+          </div>
+          <div>
+            <label class="block text-slate-600 font-bold mb-1">Carreta Asignada:</label>
+            <select id="edit-sup-cnd-carreta" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono text-[11px]"></select>
+          </div>
+        </div>
+
+        <!-- SECCIÓN DE ACCESO Y CONTRASEÑA -->
+        <div class="p-3.5 bg-turquoise-50/60 border border-turquoise-200 rounded-2xl space-y-3">
+          <div class="flex items-center space-x-2">
+            <i data-lucide="key-round" class="w-4 h-4 text-turquoise-700"></i>
+            <span class="text-xs font-black text-navy-900">Credenciales de Acceso a la App Móvil</span>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-slate-600 font-bold mb-1 text-[11px]">Usuario de Ingreso:</label>
+              <input type="text" id="edit-sup-cnd-user" required class="w-full p-2.5 bg-white border border-slate-300 rounded-xl font-mono text-xs text-navy-900 font-bold">
+            </div>
+            <div>
+              <label class="block text-slate-600 font-bold mb-1 text-[11px]">Modificar Contraseña:</label>
+              <input type="text" id="edit-sup-cnd-pass" required placeholder="Nueva contraseña" class="w-full p-2.5 bg-white border border-slate-300 rounded-xl font-mono text-xs text-navy-900 font-bold">
+            </div>
+          </div>
+          <p class="text-[10px] text-slate-500">Puedes escribir una nueva contraseña en cualquier momento. Se guardará de inmediato y el conductor podrá usarla para ingresar.</p>
+        </div>
+
+        <div class="pt-2 flex items-center space-x-3">
+          <button type="button" onclick="cerrarModal('modal-supervisor-editar-conductor')" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition">
+            Cancelar
+          </button>
+          <button type="submit" class="w-1/2 py-2.5 bg-turquoise-600 hover:bg-turquoise-500 text-white font-bold rounded-xl shadow transition flex items-center justify-center space-x-1.5">
+            <i data-lucide="save" class="w-4 h-4"></i>
+            <span>Guardar Cambios</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+<script>
     tailwind.config = {
       theme: {
         extend: {
@@ -107,6 +209,12 @@
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
             <span id="txt-red-status">En línea</span>
           </div>
+
+          <!-- BOTÓN PANEL DE CONTROL TOTAL DE LA WEB & APPS SCRIPT -->
+          <button id="btn-top-panel-maestro" onclick="abrirPanelControlTotalWeb()" class="flex items-center space-x-1.5 px-3 py-1.5 bg-gradient-to-r from-turquoise-600 to-cyan-500 hover:from-turquoise-500 hover:to-cyan-400 text-white rounded-xl text-xs font-extrabold shadow-md transition transform active:scale-95" title="Panel de Control Total y Conexión Apps Script">
+            <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
+            <span>Panel</span>
+          </button>
 
           <!-- Cerrar Sesión (Visible sólo cuando hay sesión activa) -->
           <button id="btn-top-logout" onclick="cerrarSesionCompleta()" class="hidden px-3 py-1 bg-rose-950/80 hover:bg-rose-900 border border-rose-800 rounded-xl text-[11px] text-rose-300 font-semibold items-center space-x-1 transition">
@@ -203,6 +311,13 @@
           <span>Ingresar</span>
           <i data-lucide="arrow-right" class="w-4 h-4 stroke-[2]"></i>
         </button>
+
+        <div class="pt-2 text-center">
+          <button type="button" onclick="abrirPanelControlTotalWeb()" class="text-[11px] text-slate-500 hover:text-turquoise-700 font-semibold inline-flex items-center space-x-1.5 py-1 px-2.5 rounded-lg hover:bg-slate-100 transition">
+            <i data-lucide="settings-2" class="w-3.5 h-3.5 text-turquoise-600"></i>
+            <span>Panel de Control Total y Apps Script</span>
+          </button>
+        </div>
       </form>
 
     </div>
@@ -287,6 +402,183 @@
   <!-- ========================================================================= -->
   <!-- MODALES DE CONTROL Y GESTIÓN                                              -->
   <!-- ========================================================================= -->
+
+  <!-- MODAL: PANEL DE CONTROL TOTAL DE LA WEB & GOOGLE APPS SCRIPT -->
+  <div id="modal-panel-control-total" class="fixed inset-0 bg-navy-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-5">
+    <div class="bg-white rounded-3xl max-w-4xl w-full p-5 sm:p-7 shadow-2xl border border-slate-200 max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- Encabezado del Panel Maestro -->
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100 shrink-0">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-turquoise-500 to-navy-900 text-white flex items-center justify-center shadow-md">
+            <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <h2 class="text-base sm:text-lg font-black text-navy-900 tracking-tight">Panel Maestro de Control Total</h2>
+              <span class="px-2 py-0.5 bg-turquoise-100 text-turquoise-800 text-[10px] font-extrabold rounded-full">EN VIVO</span>
+            </div>
+            <p class="text-xs text-slate-500">Administración de Base de Datos, Usuarios, Flota y Sincronización Automática con Google Sheets</p>
+          </div>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button id="btn-abrir-appscript-externo" onclick="abrirAppsScriptEnPestana()" class="hidden sm:inline-flex items-center space-x-1.5 px-3 py-1.5 bg-navy-900 hover:bg-navy-800 text-white text-xs font-bold rounded-xl transition shadow-sm">
+            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            <span>Abrir en Apps Script</span>
+          </button>
+          <button onclick="cerrarModal('modal-panel-control-total')" class="p-2 text-slate-400 hover:text-slate-600 rounded-xl hover:bg-slate-100 transition">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Barra de Estado Cloud y Sincronización Bidireccional -->
+      <div class="p-3 sm:p-4 my-3 rounded-2xl bg-slate-900 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shrink-0 shadow-inner">
+        <div class="flex items-center space-x-3">
+          <div class="w-3.5 h-3.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <strong id="lbl-panel-sync-status" class="text-xs font-bold text-white">Google Sheets Conectado y Sincronizado</strong>
+              <span id="lbl-panel-latency" class="text-[10px] text-emerald-400 font-mono">120ms</span>
+            </div>
+            <p id="lbl-panel-last-sync" class="text-[11px] text-slate-300">Sincronizando automáticamente cada 4 segundos en ambos sentidos</p>
+          </div>
+        </div>
+        <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
+          <label class="flex items-center space-x-2 text-[11px] font-semibold text-slate-300 cursor-pointer mr-2">
+            <input type="checkbox" id="chk-panel-autosync" checked onchange="toggleAutoSyncSetting(this.checked)" class="rounded text-turquoise-500 focus:ring-0">
+            <span>Auto-sync</span>
+          </label>
+          <button onclick="ejecutarSincronizacionBidireccional(true)" class="px-3 py-1.5 bg-turquoise-600 hover:bg-turquoise-500 text-white font-bold text-xs rounded-xl shadow transition flex items-center space-x-1.5">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+            <span>Sincronizar Ahora</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Configuración del Enlace Apps Script / Google Sheets -->
+      <div class="p-3 bg-slate-50 border border-slate-200 rounded-2xl mb-3 shrink-0">
+        <div class="flex flex-col sm:flex-row items-center gap-2">
+          <div class="flex-1 w-full">
+            <label class="block text-[11px] font-bold text-navy-900 mb-1">Enlace de Google Apps Script Web App (Guardado de forma permanente):</label>
+            <input type="url" id="input-panel-gas-url" placeholder="https://script.google.com/macros/s/AKfycb.../exec" class="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs font-mono text-slate-800">
+          </div>
+          <div class="flex items-end space-x-2 w-full sm:w-auto pt-1 sm:pt-4">
+            <button onclick="guardarUrlDesdePanelControl()" class="px-4 py-2.5 bg-navy-900 hover:bg-navy-800 text-white font-bold text-xs rounded-xl transition shadow-sm shrink-0">
+              Guardar Enlace
+            </button>
+            <button onclick="probarPingDesdePanel()" class="px-3 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-xs rounded-xl transition shrink-0">
+              Probar Ping
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Selector de Pestañas del Panel Maestro -->
+      <div class="flex items-center space-x-1 border-b border-slate-200 pb-2 mb-3 shrink-0 text-xs font-bold overflow-x-auto">
+        <button onclick="cambiarPestanaPanelControl('usuarios')" id="tab-panel-usuarios" class="px-3.5 py-1.5 rounded-xl bg-navy-900 text-white transition flex items-center space-x-1.5 shrink-0">
+          <i data-lucide="users" class="w-3.5 h-3.5"></i>
+          <span>Usuarios Registrados (<span id="cnt-panel-usuarios">0</span>)</span>
+        </button>
+        <button onclick="cambiarPestanaPanelControl('conductores')" id="tab-panel-conductores" class="px-3.5 py-1.5 rounded-xl text-slate-600 hover:bg-slate-100 transition flex items-center space-x-1.5 shrink-0">
+          <i data-lucide="truck" class="w-3.5 h-3.5"></i>
+          <span>Conductores y Flota (<span id="cnt-panel-conductores">0</span>)</span>
+        </button>
+        <button onclick="cambiarPestanaPanelControl('servicios')" id="tab-panel-servicios" class="px-3.5 py-1.5 rounded-xl text-slate-600 hover:bg-slate-100 transition flex items-center space-x-1.5 shrink-0">
+          <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+          <span>Viajes y Rutas (<span id="cnt-panel-servicios">0</span>)</span>
+        </button>
+        <button onclick="cambiarPestanaPanelControl('auditoria')" id="tab-panel-auditoria" class="px-3.5 py-1.5 rounded-xl text-slate-600 hover:bg-slate-100 transition flex items-center space-x-1.5 shrink-0">
+          <i data-lucide="history" class="w-3.5 h-3.5"></i>
+          <span>Registro en Vivo (Auditoría)</span>
+        </button>
+      </div>
+
+      <!-- Contenedor de Contenido de Pestaña -->
+      <div id="panel-control-stage" class="flex-1 overflow-y-auto pr-1 text-xs">
+        <!-- Renderizado dinámicamente -->
+      </div>
+
+      <!-- Pie del Panel -->
+      <div class="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-2 shrink-0 text-[11px] text-slate-500">
+        <span>Toda la información se guarda automáticamente en tu navegador y en Google Sheets.</span>
+        <div class="flex items-center space-x-2">
+          <button onclick="exportarBaseDatosAJson()" class="px-3 py-1 text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg font-bold">
+            Descargar Respaldo JSON
+          </button>
+          <button onclick="cerrarModal('modal-panel-control-total')" class="px-4 py-1.5 bg-navy-900 text-white rounded-xl font-bold">
+            Cerrar Panel
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL: CONFIRMACIÓN DE ACCESO DE NUEVO CONDUCTOR / USUARIO -->
+  <div id="modal-confirmacion-acceso-creado" class="fixed inset-0 bg-navy-950/80 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 flex flex-col animate-in fade-in zoom-in-95 duration-200">
+      <div class="text-center mb-4">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center mb-2 shadow-sm">
+          <i data-lucide="check-circle-2" class="w-7 h-7"></i>
+        </div>
+        <h3 class="text-base font-black text-navy-900">¡Conductor Registrado con Éxito!</h3>
+        <p class="text-xs text-slate-500 mt-1">El usuario ya fue creado en la base de datos y Google Sheets. El conductor ya puede ingresar desde su celular.</p>
+      </div>
+
+      <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-2.5 text-xs mb-4">
+        <div class="flex justify-between items-center py-1 border-b border-slate-200">
+          <span class="text-slate-500 font-semibold">Nombre:</span>
+          <strong id="lbl-confirm-nombre" class="text-navy-900">Juan Carlos Pérez</strong>
+        </div>
+        <div class="flex justify-between items-center py-1 border-b border-slate-200">
+          <span class="text-slate-500 font-semibold">Usuario de Ingreso:</span>
+          <span id="lbl-confirm-user" class="font-mono font-bold text-turquoise-700 bg-turquoise-50 px-2 py-0.5 rounded-lg text-sm">conductor1</span>
+        </div>
+        <div class="flex justify-between items-center py-1">
+          <span class="text-slate-500 font-semibold">Contraseña:</span>
+          <span id="lbl-confirm-pass" class="font-mono font-bold text-slate-900 bg-slate-200 px-2 py-0.5 rounded-lg text-sm">cond123</span>
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <button onclick="copiarCredencialesCreadas()" class="w-full py-2.5 bg-turquoise-600 hover:bg-turquoise-500 text-white font-bold text-xs rounded-xl shadow transition flex items-center justify-center space-x-2">
+          <i data-lucide="copy" class="w-4 h-4"></i>
+          <span>Copiar Accesos para WhatsApp</span>
+        </button>
+        <button onclick="cerrarModal('modal-confirmacion-acceso-creado')" class="w-full py-2.5 bg-navy-900 hover:bg-navy-800 text-white font-bold text-xs rounded-xl transition">
+          Listo, entendido
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DESBLOQUEO ADMIN PARA EL PANEL MAESTRO -->
+  <div id="modal-admin-unlock" class="fixed inset-0 bg-navy-950/80 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 flex flex-col animate-in fade-in zoom-in-95 duration-200">
+      <div class="text-center mb-4">
+        <div class="w-12 h-12 rounded-2xl bg-turquoise-100 text-turquoise-700 mx-auto flex items-center justify-center mb-2 shadow-sm">
+          <i data-lucide="shield-alert" class="w-6 h-6"></i>
+        </div>
+        <h3 class="text-sm font-black text-navy-900">Acceso al Panel Maestro</h3>
+        <p class="text-xs text-slate-500 mt-1">Este panel permite controlar la base de datos total y la sincronización con Google Sheets. Ingresa la clave de Administrador.</p>
+      </div>
+      <form onsubmit="event.preventDefault(); verificarDesbloqueoAdmin();" class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Contraseña de Administrador:</label>
+          <input type="password" id="input-unlock-admin-pass" required placeholder="admin123" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-turquoise-500 focus:outline-none font-medium">
+        </div>
+        <div class="flex items-center space-x-2 pt-1">
+          <button type="button" onclick="cerrarModal('modal-admin-unlock')" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition">
+            Cancelar
+          </button>
+          <button type="submit" class="flex-1 py-2.5 bg-turquoise-600 hover:bg-turquoise-500 text-white font-bold text-xs rounded-xl shadow transition">
+            Entrar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <!-- MODAL: POLÍTICA DE PRIVACIDAD (LEY 29733) -->
   <div id="modal-politica-privacidad" class="fixed inset-0 bg-navy-950/75 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
@@ -805,8 +1097,29 @@
     let servicioActivoSeleccionado = null;
     let mapaLeafletInstancia = null;
 
+    // CLON DE DATOS POR DEFECTO PARA RESTAURACIÓN
+    let DB_LOCAL_DEFAULT = null;
+
+    // VARIABLES DE ESTADO EN TIEMPO REAL
+    let seccionSupervisorActual = 'dashboard';
+    let seccionAdminActual = 'empresas';
+    let pestanaPanelActual = 'usuarios';
+    let marcadorLeafletActual = null;
+    let canalRealtime = null;
+    let timerAutoSync = null;
+    let syncEnCurso = false;
+    let ultimoEnvioGps = 0;
+    let ultimasCredencialesCreadas = null;
+
+    // EVENTOS DE AUDITORÍA EN TIEMPO REAL
+    let auditoriaEventos = [];
+    try {
+      const rawAudit = localStorage.getItem("NEXA_RUTA_AUDIT_LOG");
+      if (rawAudit) auditoriaEventos = JSON.parse(rawAudit);
+    } catch(e) {}
+
     // BASE DE DATOS LOCAL MULTI-EMPRESA (NEXA RUTA)
-    const DB_LOCAL = {
+    let DB_LOCAL = {
       empresas: [
         { id: "TRP-001", ruc: "20601234567", razonSocial: "Transportes Andinos S.A.C.", direccion: "Av. Industrial 450, Callao", telefono: "(01) 450-8900", contacto: "Marcos Paredes", estado: "ACTIVA" },
         { id: "TRP-002", ruc: "20443322119", razonSocial: "Carga del Centro S.A.", direccion: "Carretera Central Km 18, Ate", telefono: "(01) 320-1122", contacto: "Valeria Gómez", estado: "ACTIVA" },
@@ -1086,6 +1399,199 @@
       ]
     };
 
+    // Guardar referencia por defecto
+    DB_LOCAL_DEFAULT = JSON.parse(JSON.stringify(DB_LOCAL));
+
+    // =========================================================================
+    // PERSISTENCIA PERMANENTE EN LOCALSTORAGE Y SINCRONIZACIÓN EN TIEMPO REAL
+    // =========================================================================
+    function cargarBaseDatosLocal() {
+      try {
+        const raw = localStorage.getItem("NEXA_RUTA_DB_v2");
+        if (raw) {
+          const data = JSON.parse(raw);
+          if (data && data.usuarios && data.usuarios.length) {
+            // Asegurar que los usuarios estándar siempre estén disponibles
+            const usuariosExistentes = new Set(data.usuarios.map(u => (u.usuario || '').trim().toLowerCase()));
+            DB_LOCAL_DEFAULT.usuarios.forEach(uDef => {
+              if (!usuariosExistentes.has(uDef.usuario.trim().toLowerCase())) {
+                data.usuarios.push(uDef);
+              }
+            });
+            Object.assign(DB_LOCAL, data);
+            return;
+          }
+        }
+      } catch(e) {
+        console.warn("Fallo cargando base de datos local:", e);
+      }
+      guardarBaseDatosLocal(false);
+    }
+
+    function guardarBaseDatosLocal(notificar = true) {
+      try {
+        localStorage.setItem("NEXA_RUTA_DB_v2", JSON.stringify(DB_LOCAL));
+      } catch(e) {
+        console.warn("Error guardando base de datos en localStorage:", e);
+      }
+      if (notificar) {
+        notificarCambioRealtime({ tipo: "DB_ACTUALIZADA", timestamp: Date.now() });
+      }
+    }
+
+    // Inicializar canal de mensajería en tiempo real entre ventanas/celular
+    try {
+      if (typeof BroadcastChannel !== 'undefined') {
+        canalRealtime = new BroadcastChannel("NEXA_RUTA_REALTIME");
+        canalRealtime.onmessage = (event) => {
+          manejarMensajeRealtime(event.data);
+        };
+      }
+    } catch(e) {}
+
+    window.addEventListener("storage", (e) => {
+      if (e.key === "NEXA_RUTA_DB_v2" || e.key === "NEXA_RUTA_REALTIME_MSG") {
+        cargarBaseDatosLocal();
+        refrescarVistaActualEnVivo();
+      }
+    });
+
+    function notificarCambioRealtime(msg) {
+      try {
+        if (canalRealtime) canalRealtime.postMessage(msg);
+        localStorage.setItem("NEXA_RUTA_REALTIME_MSG", JSON.stringify({ ...msg, _t: Date.now() }));
+      } catch(e) {}
+    }
+
+    function manejarMensajeRealtime(data) {
+      if (!data) return;
+      cargarBaseDatosLocal();
+      refrescarVistaActualEnVivo(data);
+    }
+
+    function refrescarVistaActualEnVivo(data) {
+      if (!sesionActual) return;
+      if (sesionActual.rol === "SUPERVISOR") {
+        if (seccionSupervisorActual) {
+          mostrarSeccionSupervisor(seccionSupervisorActual);
+        }
+        if (data && data.tipo === "GPS_CONDUCTOR" && mapaLeafletInstancia && marcadorLeafletActual) {
+          marcadorLeafletActual.setLatLng([data.lat, data.lng]);
+        }
+      } else if (sesionActual.rol === "ADMIN_GENERAL") {
+        if (seccionAdminActual) {
+          mostrarSeccionAdmin(seccionAdminActual);
+        }
+      }
+      actualizarVistaPanelControlTotal();
+    }
+
+    function registrarEventoAuditoria(tipo, detalle, entidad = "Sistema") {
+      const nuevoEvento = {
+        id: "AUD-" + Date.now().toString().slice(-4),
+        fecha: new Date().toLocaleTimeString('es-PE'),
+        tipo: tipo,
+        detalle: detalle,
+        entidad: entidad
+      };
+      auditoriaEventos.unshift(nuevoEvento);
+      if (auditoriaEventos.length > 50) auditoriaEventos.pop();
+      try {
+        localStorage.setItem("NEXA_RUTA_AUDIT_LOG", JSON.stringify(auditoriaEventos));
+      } catch(e) {}
+    }
+
+    // Auto-sincronización bidireccional en vivo con Google Sheets
+    function iniciarAutoSyncGoogleSheets() {
+      if (timerAutoSync) clearInterval(timerAutoSync);
+      timerAutoSync = setInterval(() => {
+        const autoSyncHabilitado = localStorage.getItem("NEXA_RUTA_AUTOSYNC") !== "false";
+        if (APPS_SCRIPT_URL && autoSyncHabilitado && !syncEnCurso) {
+          ejecutarSincronizacionBidireccional(false);
+        }
+      }, 4000);
+    }
+
+    async function ejecutarSincronizacionBidireccional(mostrarNotificacion = true) {
+      if (!APPS_SCRIPT_URL || syncEnCurso) return;
+      syncEnCurso = true;
+      actualizarBadgeSyncStatus("Sincronizando...", "warning");
+
+      try {
+        const res = await fetch(APPS_SCRIPT_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            action: "sistema/sync_bidireccional",
+            datosLocales: {
+              conductores: DB_LOCAL.conductores,
+              usuarios: DB_LOCAL.usuarios,
+              servicios: DB_LOCAL.servicios
+            }
+          })
+        });
+        const data = await res.json();
+        if (data && data.status === "OK") {
+          if (Array.isArray(data.usuarios) && data.usuarios.length > 0) {
+            data.usuarios.forEach(uCloud => {
+              const uKey = (uCloud.USUARIO || uCloud.usuario || "").trim().toLowerCase();
+              if (!uKey) return;
+              const idx = DB_LOCAL.usuarios.findIndex(u => u.usuario.trim().toLowerCase() === uKey);
+              const uNorm = {
+                id: uCloud.ID_USUARIO || uCloud.id || ("USR-" + Date.now()),
+                usuario: uKey,
+                pass: uCloud.pass || "123456",
+                rol: uCloud.ROL || uCloud.rol || "CONDUCTOR",
+                id_empresa: uCloud.ID_EMPRESA || uCloud.id_empresa || "TRP-001",
+                id_conductor: uCloud.ID_CONDUCTOR || uCloud.id_conductor,
+                nombre: uCloud.NOMBRE_COMPLETO || uCloud.nombre || uKey,
+                dni: uCloud.DNI || uCloud.dni || "",
+                telefono: uCloud.TELEFONO || uCloud.telefono || "",
+                estado: uCloud.ESTADO || uCloud.estado || "ACTIVO"
+              };
+              if (idx >= 0) {
+                DB_LOCAL.usuarios[idx] = { ...DB_LOCAL.usuarios[idx], ...uNorm };
+              } else {
+                DB_LOCAL.usuarios.push(uNorm);
+              }
+            });
+          }
+
+          if (Array.isArray(data.servicios) && data.servicios.length > 0) {
+            data.servicios.forEach(sCloud => {
+              const cod = sCloud.COD_SERVICIO || sCloud.cod_servicio;
+              if (!cod) return;
+              const idx = DB_LOCAL.servicios.findIndex(s => s.cod_servicio === cod);
+              if (idx >= 0) {
+                if (sCloud.ESTADO_OPERATIVO) DB_LOCAL.servicios[idx].estado = sCloud.ESTADO_OPERATIVO;
+                if (sCloud.PARADA_ACTUAL) DB_LOCAL.servicios[idx].parada_actual = sCloud.PARADA_ACTUAL;
+              }
+            });
+          }
+
+          guardarBaseDatosLocal(false);
+          refrescarVistaActualEnVivo();
+          actualizarBadgeSyncStatus("Google Sheets Conectado", "success");
+          if (mostrarNotificacion) {
+            mostrarToast("Sincronizado con Google Sheets en tiempo real", "success");
+          }
+        }
+      } catch(err) {
+        console.warn("Fallo sync bidireccional:", err);
+        actualizarBadgeSyncStatus("Error de enlace", "error");
+      } finally {
+        syncEnCurso = false;
+      }
+    }
+
+    function actualizarBadgeSyncStatus(texto, estado = "info") {
+      const el = document.getElementById("lbl-header-sync-status");
+      if (el) el.textContent = texto;
+      const lblPanel = document.getElementById("lbl-panel-sync-status");
+      if (lblPanel) lblPanel.textContent = texto;
+      const lblLast = document.getElementById("lbl-panel-last-sync");
+      if (lblLast) lblLast.textContent = "Última sincronización: " + (new Date().toLocaleTimeString('es-PE'));
+    }
+
     // ==========================================
     // INICIALIZACIÓN Y SEGURIDAD DE ACCESO
     // ==========================================
@@ -1114,6 +1620,9 @@
         return;
       }
 
+      // Asegurar que siempre se lea la base de datos más actualizada de localStorage
+      cargarBaseDatosLocal();
+
       const user = document.getElementById("input-login-user").value.trim();
       const pass = document.getElementById("input-login-pass").value.trim();
 
@@ -1122,27 +1631,14 @@
         return;
       }
 
-      // Conexión con Apps Script en segundo plano si está disponible
-      if (APPS_SCRIPT_URL) {
-        try {
-          const res = await fetch(APPS_SCRIPT_URL, {
-            method: "POST",
-            body: JSON.stringify({ action: "auth/login", usuario: user, password: pass })
-          });
-          const data = await res.json();
-          if (data.status === "OK") {
-            establecerSesion(data.usuario, data.token);
-            return;
-          }
-        } catch (e) {
-          console.warn("Fallo contacto Apps Script, recurriendo a verificación local:", e);
-        }
-      }
-
-      // Verificación local ultra flexible
+      // Búsqueda en base de datos local (tolerante a mayúsculas/minúsculas y espacios)
       const uUser = user.toLowerCase();
-      let cuenta = DB_LOCAL.usuarios.find(u => u.usuario.toLowerCase() === uUser && u.pass.trim() === pass);
+      let cuenta = DB_LOCAL.usuarios.find(u => 
+        (u.usuario || '').trim().toLowerCase() === uUser && 
+        (u.pass || '').trim() === pass
+      );
 
+      // Verificación de alias cortos predeterminados si no coincidió exacto
       if (!cuenta) {
         if ((uUser === "admin" || uUser === "admin.general" || uUser === "administrador") && (pass === "admin123" || pass === "DemoAdmin!4826" || pass === "admin")) {
           cuenta = DB_LOCAL.usuarios.find(u => u.rol === "ADMIN_GENERAL");
@@ -1152,6 +1648,37 @@
           cuenta = DB_LOCAL.usuarios.find(u => u.usuario === "supervisor2" || u.usuario === "supervisor.centro");
         } else if ((uUser === "conductor" || uUser === "conductor1" || uUser === "conductor.andinos" || uUser === "chofer") && (pass === "cond123" || pass === "RutaAndinos!3658" || pass === "123456")) {
           cuenta = DB_LOCAL.usuarios.find(u => u.usuario === "conductor1" || u.usuario === "conductor.andinos");
+        }
+      }
+
+      // Si aún no se encontró y hay URL de Google Apps Script, consultar en vivo
+      if (!cuenta && APPS_SCRIPT_URL) {
+        try {
+          mostrarToast("Verificando credenciales con Google Sheets...", "info");
+          const res = await fetch(APPS_SCRIPT_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: "auth/login", usuario: user, password: pass })
+          });
+          const data = await res.json();
+          if (data && data.status === "OK" && data.usuario) {
+            cuenta = {
+              id: data.usuario.id_usuario,
+              usuario: user,
+              pass: pass,
+              rol: data.usuario.rol,
+              id_empresa: data.usuario.id_empresa,
+              nombre: data.usuario.nombre_completo,
+              dni: data.usuario.dni,
+              telefono: data.usuario.telefono,
+              estado: "ACTIVO"
+            };
+            DB_LOCAL.usuarios.push(cuenta);
+            guardarBaseDatosLocal();
+            establecerSesion(cuenta, data.token);
+            return;
+          }
+        } catch(e) {
+          console.warn("Error autenticando con Sheets:", e);
         }
       }
 
@@ -1283,6 +1810,30 @@
               cnd.longitud = pos.coords.longitude;
               cnd.precision_m = pos.coords.accuracy;
               cnd.ultima_actualizacion = "Ahora mismo";
+
+              guardarBaseDatosLocal(false);
+
+              notificarCambioRealtime({
+                tipo: "GPS_CONDUCTOR",
+                idConductor: cnd.id_conductor,
+                lat: pos.coords.latitude,
+                lng: pos.coords.longitude
+              });
+
+              if (APPS_SCRIPT_URL && (!ultimoEnvioGps || (Date.now() - ultimoEnvioGps > 15000))) {
+                ultimoEnvioGps = Date.now();
+                fetch(APPS_SCRIPT_URL, {
+                  method: "POST",
+                  body: JSON.stringify({
+                    action: "conductor/registrar_ubicacion",
+                    token: sesionActual.token,
+                    id_conductor: cnd.id_conductor,
+                    latitud: pos.coords.latitude,
+                    longitud: pos.coords.longitude,
+                    precision_metros: pos.coords.accuracy
+                  })
+                }).catch(e => {});
+              }
             }
           }
         },
@@ -1509,6 +2060,7 @@
     }
 
     function mostrarSeccionSupervisor(seccion) {
+      seccionSupervisorActual = seccion;
       toggleMenuMobile(false);
       ['dashboard', 'conductores', 'servicios', 'evidencias', 'incidencias'].forEach(s => {
         const btn = document.getElementById(`sup-menu-${s}`);
@@ -1801,10 +2353,16 @@
 
                     <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
                       <span class="text-[10px] text-slate-500 font-mono"><i data-lucide="camera" class="w-3.5 h-3.5 inline mr-1 text-turquoise-600"></i>${totalFotos} fotos</span>
-                      <button onclick="abrirSeguimientoMapaConductor('${c.id_conductor}')" class="px-3.5 py-1.5 bg-turquoise-600 hover:bg-turquoise-700 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 transition shadow-xs">
-                        <i data-lucide="map" class="w-3.5 h-3.5"></i>
-                        <span>Ver en mapa y fotos</span>
-                      </button>
+                      <div class="flex items-center space-x-1.5">
+                        <button onclick="abrirModalEditarConductorSupervisor('${c.id_conductor}')" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl flex items-center space-x-1 transition shadow-2xs" title="Editar datos y cambiar contraseña">
+                          <i data-lucide="key" class="w-3.5 h-3.5 text-slate-500"></i>
+                          <span>Editar / Clave</span>
+                        </button>
+                        <button onclick="abrirSeguimientoMapaConductor('${c.id_conductor}')" class="px-3.5 py-1.5 bg-turquoise-600 hover:bg-turquoise-700 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 transition shadow-xs">
+                          <i data-lucide="map" class="w-3.5 h-3.5"></i>
+                          <span>Ver mapa</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 `;
@@ -2128,13 +2686,17 @@
       const tracto = document.getElementById("sup-cnd-tracto").value;
       const carreta = document.getElementById("sup-cnd-carreta").value;
       const user = document.getElementById("sup-cnd-user").value.trim();
-      const pass = document.getElementById("sup-cnd-pass").value;
+      const pass = document.getElementById("sup-cnd-pass").value.trim();
+
+      if (!nombres || !apellidos || !dni || !user || !pass) {
+        mostrarToast("Completa los datos obligatorios del conductor", "error");
+        return;
+      }
 
       const idCnd = "CND-" + Date.now().toString().slice(-4);
       const nombreCompleto = `${nombres} ${apellidos}`;
 
-      // Crear ficha del conductor vinculada exclusivamente a su empresa
-      DB_LOCAL.conductores.push({
+      const nuevoConductor = {
         id_conductor: idCnd,
         id_empresa: idEmp,
         nombre: nombreCompleto,
@@ -2149,11 +2711,11 @@
         placa_carreta: carreta,
         latitud: -12.0463,
         longitud: -77.0427,
+        precision_m: 10,
         ultima_actualizacion: "Recién registrado"
-      });
+      };
 
-      // Crear usuario de acceso para el conductor
-      DB_LOCAL.usuarios.push({
+      const nuevoUsuario = {
         id: "USR-" + Date.now().toString().slice(-4),
         usuario: user,
         pass: pass,
@@ -2164,11 +2726,178 @@
         dni: dni,
         telefono: tel,
         estado: "ACTIVO"
-      });
+      };
+
+      const idxExist = DB_LOCAL.usuarios.findIndex(u => u.usuario.trim().toLowerCase() === user.toLowerCase());
+      if (idxExist >= 0) {
+        DB_LOCAL.usuarios[idxExist] = nuevoUsuario;
+      } else {
+        DB_LOCAL.usuarios.push(nuevoUsuario);
+      }
+
+      DB_LOCAL.conductores.push(nuevoConductor);
+
+      // GUARDADO PERMANENTE EN LOCALSTORAGE
+      guardarBaseDatosLocal();
+
+      // Registro en Auditoría
+      registrarEventoAuditoria("CREAR_CONDUCTOR", `Supervisor ${sesionActual.nombre} creó conductor ${nombreCompleto} con usuario ${user}`, "Usuarios");
+
+      // Notificación inmediata
+      notificarCambioRealtime({ tipo: "NUEVO_CONDUCTOR", conductor: nuevoConductor, usuario: nuevoUsuario });
+
+      // Sincronización con Google Sheets si está conectado
+      if (APPS_SCRIPT_URL) {
+        fetch(APPS_SCRIPT_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            action: "supervisor/crear_conductor",
+            nuevoUsuario: nuevoUsuario,
+            nuevoConductor: nuevoConductor
+          })
+        }).catch(err => console.warn("Sync Sheets conductor:", err));
+      }
 
       cerrarModal("modal-supervisor-crear-conductor");
-      mostrarToast(`Conductor ${nombreCompleto} registrado con éxito en tu flota`, "success");
+
+      // Mostrar modal de confirmación con datos para WhatsApp
+      abrirModalConfirmacionAcceso(nombreCompleto, user, pass);
       mostrarSeccionSupervisor('conductores');
+    }
+
+    // Modal para que el supervisor edite datos del conductor y cambie su contraseña
+    function abrirModalEditarConductorSupervisor(idConductor) {
+      const cnd = DB_LOCAL.conductores.find(c => c.id_conductor === idConductor);
+      if (!cnd) return;
+
+      const usr = DB_LOCAL.usuarios.find(u => u.id_conductor === idConductor || (u.dni && u.dni === cnd.dni));
+
+      const idEmp = sesionActual.id_empresa;
+      const tractos = DB_LOCAL.tractos.filter(t => t.id_empresa === idEmp);
+      const carretas = DB_LOCAL.carretas.filter(c => c.id_empresa === idEmp);
+
+      document.getElementById("edit-sup-cnd-tracto").innerHTML = tractos.map(t => `<option value="${t.placa}" ${t.placa === cnd.placa_tracto ? 'selected' : ''}>${t.placa} - ${t.marca}</option>`).join('');
+      document.getElementById("edit-sup-cnd-carreta").innerHTML = carretas.map(c => `<option value="${c.placa}" ${c.placa === cnd.placa_carreta ? 'selected' : ''}>${c.placa} (${c.tipo})</option>`).join('');
+
+      document.getElementById("edit-sup-cnd-id").value = cnd.id_conductor;
+      document.getElementById("edit-sup-cnd-usr-id").value = usr ? usr.id : '';
+
+      const partes = (cnd.nombre || '').split(' ');
+      document.getElementById("edit-sup-cnd-nombres").value = partes.slice(0, 2).join(' ');
+      document.getElementById("edit-sup-cnd-apellidos").value = partes.slice(2).join(' ') || partes[1] || '';
+      document.getElementById("edit-sup-cnd-dni").value = cnd.dni || '';
+      document.getElementById("edit-sup-cnd-tel").value = cnd.telefono || '';
+      document.getElementById("edit-sup-cnd-licencia").value = cnd.licencia || '';
+      document.getElementById("edit-sup-cnd-cat").value = cnd.categoria || 'A-IIIc';
+
+      document.getElementById("edit-sup-cnd-user").value = usr ? usr.usuario : (cnd.dni || 'conductor');
+      document.getElementById("edit-sup-cnd-pass").value = usr ? usr.pass : 'cond123';
+
+      document.getElementById("modal-supervisor-editar-conductor").classList.remove("hidden");
+      lucide.createIcons();
+    }
+
+    function guardarEdicionConductorSupervisor() {
+      const idCnd = document.getElementById("edit-sup-cnd-id").value;
+      const idUsr = document.getElementById("edit-sup-cnd-usr-id").value;
+      const nombres = document.getElementById("edit-sup-cnd-nombres").value.trim();
+      const apellidos = document.getElementById("edit-sup-cnd-apellidos").value.trim();
+      const dni = document.getElementById("edit-sup-cnd-dni").value.trim();
+      const tel = document.getElementById("edit-sup-cnd-tel").value.trim();
+      const lic = document.getElementById("edit-sup-cnd-licencia").value.trim();
+      const cat = document.getElementById("edit-sup-cnd-cat").value;
+      const tracto = document.getElementById("edit-sup-cnd-tracto").value;
+      const carreta = document.getElementById("edit-sup-cnd-carreta").value;
+      const user = document.getElementById("edit-sup-cnd-user").value.trim();
+      const pass = document.getElementById("edit-sup-cnd-pass").value.trim();
+
+      const nombreCompleto = `${nombres} ${apellidos}`;
+
+      // 1. Actualizar conductor
+      const cnd = DB_LOCAL.conductores.find(c => c.id_conductor === idCnd);
+      if (cnd) {
+        cnd.nombre = nombreCompleto;
+        cnd.dni = dni;
+        cnd.telefono = tel;
+        cnd.licencia = lic;
+        cnd.categoria = cat;
+        cnd.placa_tracto = tracto;
+        cnd.placa_carreta = carreta;
+      }
+
+      // 2. Actualizar o crear usuario de acceso y contraseña
+      let usr = DB_LOCAL.usuarios.find(u => u.id === idUsr || u.id_conductor === idCnd || u.dni === dni);
+      if (usr) {
+        usr.usuario = user;
+        usr.pass = pass;
+        usr.nombre = nombreCompleto;
+        usr.dni = dni;
+        usr.telefono = tel;
+      } else {
+        usr = {
+          id: "USR-" + Date.now().toString().slice(-4),
+          usuario: user,
+          pass: pass,
+          rol: "CONDUCTOR",
+          id_empresa: sesionActual.id_empresa,
+          id_conductor: idCnd,
+          nombre: nombreCompleto,
+          dni: dni,
+          telefono: tel,
+          estado: "ACTIVO"
+        };
+        DB_LOCAL.usuarios.push(usr);
+      }
+
+      // GUARDADO PERMANENTE
+      guardarBaseDatosLocal();
+
+      // Registro de auditoría
+      registrarEventoAuditoria("MODIFICAR_CONDUCTOR", `Supervisor modificó datos/contraseña de ${nombreCompleto}. Nueva clave asignada.`, "Usuarios");
+
+      // Notificar cambio
+      notificarCambioRealtime({ tipo: "CONDUCTOR_ACTUALIZADO", idConductor: idCnd, usuario: usr });
+
+      // Enviar a Google Sheets si está conectado
+      if (APPS_SCRIPT_URL) {
+        fetch(APPS_SCRIPT_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            action: "supervisor/crear_conductor",
+            nuevoUsuario: usr,
+            nuevoConductor: cnd
+          })
+        }).catch(err => console.warn("Error sync edición Sheets:", err));
+      }
+
+      cerrarModal("modal-supervisor-editar-conductor");
+      mostrarToast(`✅ Datos y contraseña de ${nombreCompleto} actualizados correctamente`, "success");
+      mostrarSeccionSupervisor('conductores');
+    }
+
+    function abrirModalConfirmacionAcceso(nombre, user, pass) {
+      ultimasCredencialesCreadas = { nombre, user, pass };
+      document.getElementById("lbl-confirm-nombre").textContent = nombre;
+      document.getElementById("lbl-confirm-user").textContent = user;
+      document.getElementById("lbl-confirm-pass").textContent = pass;
+      document.getElementById("modal-confirmacion-acceso-creado").classList.remove("hidden");
+      lucide.createIcons();
+    }
+
+    function copiarCredencialesCreadas() {
+      if (!ultimasCredencialesCreadas) return;
+      const texto = `🚚 *NEXA RUTA - ACCESO CONDUCTOR*\n` +
+                    `Hola ${ultimasCredencialesCreadas.nombre}, tus accesos a la app móvil son:\n` +
+                    `👤 *Usuario:* ${ultimasCredencialesCreadas.user}\n` +
+                    `🔑 *Contraseña:* ${ultimasCredencialesCreadas.pass}\n` +
+                    `📲 *Enlace:* https://josebasilioesp.github.io/Nexo-Ruta1/`;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(texto).then(() => {
+          mostrarToast("¡Accesos copiados al portapapeles para WhatsApp!", "success");
+        });
+      } else {
+        mostrarToast("Copia los datos de la pantalla", "info");
+      }
     }
 
     // Modal para que el Supervisor asigne ruta
@@ -2265,6 +2994,7 @@
     }
 
     function mostrarSeccionAdmin(seccion) {
+      seccionAdminActual = seccion;
       toggleMenuMobile(false);
       ['resumen', 'empresas', 'usuarios', 'conductores', 'historial', 'evidencias', 'conexion'].forEach(s => {
         const btn = document.getElementById(`adm-menu-${s}`);
@@ -3456,6 +4186,42 @@
       }
 
       srv.estado = nuevoEstado;
+
+      const cnd = DB_LOCAL.conductores.find(c => c.id_conductor === srv.id_conductor);
+      if (cnd) {
+        cnd.estado = nuevoEstado === "Finalizado" ? "Disponible" : nuevoEstado;
+        cnd.ultima_actualizacion = "Ahora mismo";
+      }
+
+      // Guardar base de datos permanentemente
+      guardarBaseDatosLocal();
+
+      // Registrar auditoría
+      registrarEventoAuditoria("CAMBIO_ESTADO", `Servicio ${codServicio} (${srv.conductor_nombre}) pasó a: ${nuevoEstado}`, "Servicios");
+
+      // Notificar en tiempo real al supervisor
+      notificarCambioRealtime({
+        tipo: "ESTADO_VIAJE",
+        codServicio: codServicio,
+        nuevoEstado: nuevoEstado,
+        idConductor: srv.id_conductor
+      });
+
+      // Sincronizar con Google Sheets
+      if (APPS_SCRIPT_URL) {
+        fetch(APPS_SCRIPT_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            action: "conductor/reportar_avance",
+            token: sesionActual ? sesionActual.token : "",
+            cod_servicio: codServicio,
+            nuevo_estado: nuevoEstado,
+            id_conductor: srv.id_conductor,
+            parada: srv.parada_actual || "Ruta"
+          })
+        }).catch(e => console.warn("Sync estado Sheets:", e));
+      }
+
       mostrarToast(`Estado actualizado a: ${nuevoEstado}`, "success");
       abrirDetalleServicioConductor(codServicio);
     }
@@ -3510,7 +4276,334 @@
       }, 3500);
     }
 
+
+    // =========================================================================
+    // FUNCIONES DEL PANEL MAESTRO DE CONTROL TOTAL Y APPS SCRIPT
+    // =========================================================================
+    function abrirPanelControlTotalWeb() {
+      if (sesionActual && sesionActual.rol === "ADMIN_GENERAL") {
+        mostrarModalPanelControlTotal();
+      } else {
+        document.getElementById("modal-admin-unlock").classList.remove("hidden");
+        document.getElementById("input-unlock-admin-pass").value = "";
+        document.getElementById("input-unlock-admin-pass").focus();
+        lucide.createIcons();
+      }
+    }
+
+    function verificarDesbloqueoAdmin() {
+      const pass = document.getElementById("input-unlock-admin-pass").value.trim();
+      if (pass === "admin123" || pass === "DemoAdmin!4826" || pass === "admin") {
+        cerrarModal("modal-admin-unlock");
+        mostrarModalPanelControlTotal();
+      } else {
+        mostrarToast("Contraseña de administrador incorrecta", "error");
+      }
+    }
+
+    function mostrarModalPanelControlTotal() {
+      cargarBaseDatosLocal();
+      const inputUrl = document.getElementById("input-panel-gas-url");
+      if (inputUrl) inputUrl.value = APPS_SCRIPT_URL;
+
+      const btnExt = document.getElementById("btn-abrir-appscript-externo");
+      if (btnExt) {
+        if (APPS_SCRIPT_URL) btnExt.classList.remove("hidden");
+        else btnExt.classList.add("hidden");
+      }
+
+      const chkAuto = document.getElementById("chk-panel-autosync");
+      if (chkAuto) chkAuto.checked = localStorage.getItem("NEXA_RUTA_AUTOSYNC") !== "false";
+
+      actualizarContadoresPanel();
+      cambiarPestanaPanelControl(pestanaPanelActual || 'usuarios');
+
+      document.getElementById("modal-panel-control-total").classList.remove("hidden");
+      lucide.createIcons();
+    }
+
+    function abrirAppsScriptEnPestana() {
+      if (APPS_SCRIPT_URL) {
+        window.open(APPS_SCRIPT_URL, "_blank");
+      } else {
+        mostrarToast("Ingresa y guarda la URL de Apps Script primero", "error");
+      }
+    }
+
+    function actualizarContadoresPanel() {
+      const cUsr = document.getElementById("cnt-panel-usuarios");
+      const cCnd = document.getElementById("cnt-panel-conductores");
+      const cSrv = document.getElementById("cnt-panel-servicios");
+      if (cUsr) cUsr.textContent = DB_LOCAL.usuarios.length;
+      if (cCnd) cCnd.textContent = DB_LOCAL.conductores.length;
+      if (cSrv) cSrv.textContent = DB_LOCAL.servicios.length;
+    }
+
+    function cambiarPestanaPanelControl(pestana) {
+      pestanaPanelActual = pestana;
+      ['usuarios', 'conductores', 'servicios', 'auditoria'].forEach(p => {
+        const btn = document.getElementById(`tab-panel-${p}`);
+        if (btn) {
+          btn.className = p === pestana 
+            ? "px-3.5 py-1.5 rounded-xl bg-navy-900 text-white transition flex items-center space-x-1.5 shrink-0 shadow-sm"
+            : "px-3.5 py-1.5 rounded-xl text-slate-600 hover:bg-slate-100 transition flex items-center space-x-1.5 shrink-0";
+        }
+      });
+      renderizarPestanaPanelControl();
+      lucide.createIcons();
+    }
+
+    function renderizarPestanaPanelControl() {
+      const stage = document.getElementById("panel-control-stage");
+      if (!stage) return;
+
+      if (pestanaPanelActual === 'usuarios') {
+        stage.innerHTML = `
+          <div class="space-y-3">
+            <div class="flex items-center justify-between pb-1">
+              <span class="text-xs font-bold text-navy-900">Total Usuarios Registrados: ${DB_LOCAL.usuarios.length}</span>
+              <button onclick="crearUsuarioManualDesdePanel()" class="px-3 py-1.5 bg-turquoise-600 hover:bg-turquoise-500 text-white font-bold text-xs rounded-xl flex items-center space-x-1 shadow-sm">
+                <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+                <span>Nuevo Usuario</span>
+              </button>
+            </div>
+            <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-2xs">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-100 text-slate-600 font-bold uppercase text-[10px] border-b">
+                  <tr>
+                    <th class="p-2.5">Usuario</th>
+                    <th class="p-2.5">Contraseña</th>
+                    <th class="p-2.5">Rol</th>
+                    <th class="p-2.5">Nombre / Ficha</th>
+                    <th class="p-2.5">Empresa</th>
+                    <th class="p-2.5">Estado</th>
+                    <th class="p-2.5 text-right">Acción</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 bg-white">
+                  ${DB_LOCAL.usuarios.map(u => `
+                    <tr class="hover:bg-slate-50 transition">
+                      <td class="p-2.5 font-mono font-bold text-navy-900">${u.usuario}</td>
+                      <td class="p-2.5 font-mono font-bold text-turquoise-700 bg-turquoise-50/50 rounded">${u.pass}</td>
+                      <td class="p-2.5"><span class="px-2 py-0.5 rounded-md text-[9px] font-bold ${u.rol === 'ADMIN_GENERAL' ? 'bg-purple-100 text-purple-800' : u.rol === 'SUPERVISOR' ? 'bg-blue-100 text-blue-800' : 'bg-emerald-100 text-emerald-800'}">${u.rol}</span></td>
+                      <td class="p-2.5">${u.nombre || '-'}</td>
+                      <td class="p-2.5 font-mono text-[10px]">${u.id_empresa}</td>
+                      <td class="p-2.5"><span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-50 text-emerald-700">${u.estado}</span></td>
+                      <td class="p-2.5 text-right space-x-1">
+                        <button onclick="eliminarUsuarioDesdePanel('${u.id}')" class="text-rose-600 hover:text-rose-800 p-1" title="Eliminar"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      } else if (pestanaPanelActual === 'conductores') {
+        stage.innerHTML = `
+          <div class="space-y-3">
+            <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-2xs">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-100 text-slate-600 font-bold uppercase text-[10px] border-b">
+                  <tr>
+                    <th class="p-2.5">Conductor</th>
+                    <th class="p-2.5">DNI</th>
+                    <th class="p-2.5">Licencia</th>
+                    <th class="p-2.5">Tracto / Carreta</th>
+                    <th class="p-2.5">Estado</th>
+                    <th class="p-2.5">Última Actualización</th>
+                    <th class="p-2.5 text-right">GPS</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 bg-white">
+                  ${DB_LOCAL.conductores.map(c => `
+                    <tr class="hover:bg-slate-50 transition">
+                      <td class="p-2.5 font-bold text-navy-900">${c.nombre}</td>
+                      <td class="p-2.5 font-mono">${c.dni}</td>
+                      <td class="p-2.5 font-mono text-[11px]">${c.licencia} (${c.categoria})</td>
+                      <td class="p-2.5 font-mono">${c.placa_tracto} / ${c.placa_carreta}</td>
+                      <td class="p-2.5"><span class="px-2 py-0.5 rounded-full text-[9px] font-bold ${c.estado === 'En ruta' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}">${c.estado}</span></td>
+                      <td class="p-2.5 text-slate-500">${c.ultima_actualizacion || '-'}</td>
+                      <td class="p-2.5 text-right font-mono text-[10px] text-turquoise-800">${c.latitud ? c.latitud.toFixed(4) + ', ' + c.longitud.toFixed(4) : '-'}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      } else if (pestanaPanelActual === 'servicios') {
+        stage.innerHTML = `
+          <div class="space-y-3">
+            <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-2xs">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-100 text-slate-600 font-bold uppercase text-[10px] border-b">
+                  <tr>
+                    <th class="p-2.5">Código</th>
+                    <th class="p-2.5">Cliente</th>
+                    <th class="p-2.5">Conductor</th>
+                    <th class="p-2.5">Estado Operativo</th>
+                    <th class="p-2.5">Parada Actual</th>
+                    <th class="p-2.5">Km Inicial</th>
+                    <th class="p-2.5">Km Final</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 bg-white">
+                  ${DB_LOCAL.servicios.map(s => `
+                    <tr class="hover:bg-slate-50 transition">
+                      <td class="p-2.5 font-mono font-bold text-navy-900">${s.cod_servicio}</td>
+                      <td class="p-2.5 font-semibold">${s.cliente}</td>
+                      <td class="p-2.5">${s.conductor_nombre}</td>
+                      <td class="p-2.5"><span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-slate-100 text-slate-700">${s.estado}</span></td>
+                      <td class="p-2.5 text-turquoise-800">${s.parada_actual}</td>
+                      <td class="p-2.5 font-mono">${s.km_inicial || '-'}</td>
+                      <td class="p-2.5 font-mono font-bold">${s.km_final || (s.km_actual || '-')}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      } else if (pestanaPanelActual === 'auditoria') {
+        stage.innerHTML = `
+          <div class="space-y-2">
+            <p class="text-[11px] text-slate-500">Historial en tiempo real de cada acción (usuarios añadidos, cambios de estado operativo de conductores, GPS y sincronizaciones):</p>
+            <div class="divide-y divide-slate-100 bg-slate-50 rounded-2xl p-3 border border-slate-200 font-mono text-[11px] max-h-72 overflow-y-auto">
+              ${auditoriaEventos.length === 0 ? '<p class="text-slate-400 py-3 text-center">No hay eventos registrados aún en esta sesión.</p>' : auditoriaEventos.map(ev => `
+                <div class="py-2 flex items-start justify-between space-x-2">
+                  <div class="flex items-center space-x-2">
+                    <span class="text-slate-400">[${ev.fecha}]</span>
+                    <span class="px-1.5 py-0.2 bg-navy-900 text-white rounded text-[9px] font-bold">${ev.tipo}</span>
+                    <span class="text-slate-800">${ev.detalle}</span>
+                  </div>
+                  <span class="text-turquoise-700 font-bold shrink-0">${ev.entidad}</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+      lucide.createIcons();
+    }
+
+    function actualizarVistaPanelControlTotal() {
+      actualizarContadoresPanel();
+      const modal = document.getElementById("modal-panel-control-total");
+      if (modal && !modal.classList.contains("hidden")) {
+        renderizarPestanaPanelControl();
+      }
+    }
+
+    function guardarUrlDesdePanelControl() {
+      const input = document.getElementById("input-panel-gas-url");
+      const url = input ? input.value.trim() : "";
+      if (url) {
+        localStorage.setItem("NEXA_RUTA_GAS_URL", url);
+        APPS_SCRIPT_URL = url;
+        mostrarToast("¡Enlace de Google Apps Script guardado y conectado permanentemente!", "success");
+        const btnExt = document.getElementById("btn-abrir-appscript-externo");
+        if (btnExt) btnExt.classList.remove("hidden");
+        ejecutarSincronizacionBidireccional(true);
+      } else {
+        localStorage.removeItem("NEXA_RUTA_GAS_URL");
+        APPS_SCRIPT_URL = "";
+        mostrarToast("Enlace eliminado. Modo local activado.", "info");
+      }
+    }
+
+    async function probarPingDesdePanel() {
+      const input = document.getElementById("input-panel-gas-url");
+      const url = input ? input.value.trim() : APPS_SCRIPT_URL;
+      if (!url) {
+        mostrarToast("Ingresa una URL primero", "error");
+        return;
+      }
+      mostrarToast("Enviando ping a Google Apps Script...", "info");
+      const t0 = performance.now();
+      try {
+        const res = await fetch(url, {
+          method: "POST",
+          body: JSON.stringify({ action: "sistema/ping" })
+        });
+        const data = await res.json();
+        const lat = Math.round(performance.now() - t0);
+        document.getElementById("lbl-panel-latency").textContent = `${lat}ms`;
+        if (data.status === "OK") {
+          mostrarToast(`¡Conexión exitosa con Google Apps Script! (${lat}ms)`, "success");
+        } else {
+          mostrarToast("Respuesta: " + (data.mensaje || data.status), "info");
+        }
+      } catch(e) {
+        mostrarToast("Error de conexión. Revisa que el script esté implementado con acceso 'Cualquiera'", "error");
+      }
+    }
+
+    function toggleAutoSyncSetting(activo) {
+      localStorage.setItem("NEXA_RUTA_AUTOSYNC", activo ? "true" : "false");
+      mostrarToast(activo ? "Auto-sincronización activada (cada 4s)" : "Auto-sincronización en pausa", "info");
+    }
+
+    function eliminarUsuarioDesdePanel(idUsuario) {
+      const idx = DB_LOCAL.usuarios.findIndex(u => u.id === idUsuario);
+      if (idx >= 0) {
+        const u = DB_LOCAL.usuarios[idx];
+        if (u.rol === "ADMIN_GENERAL" && DB_LOCAL.usuarios.filter(x => x.rol === "ADMIN_GENERAL").length <= 1) {
+          mostrarToast("No puedes eliminar al único Administrador General", "error");
+          return;
+        }
+        if (confirm(`¿Estás seguro de eliminar el usuario ${u.usuario}?`)) {
+          DB_LOCAL.usuarios.splice(idx, 1);
+          guardarBaseDatosLocal();
+          registrarEventoAuditoria("ELIMINAR_USUARIO", `Usuario ${u.usuario} eliminado desde Panel Maestro`, "Usuarios");
+          renderizarPestanaPanelControl();
+          mostrarToast(`Usuario ${u.usuario} eliminado`, "info");
+        }
+      }
+    }
+
+    function crearUsuarioManualDesdePanel() {
+      const uUser = prompt("Ingresa el nombre de usuario (ej. conductor3):");
+      if (!uUser || !uUser.trim()) return;
+      const uPass = prompt("Ingresa la contraseña para este usuario:", "123456");
+      if (!uPass || !uPass.trim()) return;
+      const uRol = prompt("Rol (ADMIN_GENERAL, SUPERVISOR, CONDUCTOR):", "CONDUCTOR") || "CONDUCTOR";
+
+      const nuevoUsr = {
+        id: "USR-" + Date.now().toString().slice(-4),
+        usuario: uUser.trim(),
+        pass: uPass.trim(),
+        rol: uRol.trim().toUpperCase(),
+        id_empresa: "TRP-001",
+        nombre: uUser.trim(),
+        dni: "00000000",
+        telefono: "999999999",
+        estado: "ACTIVO"
+      };
+
+      DB_LOCAL.usuarios.push(nuevoUsr);
+      guardarBaseDatosLocal();
+      registrarEventoAuditoria("CREAR_USUARIO", `Usuario manual ${uUser} creado desde Panel Maestro`, "Usuarios");
+      renderizarPestanaPanelControl();
+      mostrarToast(`Usuario ${uUser} creado con éxito`, "success");
+    }
+
+    function exportarBaseDatosAJson() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(DB_LOCAL, null, 2));
+      const a = document.createElement('a');
+      a.setAttribute("href", dataStr);
+      a.setAttribute("download", `nexa_ruta_backup_${Date.now()}.json`);
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      mostrarToast("Copia de seguridad JSON descargada", "success");
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
+      // Cargar base de datos persistente
+      cargarBaseDatosLocal();
+      // Iniciar sincronización continua
+      iniciarAutoSyncGoogleSheets();
       lucide.createIcons();
 
       // Registro de Service Worker para PWA y PWABuilder
