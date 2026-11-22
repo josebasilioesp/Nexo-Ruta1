@@ -223,8 +223,8 @@
         <!-- Acciones del Usuario -->
         <div class="flex items-center space-x-2.5">
           <!-- Indicador de Red Online/Offline -->
-          <div id="badge-red-status" class="hidden items-center space-x-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800" style="display: none !important;">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <div id="badge-red-status" class="hidden" style="display: none !important; visibility: hidden !important;">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
             <span id="txt-red-status">En línea</span>
           </div>
 
@@ -623,6 +623,35 @@
     </div>
   </div>
 
+    <!-- ========================================================================= -->
+  <!-- MODAL: VISOR DE MAPA GOOGLE INTEGRADO (SIN SALIR DE LA PÁGINA NI ABRIR OTRA PESTAÑA) -->
+  <!-- ========================================================================= -->
+  <div id="modal-visor-mapa-google" class="fixed inset-0 bg-navy-950/80 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-2 sm:p-4">
+    <div class="bg-white rounded-3xl max-w-3xl w-full p-4 sm:p-6 shadow-2xl border border-slate-200 max-h-[95vh] flex flex-col">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-9 h-9 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shadow-xs">
+            <i data-lucide="map-pin" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-extrabold text-navy-900" id="gmaps-modal-titulo">Ubicación en Google Maps</h3>
+            <p class="text-[10px] text-slate-500" id="gmaps-modal-subtitulo">Visualización satelital y de calles integrada dentro de Nexa Ruta</p>
+          </div>
+        </div>
+        <button onclick="cerrarModal('modal-visor-mapa-google')" class="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="flex-1 overflow-hidden rounded-2xl border border-slate-200 relative min-h-[360px] sm:min-h-[440px] bg-slate-100 shadow-inner">
+        <iframe id="gmaps-modal-iframe" src="" class="w-full h-full min-h-[360px] sm:min-h-[440px] border-0" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+      <div class="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+        <span class="text-[11px] text-slate-400 font-mono" id="gmaps-modal-coords">Lat: - | Lng: -</span>
+        <button onclick="cerrarModal('modal-visor-mapa-google')" class="px-5 py-2 bg-navy-900 hover:bg-navy-950 text-white rounded-xl text-xs font-bold transition shadow-sm">Cerrar mapa</button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL: SEGUIMIENTO EN TIEMPO REAL CON MAPA Y DETALLES DEL CONDUCTOR -->
   <div id="modal-seguimiento-mapa" class="fixed inset-0 bg-navy-950/75 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-2 sm:p-4">
     <div class="bg-white rounded-3xl max-w-4xl w-full p-4 sm:p-6 shadow-2xl border border-slate-200 max-h-[95vh] flex flex-col">
@@ -701,22 +730,27 @@
               <span>Ubicación Satelital y Recorrido en Tiempo Real</span>
             </span>
             <div class="flex items-center space-x-1.5 flex-wrap gap-y-1">
-              <a id="btn-abrir-comaps" href="#" target="_blank" title="Abrir en CoMaps (Navegación 100% Offline sin internet)" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[10px] font-bold inline-flex items-center space-x-1 shadow-2xs transition">
-                <i data-lucide="compass" class="w-3 h-3"></i>
-                <span>CoMaps (Offline)</span>
-              </a>
-              <a id="btn-abrir-gmaps" href="#" target="_blank" title="Abrir en Google Maps" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[10px] font-bold inline-flex items-center space-x-1 border border-slate-200 transition">
-                <i data-lucide="map-pin" class="w-3 h-3"></i>
-                <span>Google Maps</span>
-              </a>
               <div class="inline-flex rounded-lg border border-slate-200 p-0.5 bg-slate-50 text-[10px]">
-                <button type="button" onclick="cambiarCapaMapa('calles')" id="btn-mapa-calles" class="px-2 py-0.5 rounded-md font-bold bg-navy-900 text-white shadow-2xs">Calles</button>
-                <button type="button" onclick="cambiarCapaMapa('satelite')" id="btn-mapa-satelite" class="px-2 py-0.5 rounded-md text-slate-600 hover:text-slate-900">Satélite</button>
+                <button type="button" onclick="cambiarCapaMapaSeguimiento('gmaps')" id="btn-mapa-gmaps" class="px-2.5 py-1 rounded-md font-bold bg-rose-600 text-white shadow-2xs inline-flex items-center space-x-1">
+                  <i data-lucide="map-pin" class="w-3 h-3"></i>
+                  <span>Google Maps</span>
+                </button>
+                <button type="button" onclick="cambiarCapaMapaSeguimiento('calles')" id="btn-mapa-calles" class="px-2 py-1 rounded-md text-slate-600 hover:text-slate-900 font-medium">Calles HD</button>
+                <button type="button" onclick="cambiarCapaMapaSeguimiento('satelite')" id="btn-mapa-satelite" class="px-2 py-1 rounded-md text-slate-600 hover:text-slate-900 font-medium">Satélite</button>
               </div>
+              <button type="button" onclick="ampliarGoogleMapsSeguimiento()" title="Ver en pantalla completa sin salir de la página" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[10px] font-bold inline-flex items-center space-x-1 border border-slate-200 transition">
+                <i data-lucide="maximize-2" class="w-3 h-3"></i>
+                <span>Ampliar</span>
+              </button>
               <span class="text-[10px] text-slate-500 font-mono" id="mapa-lbl-actualizacion">Último reporte: Hace un momento</span>
             </div>
           </div>
-          <div id="contenedor-mapa-leaflet" class="w-full h-64 sm:h-72 rounded-2xl border border-slate-300 overflow-hidden shadow-inner relative z-0"></div>
+          <!-- Google Maps Oficial Integrado -->
+          <div id="contenedor-mapa-gmaps" class="w-full h-64 sm:h-72 rounded-2xl border border-slate-300 overflow-hidden shadow-inner relative z-0">
+            <iframe id="iframe-gmaps-seguimiento" src="" class="w-full h-full border-0" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+          </div>
+          <!-- Capas Alternativas Leaflet (Calles HD y Satélite) -->
+          <div id="contenedor-mapa-leaflet" class="w-full h-64 sm:h-72 rounded-2xl border border-slate-300 overflow-hidden shadow-inner relative z-0 hidden"></div>
         </div>
 
         <!-- HISTORIAL DE REGISTROS Y NOVEDADES ENVIADAS POR EL CONDUCTOR -->
@@ -2145,6 +2179,79 @@
             });
           }
 
+          // 4. SINCRONIZAR EVIDENCIAS Y FOTOGRAFÍAS DESDE GOOGLE SHEETS (Para que se vean en todas las PCs y móviles)
+          if (Array.isArray(data.evidencias) && data.evidencias.length > 0) {
+            DB_LOCAL.evidencias = DB_LOCAL.evidencias || [];
+            data.evidencias.forEach(evCloud => {
+              const idEv = evCloud.id_evidencia || evCloud.ID_EVIDENCIA;
+              if (!idEv) return;
+
+              const evNorm = {
+                id_evidencia: idEv,
+                id_empresa: evCloud.id_empresa || evCloud.ID_EMPRESA || "TRP-001",
+                cod_servicio: evCloud.cod_servicio || evCloud.COD_SERVICIO || "",
+                tramo: evCloud.tramo || evCloud.TRAMO || "TRAMO-ACTUAL",
+                parada: evCloud.parada || evCloud.PARADA || "Punto de Control",
+                tipo_evidencia: evCloud.tipo_evidencia || evCloud.TIPO_EVIDENCIA || "Carga",
+                conductor: evCloud.conductor || evCloud.CONDUCTOR || "Conductor",
+                tracto: evCloud.tracto || evCloud.TRACTO || "V7X-890",
+                carreta: evCloud.carreta || evCloud.CARRETA || "TC8-120",
+                observacion: evCloud.observacion || evCloud.OBSERVACION || "",
+                fecha_captura: evCloud.fecha_captura || evCloud.FECHA_HORA_CAPTURA || "",
+                fecha_recepcion: evCloud.fecha_recepcion || evCloud.FECHA_HORA_RECEPCION || "",
+                id_drive_archivo: evCloud.id_drive_archivo || evCloud.ID_DRIVE_ARCHIVO || "",
+                latitud: Number(evCloud.latitud !== undefined ? evCloud.latitud : evCloud.LATITUD),
+                longitud: Number(evCloud.longitud !== undefined ? evCloud.longitud : evCloud.LONGITUD),
+                precision_metros: Number(evCloud.precision_metros !== undefined ? evCloud.precision_metros : evCloud.PRECISION_METROS || 10),
+                permiso_supervisor: evCloud.permiso_supervisor || evCloud.PERMISO_SUPERVISOR || "AUTORIZADO",
+                url_foto: evCloud.url_foto || evCloud.URL_FOTO || (evCloud.id_drive_archivo ? `https://lh3.googleusercontent.com/d/${evCloud.id_drive_archivo}` : "")
+              };
+
+              // Guardar en lista maestra global
+              const idxGlobal = DB_LOCAL.evidencias.findIndex(e => e.id_evidencia === idEv);
+              if (idxGlobal >= 0) {
+                // Conservar URL base64 local si en la nube vino vacía
+                if (!evNorm.url_foto && DB_LOCAL.evidencias[idxGlobal].url_foto) {
+                  evNorm.url_foto = DB_LOCAL.evidencias[idxGlobal].url_foto;
+                }
+                DB_LOCAL.evidencias[idxGlobal] = { ...DB_LOCAL.evidencias[idxGlobal], ...evNorm };
+              } else {
+                DB_LOCAL.evidencias.unshift(evNorm);
+              }
+
+              // Vincular al servicio correspondiente
+              if (evNorm.cod_servicio) {
+                let srvMatch = (DB_LOCAL.servicios || []).find(s => s.cod_servicio === evNorm.cod_servicio);
+                if (!srvMatch) {
+                  srvMatch = {
+                    cod_servicio: evNorm.cod_servicio,
+                    id_empresa: evNorm.id_empresa,
+                    cliente: "Servicio en Curso",
+                    conductor_nombre: evNorm.conductor,
+                    placa_tracto: evNorm.tracto,
+                    placa_carreta: evNorm.carreta,
+                    origen: "Base",
+                    parada_actual: evNorm.parada,
+                    estado: "En ruta",
+                    km_inicial: 148500,
+                    evidencias: []
+                  };
+                  DB_LOCAL.servicios.unshift(srvMatch);
+                }
+                srvMatch.evidencias = srvMatch.evidencias || [];
+                const idxSrvEv = srvMatch.evidencias.findIndex(e => e.id_evidencia === idEv);
+                if (idxSrvEv >= 0) {
+                  if (!evNorm.url_foto && srvMatch.evidencias[idxSrvEv].url_foto) {
+                    evNorm.url_foto = srvMatch.evidencias[idxSrvEv].url_foto;
+                  }
+                  srvMatch.evidencias[idxSrvEv] = { ...srvMatch.evidencias[idxSrvEv], ...evNorm };
+                } else {
+                  srvMatch.evidencias.unshift(evNorm);
+                }
+              }
+            });
+          }
+
           // 3. SINCRONIZAR SERVICIOS Y RUTAS ASIGNADAS DESDE GOOGLE SHEETS
           if (Array.isArray(data.servicios) && data.servicios.length > 0) {
             data.servicios.forEach(sCloud => {
@@ -2225,7 +2332,10 @@
       const el = document.getElementById("lbl-header-sync-status");
       if (el) el.textContent = texto;
       const elTop = document.getElementById("txt-red-status");
-      if (elTop) elTop.textContent = estado === "success" ? "Nube Conectada" : (estado === "warning" ? "Sincronizando..." : "En línea");
+      if (elTop) {
+        elTop.textContent = estado === "success" ? "Nube Conectada" : (estado === "warning" ? "Sincronizando..." : "En línea");
+        if (elTop.parentElement) elTop.parentElement.style.display = "none";
+      }
       const lblPanel = document.getElementById("lbl-panel-sync-status");
       if (lblPanel) lblPanel.textContent = texto;
       const lblLast = document.getElementById("lbl-panel-last-sync");
@@ -2539,8 +2649,48 @@
       document.getElementById("sidebar-navy").classList.add("hidden");
       const main = document.getElementById("main-stage-area");
       
-      const cndFicha = DB_LOCAL.conductores.find(c => c.nombre.toLowerCase().includes(sesionActual.nombre.toLowerCase())) || DB_LOCAL.conductores[0];
-      const misServicios = DB_LOCAL.servicios.filter(s => s.id_conductor === cndFicha.id_conductor || s.conductor_nombre.includes(sesionActual.nombre));
+      const cndFicha = (DB_LOCAL.conductores || []).find(c => 
+        (sesionActual.id_conductor && c.id_conductor === sesionActual.id_conductor) ||
+        (sesionActual.dni && c.dni === sesionActual.dni) ||
+        (sesionActual.nombre && c.nombre.toLowerCase().includes(sesionActual.nombre.toLowerCase()))
+      ) || DB_LOCAL.conductores[0];
+
+      let misServicios = (DB_LOCAL.servicios || []).filter(s => 
+        (cndFicha && s.id_conductor === cndFicha.id_conductor) || 
+        (sesionActual.nombre && s.conductor_nombre && s.conductor_nombre.toLowerCase().includes(sesionActual.nombre.toLowerCase()))
+      );
+
+      // Si el conductor es recién creado y aún no tiene viajes de Programación asignados, proveer servicio operativo inmediato
+      if (misServicios.length === 0 && cndFicha) {
+        const idSrvAuto = "SRV-" + new Date().getFullYear() + "-" + (cndFicha.id_conductor ? cndFicha.id_conductor.replace(/[^0-9]/g, '').slice(-4) || '1001' : '1001');
+        const srvAuto = {
+          cod_servicio: idSrvAuto,
+          id_empresa: cndFicha.id_empresa || (sesionActual ? sesionActual.id_empresa : 'TRP-001'),
+          cliente: "Carga General Asignada",
+          ruc_cliente: "20100000001",
+          id_conductor: cndFicha.id_conductor,
+          conductor_nombre: cndFicha.nombre,
+          conductor_dni: cndFicha.dni,
+          placa_tracto: cndFicha.placa_tracto || "V7X-890",
+          placa_carreta: cndFicha.placa_carreta || "TC8-120",
+          origen: "Base de Operaciones Callao",
+          cantidad_destinos: 1,
+          parada_actual: "Punto de Carga / En Ruta",
+          paradas: [{ id: "DST-1", orden: 1, nombre: "Punto de Carga / En Ruta", estado: "PENDIENTE" }],
+          estado: "En tránsito al destino",
+          alerta_retraso: "A TIEMPO",
+          km_inicial: 148500,
+          km_actual: 148500,
+          km_final: null,
+          fecha_programada: new Date().toLocaleDateString('es-PE'),
+          hora_programada: "08:00",
+          instrucciones: "Servicio asignado para transporte y registro de evidencias",
+          evidencias: [],
+          eventos_historial: []
+        };
+        DB_LOCAL.servicios.unshift(srvAuto);
+        misServicios = [srvAuto];
+      }
 
       main.innerHTML = `
         <div class="max-w-md mx-auto w-full p-4 flex flex-col min-h-full space-y-4">
@@ -2654,10 +2804,10 @@
               <i data-lucide="compass" class="w-4 h-4"></i>
               <span>Navegar en CoMaps (Offline)</span>
             </a>
-            <a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(srv.parada_actual || '')}" target="_blank" class="py-3 px-3.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-2xl text-xs font-bold flex items-center justify-center space-x-1.5 shadow-sm transition">
-              <i data-lucide="map-pin" class="w-4 h-4"></i>
+            <button type="button" onclick="abrirVisorMapaGoogleRutaInline('${encodeURIComponent(srv.origen || 'Lima')}', '${encodeURIComponent(srv.parada_actual || 'Destino')}', '${srv.parada_actual}')" class="py-3 px-3.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-2xl text-xs font-bold flex items-center justify-center space-x-1.5 shadow-sm transition">
+              <i data-lucide="map-pin" class="w-4 h-4 text-rose-500"></i>
               <span>Google Maps</span>
-            </a>
+            </button>
           </div>
 
           <!-- BOTÓN CENTRAL DE EVIDENCIA -->
@@ -2750,7 +2900,7 @@
 
       let secRestaurar = 'dashboard';
       try {
-        secRestaurar = localStorage.getItem("NEXA_RUTA_LAST_SECTION_SUPERVISOR") || 'dashboard';
+        secRestaurar = localStorage.getItem("NEXA_RUTA_ACTIVE_SECTION") || localStorage.getItem("NEXA_RUTA_LAST_SECTION_SUPERVISOR") || 'dashboard';
       } catch(e) {}
       mostrarSeccionSupervisor(secRestaurar);
       lucide.createIcons();
@@ -2758,6 +2908,7 @@
 
     function mostrarSeccionSupervisor(seccion) {
       seccionSupervisorActual = seccion;
+      try { localStorage.setItem("NEXA_RUTA_ACTIVE_SECTION", seccion); } catch(e) {}
       try {
         localStorage.setItem("NEXA_RUTA_LAST_SECTION_SUPERVISOR", seccion);
       } catch(e) {}
@@ -3137,7 +3288,11 @@
           </div>
         `;
       } else if (seccion === 'evidencias') {
-        const todasEvidencias = serviciosEmpresa.flatMap(s => s.evidencias || []).filter(e => e.permiso_supervisor === "AUTORIZADO");
+        // Unificar evidencias de servicios y de la base global para que aparezcan al instante
+        const evdMap = new Map();
+        (DB_LOCAL.evidencias || []).filter(e => e.id_empresa === sesionActual.id_empresa).forEach(e => evdMap.set(e.id_evidencia, e));
+        serviciosEmpresa.flatMap(s => s.evidencias || []).forEach(e => evdMap.set(e.id_evidencia, e));
+        const todasEvidencias = Array.from(evdMap.values()).filter(e => e.permiso_supervisor === "AUTORIZADO");
         main.innerHTML = `
           <div class="p-6 space-y-6">
             <div>
@@ -3155,10 +3310,10 @@
                     <strong class="text-slate-800 font-semibold block truncate">${e.parada}</strong>
                     <span class="text-[10px] text-slate-400 block">${e.conductor} • ${e.fecha_captura}</span>
                     ${e.latitud && e.longitud ? `
-                      <a href="https://maps.google.com/?q=${e.latitud},${e.longitud}" target="_blank" class="inline-flex items-center space-x-1 text-[10px] text-turquoise-700 font-bold hover:underline mt-1">
-                        <i data-lucide="map-pin" class="w-3 h-3 text-turquoise-600"></i>
-                        <span>GPS: ${Number(e.latitud).toFixed(4)}, ${Number(e.longitud).toFixed(4)}</span>
-                      </a>
+                      <button type="button" onclick="abrirVisorMapaGoogleInline('${e.latitud}', '${e.longitud}', '${e.parada || 'Ubicación de Evidencia'}', '${e.conductor} - ${e.tipo_evidencia}')" class="inline-flex items-center space-x-1 text-[10px] text-rose-700 font-bold hover:underline mt-1 cursor-pointer">
+                        <i data-lucide="map-pin" class="w-3 h-3 text-rose-600"></i>
+                        <span>Google Maps: ${Number(e.latitud).toFixed(4)}, ${Number(e.longitud).toFixed(4)}</span>
+                      </button>
                     ` : ''}
                   </div>
                 </div>
@@ -3206,6 +3361,9 @@
           mapaLeafletInstancia.remove();
         } catch(e) {}
         mapaLeafletInstancia = null;
+      }
+      if (contMapa._leaflet_id) {
+        delete contMapa._leaflet_id;
       }
 
       // Capa Calles de Alta Definición con Nombres de Calles en Perú (Esri World Street Map)
@@ -3265,117 +3423,297 @@
     // ==========================================
     // SEGUIMIENTO EN TIEMPO REAL CON MAPA LEAFLET
     // ==========================================
-    function abrirSeguimientoMapaConductor(idConductor) {
-      const c = DB_LOCAL.conductores.find(x => x.id_conductor === idConductor);
-      if (!c) return;
+    let mapaCoordsActuales = { lat: -12.0463, lng: -77.0427, titulo: "Conductor", subtitulo: "Servicio" };
 
-      const srv = DB_LOCAL.servicios.find(s => s.id_conductor === idConductor) || {
-        cod_servicio: "SRV-ASIG-" + c.id_conductor,
-        cliente: "Disponible para Asignación",
-        origen: "Base Central Callao",
-        parada_actual: "Disponible",
-        estado: c.estado,
-        placa_tracto: c.placa_tracto,
-        placa_carreta: c.placa_carreta,
-        km_inicial: 148500,
-        km_actual: 148500,
-        km_final: null,
-        eventos_historial: [],
-        evidencias: []
-      };
+    function abrirVisorMapaGoogleInline(lat, lng, titulo, subtitulo) {
+      const latNum = Number(lat) || -12.0463;
+      const lngNum = Number(lng) || -77.0427;
+      document.getElementById("gmaps-modal-titulo").textContent = titulo || "Ubicación en Google Maps";
+      document.getElementById("gmaps-modal-subtitulo").textContent = subtitulo || "Monitoreo satelital en vivo";
+      document.getElementById("gmaps-modal-coords").textContent = `Lat: ${latNum.toFixed(5)} | Lng: ${lngNum.toFixed(5)}`;
+      
+      const iframe = document.getElementById("gmaps-modal-iframe");
+      if (iframe) {
+        iframe.src = `https://maps.google.com/maps?q=${latNum},${lngNum}&hl=es&z=16&output=embed`;
+      }
+      document.getElementById("modal-visor-mapa-google").classList.remove("hidden");
+      lucide.createIcons();
+    }
 
-      const fotosConductor = srv.evidencias || [];
-      const eventosConductor = srv.eventos_historial || [];
+    function abrirVisorMapaGoogleRutaInline(origen, destino, titulo) {
+      document.getElementById("gmaps-modal-titulo").textContent = titulo || "Ruta de Servicio";
+      document.getElementById("gmaps-modal-subtitulo").textContent = `Origen: ${decodeURIComponent(origen)} ➔ Destino: ${decodeURIComponent(destino)}`;
+      document.getElementById("gmaps-modal-coords").textContent = "Google Maps Tráfico y Ruta Satelital";
+      
+      const iframe = document.getElementById("gmaps-modal-iframe");
+      if (iframe) {
+        iframe.src = `https://maps.google.com/maps?saddr=${origen}&daddr=${destino}&hl=es&output=embed`;
+      }
+      document.getElementById("modal-visor-mapa-google").classList.remove("hidden");
+      lucide.createIcons();
+    }
 
-      const kmIni = srv.km_inicial || 0;
-      const kmFin = srv.km_final || (srv.km_actual || kmIni);
+    function ampliarGoogleMapsSeguimiento() {
+      abrirVisorMapaGoogleInline(mapaCoordsActuales.lat, mapaCoordsActuales.lng, mapaCoordsActuales.titulo, mapaCoordsActuales.subtitulo);
+    }
+
+    function cambiarCapaMapaSeguimiento(tipo) {
+      const contGmaps = document.getElementById("contenedor-mapa-gmaps");
+      const contLeaflet = document.getElementById("contenedor-mapa-leaflet");
+      const btnG = document.getElementById("btn-mapa-gmaps");
+      const btnC = document.getElementById("btn-mapa-calles");
+      const btnS = document.getElementById("btn-mapa-satelite");
+
+      if (tipo === 'gmaps') {
+        if (contGmaps) contGmaps.classList.remove("hidden");
+        if (contLeaflet) contLeaflet.classList.add("hidden");
+        if (btnG) { btnG.className = "px-2.5 py-1 rounded-md font-bold bg-rose-600 text-white shadow-2xs inline-flex items-center space-x-1"; }
+        if (btnC) { btnC.className = "px-2 py-1 rounded-md text-slate-600 hover:text-slate-900 font-medium"; }
+        if (btnS) { btnS.className = "px-2 py-1 rounded-md text-slate-600 hover:text-slate-900 font-medium"; }
+        const iframeG = document.getElementById("iframe-gmaps-seguimiento");
+        if (iframeG && (!iframeG.src || iframeG.src === "about:blank")) {
+          iframeG.src = `https://maps.google.com/maps?q=${mapaCoordsActuales.lat},${mapaCoordsActuales.lng}&hl=es&z=15&output=embed`;
+        }
+      } else {
+        if (contGmaps) contGmaps.classList.add("hidden");
+        if (contLeaflet) contLeaflet.classList.remove("hidden");
+        if (btnG) { btnG.className = "px-2 py-1 rounded-md text-slate-600 hover:text-slate-900 font-medium inline-flex items-center space-x-1"; }
+        if (tipo === 'calles') {
+          if (btnC) { btnC.className = "px-2 py-0.5 rounded-md font-bold bg-navy-900 text-white shadow-2xs"; }
+          if (btnS) { btnS.className = "px-2 py-0.5 rounded-md text-slate-600 hover:text-slate-900"; }
+          cambiarCapaMapa('calles');
+        } else if (tipo === 'satelite') {
+          if (btnC) { btnC.className = "px-2 py-0.5 rounded-md text-slate-600 hover:text-slate-900"; }
+          if (btnS) { btnS.className = "px-2 py-0.5 rounded-md font-bold bg-navy-900 text-white shadow-2xs"; }
+          cambiarCapaMapa('satelite');
+        }
+      }
+    }
+
+    // ==========================================
+    // SEGUIMIENTO EN TIEMPO REAL ROBUSTO Y ANTI-FALLOS
+    // ==========================================
+    function abrirSeguimientoMapaConductor(identificador) {
+      // 1. Mostrar de inmediato el modal para respuesta al instante al hacer clic
+      const modal = document.getElementById("modal-seguimiento-mapa");
+      if (modal) modal.classList.remove("hidden");
+
+      // 2. Búsqueda inteligente: identificador puede ser id_conductor, dni, nombre o cod_servicio
+      let c = null;
+      let srv = null;
+
+      if (identificador) {
+        const idStr = String(identificador).trim().toLowerCase();
+
+        // Probar si coincide con un servicio
+        srv = (DB_LOCAL.servicios || []).find(s => 
+          (s.cod_servicio && s.cod_servicio.toLowerCase() === idStr) ||
+          (s.id_conductor && s.id_conductor.toLowerCase() === idStr) ||
+          (s.conductor_nombre && s.conductor_nombre.toLowerCase().includes(idStr))
+        );
+
+        // Probar si coincide con un conductor
+        c = (DB_LOCAL.conductores || []).find(x => 
+          (x.id_conductor && x.id_conductor.toLowerCase() === idStr) ||
+          (x.dni && String(x.dni).trim() === idStr) ||
+          (x.nombre && x.nombre.toLowerCase().includes(idStr))
+        );
+
+        // Si encontramos servicio pero no conductor, buscar por datos del servicio
+        if (!c && srv) {
+          c = (DB_LOCAL.conductores || []).find(x => 
+            (srv.id_conductor && x.id_conductor === srv.id_conductor) ||
+            (srv.conductor_nombre && x.nombre && x.nombre.toLowerCase().includes(srv.conductor_nombre.toLowerCase()))
+          );
+        }
+      }
+
+      // Fallback seguro de conductor (nunca queda null ni bloquea el clic)
+      if (!c) {
+        const idEmp = sesionActual ? sesionActual.id_empresa : 'TRP-001';
+        c = (DB_LOCAL.conductores || []).find(x => x.id_empresa === idEmp) || (DB_LOCAL.conductores && DB_LOCAL.conductores[0]) || {
+          id_conductor: "CND-001",
+          nombre: "Conductor Nexa",
+          dni: "42345678",
+          licencia: "Q42345678",
+          categoria: "A-IIIc",
+          telefono: "987654321",
+          estado: "En ruta",
+          placa_tracto: "V7X-890",
+          placa_carreta: "TC8-120",
+          latitud: -12.0463,
+          longitud: -77.0427,
+          precision_m: 10,
+          foto: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80"
+        };
+      }
+
+      // Fallback seguro de servicio
+      if (!srv) {
+        srv = (DB_LOCAL.servicios || []).find(s => s.id_conductor === c.id_conductor || (s.conductor_nombre && s.conductor_nombre.includes(c.nombre))) || {
+          cod_servicio: "SRV-" + new Date().getFullYear() + "-" + (c.id_conductor ? c.id_conductor.replace(/[^0-9]/g, '').slice(-4) || '1001' : '1001'),
+          cliente: "Transportes Andinos S.A.C.",
+          origen: "Base Central Callao",
+          parada_actual: "Punto de Carga / En Ruta",
+          estado: c.estado || "En ruta",
+          placa_tracto: c.placa_tracto || "V7X-890",
+          placa_carreta: c.placa_carreta || "TC8-120",
+          km_inicial: 148500,
+          km_actual: 148500,
+          km_final: null,
+          eventos_historial: [],
+          evidencias: []
+        };
+      }
+
+      // Unificar evidencias del servicio y globales que correspondan a este conductor
+      const fotosServicio = srv.evidencias || [];
+      const fotosGlobales = (DB_LOCAL.evidencias || []).filter(e => 
+        (e.cod_servicio && e.cod_servicio === srv.cod_servicio) ||
+        (c.nombre && e.conductor && e.conductor.toLowerCase().includes(c.nombre.toLowerCase())) ||
+        (c.id_conductor && e.id_conductor === c.id_conductor)
+      );
+      const fotosConductorMap = new Map();
+      [...fotosServicio, ...fotosGlobales].forEach(f => {
+        if (f && (f.id_evidencia || f.url_foto)) {
+          fotosConductorMap.set(f.id_evidencia || f.url_foto, f);
+        }
+      });
+      const fotosConductor = Array.from(fotosConductorMap.values());
+
+      const eventosConductor = srv.eventos_historial || srv.eventos || [];
+
+      const kmIni = Number(srv.km_inicial) || 0;
+      const kmFin = Number(srv.km_final || srv.km_actual || kmIni);
       const kmRec = Math.max(0, kmFin - kmIni);
 
-      document.getElementById("mapa-cnd-foto").src = c.foto;
-      document.getElementById("mapa-cnd-nombre").textContent = c.nombre;
-      document.getElementById("mapa-cnd-sub").textContent = `DNI: ${c.dni} • Brevete: ${c.licencia} (${c.categoria}) • ${obtenerNombreEmpresa(c.id_empresa)} • Cel: ${c.telefono}`;
-      document.getElementById("mapa-cnd-estado-badge").textContent = srv.estado || c.estado;
+      const elFoto = document.getElementById("mapa-cnd-foto");
+      if (elFoto) elFoto.src = c.foto || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80";
       
-      document.getElementById("mapa-srv-cod").textContent = `${srv.cod_servicio} - ${srv.cliente}`;
-      document.getElementById("mapa-srv-placas").textContent = `${c.placa_tracto} / ${c.placa_carreta}`;
-      document.getElementById("mapa-srv-km-ini").textContent = kmIni ? `${kmIni.toLocaleString()} km` : "-";
-      document.getElementById("mapa-srv-km-fin").textContent = kmFin ? `${kmFin.toLocaleString()} km` : "-";
-      document.getElementById("mapa-srv-km-rec").textContent = `+${kmRec.toLocaleString()} km`;
-      document.getElementById("mapa-srv-estado").textContent = srv.estado || c.estado;
+      const elNombre = document.getElementById("mapa-cnd-nombre");
+      if (elNombre) elNombre.textContent = c.nombre || "Conductor";
+      
+      const elSub = document.getElementById("mapa-cnd-sub");
+      if (elSub) elSub.textContent = `DNI: ${c.dni || '-'} • Brevete: ${c.licencia || '-'} (${c.categoria || 'A-IIIc'}) • ${obtenerNombreEmpresa(c.id_empresa || 'TRP-001')} • Cel: ${c.telefono || '-'}`;
+      
+      const elBadge = document.getElementById("mapa-cnd-estado-badge");
+      if (elBadge) elBadge.textContent = srv.estado || c.estado || "En ruta";
+      
+      const elCod = document.getElementById("mapa-srv-cod");
+      if (elCod) elCod.textContent = `${srv.cod_servicio || 'SRV-ACTUAL'} - ${srv.cliente || 'Operación en Ruta'}`;
+      
+      const elPlacas = document.getElementById("mapa-srv-placas");
+      if (elPlacas) elPlacas.textContent = `${c.placa_tracto || srv.placa_tracto || 'V7X-890'} / ${c.placa_carreta || srv.placa_carreta || 'TC8-120'}`;
+      
+      const elKmIni = document.getElementById("mapa-srv-km-ini");
+      if (elKmIni) elKmIni.textContent = kmIni ? `${kmIni.toLocaleString()} km` : "-";
+      
+      const elKmFin = document.getElementById("mapa-srv-km-fin");
+      if (elKmFin) elKmFin.textContent = kmFin ? `${kmFin.toLocaleString()} km` : "-";
+      
+      const elKmRec = document.getElementById("mapa-srv-km-rec");
+      if (elKmRec) elKmRec.textContent = `+${kmRec.toLocaleString()} km`;
+      
+      const elEstado = document.getElementById("mapa-srv-estado");
+      if (elEstado) elEstado.textContent = srv.estado || c.estado || "En ruta";
 
-      document.getElementById("mapa-srv-origen").textContent = srv.origen || "Almacén Callao";
-      document.getElementById("mapa-srv-destino").textContent = srv.parada_actual || (srv.paradas && srv.paradas[0] ? srv.paradas[0].nombre : "En ruta");
+      const elOrigen = document.getElementById("mapa-srv-origen");
+      if (elOrigen) elOrigen.textContent = srv.origen || "Almacén Callao";
+      
+      const elDestino = document.getElementById("mapa-srv-destino");
+      if (elDestino) elDestino.textContent = srv.parada_actual || (srv.paradas && srv.paradas[0] ? srv.paradas[0].nombre : "En ruta");
 
-      const lat = c.latitud || -12.0463;
-      const lng = c.longitud || -77.0427;
-      const precision = c.precision_m || 8.5;
+      const lat = Number(c.latitud) || -12.0463;
+      const lng = Number(c.longitud) || -77.0427;
+      const precision = Number(c.precision_m) || 8.5;
 
-      document.getElementById("mapa-lbl-coords").textContent = `Lat: ${lat.toFixed(4)} | Lng: ${lng.toFixed(4)}`;
-      document.getElementById("mapa-lbl-precision").textContent = `Precisión GPS: ±${precision}m`;
-      document.getElementById("mapa-lbl-actualizacion").textContent = `Último reporte: ${c.ultima_actualizacion || 'Hace un momento'}`;
+      mapaCoordsActuales = {
+        lat: lat,
+        lng: lng,
+        titulo: `${c.nombre} (${c.placa_tracto || 'V7X-890'})`,
+        subtitulo: `Servicio ${srv.cod_servicio} • ${srv.cliente}`
+      };
 
-      // Inyectar Historial de Registros Enviados por el Conductor
+      const elCoords = document.getElementById("mapa-lbl-coords");
+      if (elCoords) elCoords.textContent = `Lat: ${lat.toFixed(4)} | Lng: ${lng.toFixed(4)}`;
+      
+      const elPrec = document.getElementById("mapa-lbl-precision");
+      if (elPrec) elPrec.textContent = `Precisión GPS: ±${precision}m`;
+      
+      const elAct = document.getElementById("mapa-lbl-actualizacion");
+      if (elAct) elAct.textContent = `Último reporte: ${c.ultima_actualizacion || 'Hace un momento'}`;
+
+      // Inyectar Historial de Registros
       const tablaHist = document.getElementById("mapa-tabla-historial");
-      document.getElementById("mapa-lbl-total-eventos").textContent = `${eventosConductor.length} registros`;
+      const elTotalEv = document.getElementById("mapa-lbl-total-eventos");
+      if (elTotalEv) elTotalEv.textContent = `${eventosConductor.length} registros`;
 
-      if (eventosConductor.length === 0) {
-        tablaHist.innerHTML = `<tr><td colspan="5" class="p-3 text-center text-slate-400">El conductor no ha enviado registros de ruta aún.</td></tr>`;
-      } else {
-        tablaHist.innerHTML = eventosConductor.map(ev => `
-          <tr class="hover:bg-slate-50 transition">
-            <td class="p-2.5 font-mono text-[10px] text-slate-500 whitespace-nowrap">${ev.fecha_hora}</td>
-            <td class="p-2.5 font-bold text-navy-900">${ev.evento}</td>
-            <td class="p-2.5 font-mono text-turquoise-700 font-bold whitespace-nowrap">${ev.odometro ? Number(ev.odometro).toLocaleString() + ' km' : '-'}</td>
-            <td class="p-2.5 text-slate-600">${ev.ubicacion || '-'}</td>
-            <td class="p-2.5 text-slate-500 italic">${ev.observacion || '-'}</td>
-          </tr>
-        `).join('');
+      if (tablaHist) {
+        if (eventosConductor.length === 0) {
+          tablaHist.innerHTML = '<tr><td colspan="5" class="p-3 text-center text-slate-400">El conductor no ha enviado registros de ruta aún.</td></tr>';
+        } else {
+          tablaHist.innerHTML = eventosConductor.map(ev => `
+            <tr class="hover:bg-slate-50 transition">
+              <td class="p-2.5 font-mono text-[10px] text-slate-500 whitespace-nowrap">${ev.fecha_hora || '-'}</td>
+              <td class="p-2.5 font-bold text-navy-900">${ev.evento || '-'}</td>
+              <td class="p-2.5 font-mono text-turquoise-700 font-bold whitespace-nowrap">${ev.odometro ? Number(ev.odometro).toLocaleString() + ' km' : '-'}</td>
+              <td class="p-2.5 text-slate-600">${ev.ubicacion || '-'}</td>
+              <td class="p-2.5 text-slate-500 italic">${ev.observacion || '-'}</td>
+            </tr>
+          `).join('');
+        }
       }
 
       // Inyectar fotos subidas por este conductor
       const galeria = document.getElementById("mapa-galeria-fotos");
-      if (fotosConductor.length === 0) {
-        galeria.innerHTML = `<p class="col-span-4 text-slate-400 text-center py-4 text-xs">No hay fotos subidas para este recorrido aún.</p>`;
-      } else {
-        galeria.innerHTML = fotosConductor.map(f => `
-          <div class="bg-slate-50 rounded-2xl overflow-hidden border border-slate-200 group flex flex-col justify-between shadow-2xs">
-            <div class="relative overflow-hidden cursor-pointer" onclick="ampliarFotoVisor('${f.url_foto}', '${f.tipo_evidencia} - ${f.parada}')">
-              <img src="${f.url_foto}" class="w-full h-24 object-cover group-hover:scale-105 transition duration-200">
-              <span class="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-full text-[8px] font-bold bg-navy-950/80 text-white backdrop-blur-xs">${f.tipo_evidencia}</span>
+      if (galeria) {
+        if (fotosConductor.length === 0) {
+          galeria.innerHTML = '<p class="col-span-4 text-slate-400 text-center py-4 text-xs">No hay fotos subidas para este recorrido aún.</p>';
+        } else {
+          galeria.innerHTML = fotosConductor.map(f => `
+            <div class="bg-slate-50 rounded-2xl overflow-hidden border border-slate-200 group flex flex-col justify-between shadow-2xs">
+              <div class="relative overflow-hidden cursor-pointer" onclick="ampliarFotoVisor('${f.url_foto}', '${f.tipo_evidencia} - ${f.parada}')">
+                <img src="${f.url_foto}" class="w-full h-24 object-cover group-hover:scale-105 transition duration-200">
+                <span class="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-full text-[8px] font-bold bg-navy-950/80 text-white backdrop-blur-xs">${f.tipo_evidencia || 'Foto'}</span>
+              </div>
+              <div class="p-2 text-[10px]">
+                <strong class="text-navy-900 block truncate">${f.parada || 'En ruta'}</strong>
+                <span class="text-slate-400 block text-[9px] mt-0.5">${f.fecha_captura || ''}</span>
+                ${f.latitud && f.longitud ? `
+                  <button type="button" onclick="abrirVisorMapaGoogleInline('${f.latitud}', '${f.longitud}', '${f.parada || 'Foto GPS'}', '${c.nombre} - ${f.tipo_evidencia}')" class="text-rose-600 font-bold text-[9px] hover:underline mt-1 inline-flex items-center space-x-1">
+                    <i data-lucide="map-pin" class="w-2.5 h-2.5"></i><span>Ver en Google Maps</span>
+                  </button>
+                ` : ''}
+                ${f.observacion ? `<p class="text-slate-500 text-[9px] italic truncate mt-0.5">"${f.observacion}"</p>` : ''}
+              </div>
             </div>
-            <div class="p-2 text-[10px]">
-              <strong class="text-navy-900 block truncate">${f.parada}</strong>
-              <span class="text-slate-400 block text-[9px] mt-0.5">${f.fecha_captura}</span>
-              ${f.observacion ? `<p class="text-slate-500 text-[9px] italic truncate mt-0.5">"${f.observacion}"</p>` : ''}
-            </div>
-          </div>
-        `).join('');
+          `).join('');
+        }
       }
 
-      document.getElementById("modal-seguimiento-mapa").classList.remove("hidden");
-      
-      // Enlace para CoMaps / Organic Maps y Google Maps
-      const btnCoMaps = document.getElementById("btn-abrir-comaps");
-      if (btnCoMaps) {
-        btnCoMaps.href = `https://omaps.app/${lat},${lng}/${encodeURIComponent(c.nombre + ' ' + c.placa_tracto)}?z=16`;
+      // 3. Cargar Google Maps directamente en el iframe del modal (sin salir de la página)
+      const iframeG = document.getElementById("iframe-gmaps-seguimiento");
+      if (iframeG) {
+        iframeG.src = `https://maps.google.com/maps?q=${lat},${lng}&hl=es&z=15&output=embed`;
       }
-      const btnGMaps = document.getElementById("btn-abrir-gmaps");
-      if (btnGMaps) {
-        btnGMaps.href = `https://www.google.com/maps?q=${lat},${lng}`;
+      cambiarCapaMapaSeguimiento('gmaps');
+
+      // 4. Inicializar también Leaflet de respaldo por si el usuario cambia a capa Calles HD o Satélite
+      try {
+        const popupHtml = `
+          <div style="font-size:11px; line-height:1.4;">
+            <strong style="color:#0f172a; font-size:12px;">${c.nombre}</strong><br>
+            <span style="color:#0891b2; font-weight:bold;">Tracto: ${c.placa_tracto || 'V7X-890'}</span> | Carreta: ${c.placa_carreta || 'TC8-120'}<br>
+            <span>Km Actual: <strong>${kmFin.toLocaleString()} km</strong></span><br>
+            <span style="display:inline-block; margin-top:3px; padding:1px 6px; background:#e0f2fe; color:#0369a1; border-radius:10px; font-weight:bold;">${srv.estado || c.estado || 'En ruta'}</span>
+          </div>
+        `;
+        inicializarMapaLeaflet(lat, lng, popupHtml);
+      } catch(errLeaflet) {
+        console.warn("Aviso Leaflet inicialización:", errLeaflet);
       }
 
       lucide.createIcons();
-
-      // Inicializar mapa interactivo Leaflet
-      const popupHtml = `
-        <div style="font-size:11px; line-height:1.4;">
-          <strong style="color:#0f172a; font-size:12px;">${c.nombre}</strong><br>
-          <span style="color:#0891b2; font-weight:bold;">Tracto: ${c.placa_tracto}</span> | Carreta: ${c.placa_carreta}<br>
-          <span>Km Actual: <strong>${kmFin.toLocaleString()} km</strong></span><br>
-          <span style="display:inline-block; margin-top:3px; padding:1px 6px; background:#e0f2fe; color:#0369a1; border-radius:10px; font-weight:bold;">${srv.estado || c.estado}</span>
-        </div>
-      `;
-      inicializarMapaLeaflet(lat, lng, popupHtml);
     }
 
     // Modal para que el Supervisor registre nuevo conductor
@@ -4480,6 +4818,7 @@
 
     function mostrarSeccionAdmin(seccion) {
       seccionAdminActual = seccion;
+      try { localStorage.setItem("NEXA_RUTA_ACTIVE_SECTION_ADMIN", seccion); } catch(e) {}
       try {
         localStorage.setItem("NEXA_RUTA_LAST_SECTION_ADMIN", seccion);
       } catch(e) {}
@@ -4860,7 +5199,8 @@
 
       cerrarModal("modal-editar-usuario-admin");
       mostrarToast(`Usuario ${u.usuario} actualizado correctamente`, "success");
-      mostrarSeccionAdmin('usuarios');
+      const secAdmin = localStorage.getItem("NEXA_RUTA_ACTIVE_SECTION_ADMIN") || 'usuarios';
+      mostrarSeccionAdmin(secAdmin);
     }
 
     function exportarHistorialAdminExcel() {
@@ -5407,8 +5747,21 @@
     }
 
     function abrirModalSubirEvidencia(codServicio) {
-      const srv = DB_LOCAL.servicios.find(s => s.cod_servicio === codServicio);
-      if (!srv) return;
+      let srv = (DB_LOCAL.servicios || []).find(s => s.cod_servicio === codServicio);
+      if (!srv) {
+        // Fallback para nuevo conductor
+        const cnd = (DB_LOCAL.conductores || []).find(c => sesionActual && c.nombre.toLowerCase().includes(sesionActual.nombre.toLowerCase())) || DB_LOCAL.conductores[0];
+        srv = {
+          cod_servicio: codServicio || ("SRV-" + new Date().getFullYear() + "-0001"),
+          conductor_nombre: sesionActual ? sesionActual.nombre : (cnd ? cnd.nombre : "Conductor"),
+          placa_tracto: cnd ? cnd.placa_tracto : "V7X-890",
+          placa_carreta: cnd ? cnd.placa_carreta : "TC8-120",
+          parada_actual: "Punto de Carga / En Ruta",
+          paradas: [{ nombre: "Punto de Carga / En Ruta" }],
+          evidencias: []
+        };
+        DB_LOCAL.servicios.unshift(srv);
+      }
       servicioActivoSeleccionado = srv;
 
       document.getElementById("evd-lbl-servicio").textContent = srv.cod_servicio;
@@ -5575,10 +5928,26 @@
         };
 
         // 1. Guardar de inmediato en memoria local para visualización instantánea
+        DB_LOCAL.evidencias = DB_LOCAL.evidencias || [];
+        DB_LOCAL.evidencias.unshift(evidenciaObj);
+        
         if (srv) {
           srv.evidencias = srv.evidencias || [];
           srv.evidencias.unshift(evidenciaObj);
+        } else {
+          const srvNuevo = {
+            cod_servicio: codServicio,
+            id_empresa: evidenciaObj.id_empresa,
+            conductor_nombre: evidenciaObj.conductor,
+            placa_tracto: evidenciaObj.tracto,
+            placa_carreta: evidenciaObj.carreta,
+            parada_actual: parada,
+            estado: "En ruta",
+            evidencias: [evidenciaObj]
+          };
+          DB_LOCAL.servicios.unshift(srvNuevo);
         }
+        guardarBaseDatosLocal(false);
 
         // 2. ENVIAR A GOOGLE SHEETS Y GOOGLE DRIVE
         const payloadEvidencia = {
@@ -6256,18 +6625,40 @@
 
     document.addEventListener("DOMContentLoaded", async () => {
       actualizarFondoLogin();
-      // 1. Cargar primero almacenamiento local para arranque instantáneo
+      // 1. Cargar base de datos local
       cargarBaseDatosLocal();
-      // 2. Conectar y traer inmediatamente todos los usuarios y conductores desde Google Sheets
-      if (APPS_SCRIPT_URL) {
-        await ejecutarSincronizacionBidireccional(false);
+
+      // 2. RESTAURAR SESIÓN ACTIVA AL INSTANTE (0 ms) para que no parpadee ni se cierre al recargar
+      let sesionRestaurada = false;
+      try {
+        const sesionGuardada = localStorage.getItem("NEXA_RUTA_ACTIVE_SESSION");
+        if (sesionGuardada) {
+          const datos = JSON.parse(sesionGuardada);
+          const u = (datos && datos.usuario) ? datos.usuario : datos;
+          if (u && (u.usuario || u.id_usuario || u.rol)) {
+            establecerSesion(u, datos.token || ("TOKEN_" + Date.now()), false);
+            sesionRestaurada = true;
+          }
+        }
+      } catch(e) {
+        console.warn("Error restaurando sesión:", e);
       }
-      reaplicarPendientesLocales();
-      // 3. Iniciar auto-sincronización continua con la nube
-      iniciarAutoSyncGoogleSheets();
+
+      if (!sesionRestaurada) {
+        document.getElementById("screen-app-container").classList.add("hidden");
+        document.getElementById("screen-login").classList.remove("hidden");
+      }
+
       lucide.createIcons();
 
-      // Registro de Service Worker para PWA y PWABuilder
+      // 3. Conectar y sincronizar en segundo plano sin interrumpir la vista activa
+      if (APPS_SCRIPT_URL) {
+        ejecutarSincronizacionBidireccional(false).catch(e => console.warn(e));
+      }
+      reaplicarPendientesLocales();
+      iniciarAutoSyncGoogleSheets();
+
+      // Registro de Service Worker PWA
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js').then(reg => {
           console.log('Nexa Ruta PWA activo en scope:', reg.scope);
@@ -6275,23 +6666,6 @@
           console.warn('Aviso SW:', err);
         });
       }
-
-      // Restaurar sesión activa automáticamente si el usuario ya había iniciado sesión
-      try {
-        const sesionGuardada = localStorage.getItem("NEXA_RUTA_ACTIVE_SESSION");
-        if (sesionGuardada) {
-          const datos = JSON.parse(sesionGuardada);
-          if (datos && datos.usuario) {
-            establecerSesion(datos.usuario, datos.token || ("TOKEN_" + Date.now()), false);
-            return;
-          }
-        }
-      } catch(e) {
-        console.warn("Error restaurando sesión:", e);
-      }
-
-      document.getElementById("screen-app-container").classList.add("hidden");
-      document.getElementById("screen-login").classList.remove("hidden");
     });
   </script>
 </body>

@@ -1,5 +1,5 @@
 // Service Worker: Nexa Ruta PWA
-const CACHE_NAME = 'nexa-ruta-v3.9';
+const CACHE_NAME = 'nexa-ruta-v4.0';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
