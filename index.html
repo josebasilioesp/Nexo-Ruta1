@@ -1658,9 +1658,6 @@
         return;
       }
 
-      // Asegurar que siempre se lea la base de datos más actualizada de localStorage
-      cargarBaseDatosLocal();
-
       const user = document.getElementById("input-login-user").value.trim();
       const pass = document.getElementById("input-login-pass").value.trim();
 
@@ -1669,40 +1666,26 @@
         return;
       }
 
-      // Búsqueda en base de datos local (tolerante a mayúsculas/minúsculas y espacios)
-      const uUser = user.toLowerCase();
-      let cuenta = DB_LOCAL.usuarios.find(u => 
-        (u.usuario || '').trim().toLowerCase() === uUser && 
-        (u.pass || '').trim() === pass
-      );
-
-      // Verificación de alias cortos predeterminados si no coincidió exacto
-      if (!cuenta) {
-        if ((uUser === "admin" || uUser === "admin.general" || uUser === "administrador") && (pass === "admin123" || pass === "DemoAdmin!4826" || pass === "admin")) {
-          cuenta = DB_LOCAL.usuarios.find(u => u.rol === "ADMIN_GENERAL");
-        } else if ((uUser === "supervisor" || uUser === "supervisor1" || uUser === "supervisor.andinos") && (pass === "super123" || pass === "DemoAndinos!7142" || pass === "123456")) {
-          cuenta = DB_LOCAL.usuarios.find(u => u.usuario === "supervisor1" || u.usuario === "supervisor.andinos");
-        } else if ((uUser === "supervisor2" || uUser === "supervisor.centro") && (pass === "super123" || pass === "DemoCentro!5931" || pass === "123456")) {
-          cuenta = DB_LOCAL.usuarios.find(u => u.usuario === "supervisor2" || u.usuario === "supervisor.centro");
-        } else if ((uUser === "conductor" || uUser === "conductor1" || uUser === "conductor.andinos" || uUser === "chofer") && (pass === "cond123" || pass === "RutaAndinos!3658" || pass === "123456")) {
-          cuenta = DB_LOCAL.usuarios.find(u => u.usuario === "conductor1" || u.usuario === "conductor.andinos");
-        }
+      const btnSubmit = document.getElementById("btn-login-submit");
+      if (btnSubmit) {
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = '<span>Verificando en la Nube...</span><i data-lucide="loader" class="w-4 h-4 animate-spin"></i>';
+        lucide.createIcons();
       }
 
-      // Si aún no se encontró y hay URL de Google Apps Script, consultar en vivo
-      if (!cuenta && APPS_SCRIPT_URL) {
+      // 1. VERIFICACIÓN DIRECTA EN LA NUBE (Google Apps Script / Sheets)
+      if (APPS_SCRIPT_URL) {
         try {
-          mostrarToast("Verificando credenciales con Google Sheets...", "info");
           const res = await fetch(APPS_SCRIPT_URL, {
             method: "POST",
             body: JSON.stringify({ action: "auth/login", usuario: user, password: pass })
           });
           const data = await res.json();
           if (data && data.status === "OK" && data.usuario) {
-            cuenta = {
+            const usuarioAutenticado = {
               id: data.usuario.id_usuario,
+              id_usuario: data.usuario.id_usuario,
               usuario: user,
-              pass: pass,
               rol: data.usuario.rol,
               id_empresa: data.usuario.id_empresa,
               nombre: data.usuario.nombre_completo,
@@ -1710,14 +1693,43 @@
               telefono: data.usuario.telefono,
               estado: "ACTIVO"
             };
-            DB_LOCAL.usuarios.push(cuenta);
-            guardarBaseDatosLocal();
-            establecerSesion(cuenta, data.token);
+            establecerSesion(usuarioAutenticado, data.token || ("TOKEN_" + Date.now()));
+            return;
+          } else if (data && data.status === "ERROR") {
+            mostrarToast(data.mensaje || "Usuario o contraseña incorrectos en Google Sheets", "error");
+            if (btnSubmit) {
+              btnSubmit.disabled = false;
+              btnSubmit.innerHTML = '<span>Ingresar</span><i data-lucide="arrow-right" class="w-4 h-4"></i>';
+              lucide.createIcons();
+            }
             return;
           }
         } catch(e) {
-          console.warn("Error autenticando con Sheets:", e);
+          console.warn("Fallo contacto directo con Sheets, verificando memoria:", e);
         }
+      }
+
+      // 2. Verificación de respaldo si no hay internet o falla la red
+      const uUser = user.toLowerCase();
+      let cuenta = DB_LOCAL.usuarios.find(u => 
+        (u.usuario || '').trim().toLowerCase() === uUser && 
+        (u.pass || '').trim() === pass
+      );
+
+      if (!cuenta) {
+        if ((uUser === "admin" || uUser === "admin.general") && (pass === "admin123" || pass === "DemoAdmin!4826")) {
+          cuenta = DB_LOCAL.usuarios.find(u => u.rol === "ADMIN_GENERAL");
+        } else if ((uUser === "supervisor" || uUser === "supervisor1") && (pass === "super123" || pass === "DemoAndinos!7142")) {
+          cuenta = DB_LOCAL.usuarios.find(u => u.usuario === "supervisor1" || u.usuario === "supervisor.andinos");
+        } else if ((uUser === "conductor" || uUser === "conductor1") && (pass === "cond123" || pass === "RutaAndinos!3658")) {
+          cuenta = DB_LOCAL.usuarios.find(u => u.usuario === "conductor1" || u.usuario === "conductor.andinos");
+        }
+      }
+
+      if (btnSubmit) {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = '<span>Ingresar</span><i data-lucide="arrow-right" class="w-4 h-4"></i>';
+        lucide.createIcons();
       }
 
       if (cuenta) {
@@ -4684,9 +4696,13 @@
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-      // Cargar base de datos persistente
+      actualizarFondoLogin();
+      // 1. Conectar y traer la información más fresca directamente desde Google Sheets en la Nube
+      if (APPS_SCRIPT_URL) {
+        ejecutarSincronizacionBidireccional(false);
+      }
       cargarBaseDatosLocal();
-      // Iniciar sincronización continua
+      // 2. Iniciar auto-sincronización continua cada 3.5 segundos con la nube
       iniciarAutoSyncGoogleSheets();
       lucide.createIcons();
 
