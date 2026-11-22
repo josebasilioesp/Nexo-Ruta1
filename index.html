@@ -1094,6 +1094,46 @@
     if (!localStorage.getItem("NEXA_RUTA_GAS_URL")) {
       try { localStorage.setItem("NEXA_RUTA_GAS_URL", APPS_SCRIPT_DEFAULT_URL); } catch(e) {}
     }
+
+    // =========================================================================
+    // COMUNICACIÓN SEGURA Y RESISTENTE A CORS CON GOOGLE APPS SCRIPT (POST + GET)
+    // =========================================================================
+    async function llamarApiGoogleSheets(payload) {
+      if (!APPS_SCRIPT_URL) return null;
+
+      // 1. Intento primario: POST simple (evita OPTIONS preflight en navegadores)
+      try {
+        const res = await fetch(APPS_SCRIPT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data && data.status) return data;
+      } catch (errPost) {
+        console.warn("POST Apps Script bloqueado por navegador, intentando vía GET:", errPost);
+      }
+
+      // 2. Intento secundario: GET con parámetros (100% inmune a bloqueos de CORS)
+      try {
+        const params = new URLSearchParams();
+        params.set("action", payload.action || "sistema/ping");
+        if (payload.usuario) params.set("usuario", payload.usuario);
+        if (payload.password) params.set("password", payload.password);
+        params.set("data", JSON.stringify(payload));
+
+        const separador = APPS_SCRIPT_URL.includes("?") ? "&" : "?";
+        const urlGet = APPS_SCRIPT_URL + separador + params.toString();
+
+        const resGet = await fetch(urlGet, { method: "GET" });
+        const dataGet = await resGet.json();
+        if (dataGet && dataGet.status) return dataGet;
+      } catch (errGet) {
+        console.error("Fallo definitivo de enlace con Google Sheets:", errGet);
+      }
+
+      return null;
+    }
     let sesionActual = null;
     let gpsActual = { lat: -12.046374, lng: -77.042793, precision: 12.0, disponible: false };
     let fotosSeleccionadas = [];
@@ -1408,6 +1448,37 @@
     // =========================================================================
     // PERSISTENCIA PERMANENTE EN LOCALSTORAGE Y SINCRONIZACIÓN EN TIEMPO REAL
     // =========================================================================
+
+    // =========================================================================
+    // MOTOR UNIFICADO CLOUD: UNA SOLA FUNCIÓN PARA GUARDAR EN SHEETS Y EN LA WEB
+    // =========================================================================
+    async function ejecutarCambioMaestro({ tipo, detalle, entidad, payload, callbackLocal }) {
+      // 1. Ejecutar cambio en memoria local de inmediato
+      if (callbackLocal) callbackLocal();
+      guardarBaseDatosLocal();
+
+      // 2. Registrar en el log de auditoría en vivo del Panel
+      registrarEventoAuditoria(tipo, detalle, entidad || "Sistema");
+
+      // 3. Notificar en vivo a otras ventanas/pantallas
+      notificarCambioRealtime({ tipo, detalle, timestamp: Date.now() });
+
+      // 4. Actualizar la vista del Panel de Control Total
+      actualizarVistaPanelControlTotal();
+
+      // 5. ENVIAR DIRECTAMENTE A GOOGLE SHEETS EN LA NUBE
+      if (APPS_SCRIPT_URL) {
+        actualizarBadgeSyncStatus("Guardando en Google Sheets...", "warning");
+        const data = await llamarApiGoogleSheets(payload);
+        if (data && data.status === "OK") {
+          actualizarBadgeSyncStatus("Google Sheets Conectado", "success");
+          ejecutarSincronizacionBidireccional(false);
+        } else {
+          actualizarBadgeSyncStatus("Guardado en dispositivo (reintentando nube)", "info");
+        }
+      }
+    }
+
     function cargarBaseDatosLocal() {
       try {
         const raw = localStorage.getItem("NEXA_RUTA_DB_v2");
@@ -1522,34 +1593,32 @@
       actualizarBadgeSyncStatus("Sincronizando...", "warning");
 
       try {
-        const res = await fetch(APPS_SCRIPT_URL, {
-          method: "POST",
-          body: JSON.stringify({
-            action: "sistema/sync_bidireccional",
-            datosLocales: {
-              conductores: DB_LOCAL.conductores,
-              usuarios: DB_LOCAL.usuarios,
-              servicios: DB_LOCAL.servicios
-            }
-          })
+        const data = await llamarApiGoogleSheets({
+          action: "sistema/sync_bidireccional",
+          datosLocales: {
+            conductores: DB_LOCAL.conductores,
+            usuarios: DB_LOCAL.usuarios,
+            servicios: DB_LOCAL.servicios
+          }
         });
-        const data = await res.json();
         if (data && data.status === "OK") {
+          // 1. SINCRONIZAR USUARIOS DESDE GOOGLE SHEETS
           if (Array.isArray(data.usuarios) && data.usuarios.length > 0) {
             data.usuarios.forEach(uCloud => {
               const uKey = (uCloud.USUARIO || uCloud.usuario || "").trim().toLowerCase();
               if (!uKey) return;
               const idx = DB_LOCAL.usuarios.findIndex(u => u.usuario.trim().toLowerCase() === uKey);
+              const passEnNube = uCloud.PASSWORD_HASH || uCloud.password || uCloud.pass || (idx >= 0 ? DB_LOCAL.usuarios[idx].pass : "123456");
               const uNorm = {
                 id: uCloud.ID_USUARIO || uCloud.id || ("USR-" + Date.now()),
                 usuario: uKey,
-                pass: uCloud.pass || "123456",
+                pass: passEnNube,
                 rol: uCloud.ROL || uCloud.rol || "CONDUCTOR",
                 id_empresa: uCloud.ID_EMPRESA || uCloud.id_empresa || "TRP-001",
-                id_conductor: uCloud.ID_CONDUCTOR || uCloud.id_conductor,
+                id_conductor: uCloud.ID_CONDUCTOR || uCloud.id_conductor || "",
                 nombre: uCloud.NOMBRE_COMPLETO || uCloud.nombre || uKey,
-                dni: uCloud.DNI || uCloud.dni || "",
-                telefono: uCloud.TELEFONO || uCloud.telefono || "",
+                dni: String(uCloud.DNI || uCloud.dni || ""),
+                telefono: String(uCloud.TELEFONO || uCloud.telefono || ""),
                 estado: uCloud.ESTADO || uCloud.estado || "ACTIVO"
               };
               if (idx >= 0) {
@@ -1560,6 +1629,48 @@
             });
           }
 
+          // 2. SINCRONIZAR CONDUCTORES DESDE GOOGLE SHEETS (Para que aparezcan en todas las computadoras)
+          if (Array.isArray(data.conductores) && data.conductores.length > 0) {
+            data.conductores.forEach(cCloud => {
+              const idCnd = cCloud.ID_CONDUCTOR || cCloud.id_conductor;
+              const cDni = String(cCloud.DNI || cCloud.dni || "").trim();
+              if (!idCnd && !cDni) return;
+
+              const idx = DB_LOCAL.conductores.findIndex(c => 
+                (idCnd && c.id_conductor === idCnd) || (cDni && String(c.dni).trim() === cDni)
+              );
+
+              const nombreFormateado = (cCloud.NOMBRES ? `${cCloud.NOMBRES} ${cCloud.APELLIDOS || ''}`.trim() : cCloud.nombre) || "Conductor";
+
+              const cNorm = {
+                id_conductor: idCnd || ("CND-" + Date.now()),
+                id_usuario: cCloud.ID_USUARIO || cCloud.id_usuario || "",
+                id_empresa: cCloud.ID_EMPRESA || cCloud.id_empresa || "TRP-001",
+                nombre: nombreFormateado,
+                dni: cDni,
+                licencia: cCloud.LICENCIA_CONDUCIR || cCloud.licencia || "",
+                categoria: cCloud.CATEGORIA_LICENCIA || cCloud.categoria || "A-IIIc",
+                vencimiento: cCloud.VENCIMIENTO_LICENCIA || cCloud.vencimiento || "20/12/2028",
+                telefono: String(cCloud.TELEFONO || cCloud.telefono || ""),
+                foto: cCloud.FOTO_PERFIL_URL || cCloud.foto || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
+                estado: cCloud.ESTADO || cCloud.estado || "Disponible",
+                placa_tracto: cCloud.PLACA_TRACTO || cCloud.placa_tracto || (idx >= 0 ? DB_LOCAL.conductores[idx].placa_tracto : "V7X-890"),
+                placa_carreta: cCloud.PLACA_CARRETA || cCloud.placa_carreta || (idx >= 0 ? DB_LOCAL.conductores[idx].placa_carreta : "TC8-120"),
+                latitud: Number(cCloud.LATITUD || cCloud.latitud || (idx >= 0 ? DB_LOCAL.conductores[idx].latitud : -12.0463)),
+                longitud: Number(cCloud.LONGITUD || cCloud.longitud || (idx >= 0 ? DB_LOCAL.conductores[idx].longitud : -77.0427)),
+                precision_m: Number(cCloud.PRECISION_M || cCloud.precision_m || 10),
+                ultima_actualizacion: cCloud.ULTIMA_ACTUALIZACION || cCloud.ultima_actualizacion || "Sincronizado de Nube"
+              };
+
+              if (idx >= 0) {
+                DB_LOCAL.conductores[idx] = { ...DB_LOCAL.conductores[idx], ...cNorm };
+              } else {
+                DB_LOCAL.conductores.push(cNorm);
+              }
+            });
+          }
+
+          // 3. SINCRONIZAR SERVICIOS Y RUTAS ASIGNADAS DESDE GOOGLE SHEETS
           if (Array.isArray(data.servicios) && data.servicios.length > 0) {
             data.servicios.forEach(sCloud => {
               const cod = sCloud.COD_SERVICIO || sCloud.cod_servicio;
@@ -1568,6 +1679,32 @@
               if (idx >= 0) {
                 if (sCloud.ESTADO_OPERATIVO) DB_LOCAL.servicios[idx].estado = sCloud.ESTADO_OPERATIVO;
                 if (sCloud.PARADA_ACTUAL) DB_LOCAL.servicios[idx].parada_actual = sCloud.PARADA_ACTUAL;
+                if (sCloud.KM_INICIAL) DB_LOCAL.servicios[idx].km_inicial = sCloud.KM_INICIAL;
+                if (sCloud.KM_FINAL) DB_LOCAL.servicios[idx].km_final = sCloud.KM_FINAL;
+              } else {
+                // Nuevo viaje creado en otra PC y guardado en Google Sheets
+                DB_LOCAL.servicios.push({
+                  cod_servicio: cod,
+                  id_empresa: sCloud.ID_EMPRESA || sCloud.id_empresa || "TRP-001",
+                  cliente: sCloud.CLIENTE_RAZON_SOCIAL || sCloud.cliente || "Cliente",
+                  ruc_cliente: sCloud.CLIENTE_RUC || sCloud.ruc_cliente || "",
+                  id_conductor: sCloud.ID_CONDUCTOR || sCloud.id_conductor || "",
+                  conductor_nombre: sCloud.CONDUCTOR_NOMBRE || sCloud.conductor_nombre || "Conductor",
+                  placa_tracto: sCloud.PLACA_TRACTO || sCloud.placa_tracto || "V7X-890",
+                  placa_carreta: sCloud.PLACA_CARRETA || sCloud.placa_carreta || "TC8-120",
+                  origen: sCloud.ORIGEN || sCloud.origen || "Lima",
+                  cantidad_destinos: 1,
+                  parada_actual: sCloud.PARADA_ACTUAL || sCloud.destino || "Destino",
+                  paradas: [{ id: "DST-1", orden: 1, nombre: sCloud.PARADA_ACTUAL || "Destino", estado: sCloud.ESTADO_OPERATIVO || "PENDIENTE" }],
+                  estado: sCloud.ESTADO_OPERATIVO || "Asignado",
+                  alerta_retraso: "A TIEMPO",
+                  km_inicial: sCloud.KM_INICIAL || 148500,
+                  km_final: sCloud.KM_FINAL || null,
+                  fecha_programada: sCloud.FECHA_PROGRAMADA || new Date().toLocaleDateString('es-PE'),
+                  hora_programada: sCloud.HORA_PROGRAMADA || "08:00",
+                  instrucciones: sCloud.INSTRUCCIONES || "",
+                  evidencias: []
+                });
               }
             });
           }
@@ -1675,37 +1812,29 @@
 
       // 1. VERIFICACIÓN DIRECTA EN LA NUBE (Google Apps Script / Sheets)
       if (APPS_SCRIPT_URL) {
-        try {
-          const res = await fetch(APPS_SCRIPT_URL, {
-            method: "POST",
-            body: JSON.stringify({ action: "auth/login", usuario: user, password: pass })
-          });
-          const data = await res.json();
-          if (data && data.status === "OK" && data.usuario) {
-            const usuarioAutenticado = {
-              id: data.usuario.id_usuario,
-              id_usuario: data.usuario.id_usuario,
-              usuario: user,
-              rol: data.usuario.rol,
-              id_empresa: data.usuario.id_empresa,
-              nombre: data.usuario.nombre_completo,
-              dni: data.usuario.dni,
-              telefono: data.usuario.telefono,
-              estado: "ACTIVO"
-            };
-            establecerSesion(usuarioAutenticado, data.token || ("TOKEN_" + Date.now()));
-            return;
-          } else if (data && data.status === "ERROR") {
-            mostrarToast(data.mensaje || "Usuario o contraseña incorrectos en Google Sheets", "error");
-            if (btnSubmit) {
-              btnSubmit.disabled = false;
-              btnSubmit.innerHTML = '<span>Ingresar</span><i data-lucide="arrow-right" class="w-4 h-4"></i>';
-              lucide.createIcons();
-            }
-            return;
+        const data = await llamarApiGoogleSheets({ action: "auth/login", usuario: user, password: pass });
+        if (data && data.status === "OK" && data.usuario) {
+          const usuarioAutenticado = {
+            id: data.usuario.id_usuario,
+            id_usuario: data.usuario.id_usuario,
+            usuario: user,
+            rol: data.usuario.rol,
+            id_empresa: data.usuario.id_empresa,
+            nombre: data.usuario.nombre_completo || data.usuario.nombre || user,
+            dni: data.usuario.dni,
+            telefono: data.usuario.telefono,
+            estado: "ACTIVO"
+          };
+          establecerSesion(usuarioAutenticado, data.token || ("TOKEN_" + Date.now()));
+          return;
+        } else if (data && data.status === "ERROR") {
+          mostrarToast(data.mensaje || "Usuario o contraseña incorrectos en Google Sheets", "error");
+          if (btnSubmit) {
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = '<span>Ingresar</span><i data-lucide="arrow-right" class="w-4 h-4"></i>';
+            lucide.createIcons();
           }
-        } catch(e) {
-          console.warn("Fallo contacto directo con Sheets, verificando memoria:", e);
+          return;
         }
       }
 
@@ -2796,15 +2925,15 @@
       // Notificación inmediata
       notificarCambioRealtime({ tipo: "NUEVO_CONDUCTOR", conductor: nuevoConductor, usuario: nuevoUsuario });
 
-      // Sincronización con Google Sheets si está conectado
+      // Sincronización robusta con Google Sheets
       if (APPS_SCRIPT_URL) {
-        fetch(APPS_SCRIPT_URL, {
-          method: "POST",
-          body: JSON.stringify({
-            action: "supervisor/crear_conductor",
-            nuevoUsuario: nuevoUsuario,
-            nuevoConductor: nuevoConductor
-          })
+        llamarApiGoogleSheets({
+          action: "supervisor/crear_conductor",
+          nuevoUsuario: nuevoUsuario,
+          nuevoConductor: nuevoConductor
+        }).then(res => {
+          console.log("Conductor sincronizado con Google Sheets:", res);
+          ejecutarSincronizacionBidireccional(false);
         }).catch(err => console.warn("Sync Sheets conductor:", err));
       }
 
@@ -2908,15 +3037,15 @@
       // Notificar cambio
       notificarCambioRealtime({ tipo: "CONDUCTOR_ACTUALIZADO", idConductor: idCnd, usuario: usr });
 
-      // Enviar a Google Sheets si está conectado
+      // Enviar a Google Sheets con canal robusto
       if (APPS_SCRIPT_URL) {
-        fetch(APPS_SCRIPT_URL, {
-          method: "POST",
-          body: JSON.stringify({
-            action: "supervisor/crear_conductor",
-            nuevoUsuario: usr,
-            nuevoConductor: cnd
-          })
+        llamarApiGoogleSheets({
+          action: "supervisor/crear_conductor",
+          nuevoUsuario: usr,
+          nuevoConductor: cnd
+        }).then(res => {
+          console.log("Edición conductor sincronizada con Google Sheets:", res);
+          ejecutarSincronizacionBidireccional(false);
         }).catch(err => console.warn("Error sync edición Sheets:", err));
       }
 
@@ -3017,25 +3146,25 @@
         servicio: nuevoServicio
       });
 
-      // 4. GUARDAR DE INMEDIATO EN GOOGLE SHEETS
+      // 4. GUARDAR DE INMEDIATO EN GOOGLE SHEETS CON CANAL ROBUSTO
       if (APPS_SCRIPT_URL) {
-        fetch(APPS_SCRIPT_URL, {
-          method: "POST",
-          body: JSON.stringify({
-            action: "supervisor/asignar_ruta",
-            cod_servicio: codServicio,
-            id_empresa: sesionActual.id_empresa,
-            cliente_razon_social: cliente,
-            cliente_ruc: ruc,
-            id_conductor: idCnd,
-            placa_tracto: cnd ? cnd.placa_tracto : "V7X-890",
-            placa_carreta: cnd ? cnd.placa_carreta : "TC8-120",
-            origen: origen,
-            parada_actual: destino,
-            destinos: [{ id: "DST-1", punto_llegada: destino, orden: 1 }],
-            km_inicial: 148500,
-            instrucciones: obs
-          })
+        llamarApiGoogleSheets({
+          action: "supervisor/asignar_ruta",
+          cod_servicio: codServicio,
+          id_empresa: sesionActual.id_empresa,
+          cliente_razon_social: cliente,
+          cliente_ruc: ruc,
+          id_conductor: idCnd,
+          placa_tracto: cnd ? cnd.placa_tracto : "V7X-890",
+          placa_carreta: cnd ? cnd.placa_carreta : "TC8-120",
+          origen: origen,
+          parada_actual: destino,
+          destinos: [{ id: "DST-1", punto_llegada: destino, orden: 1 }],
+          km_inicial: 148500,
+          instrucciones: obs
+        }).then(res => {
+          console.log("Ruta sincronizada con Google Sheets:", res);
+          ejecutarSincronizacionBidireccional(false);
         }).catch(err => console.warn("Error guardando ruta en Sheets:", err));
       }
 
@@ -4695,14 +4824,15 @@
       mostrarToast("Copia de seguridad JSON descargada", "success");
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", async () => {
       actualizarFondoLogin();
-      // 1. Conectar y traer la información más fresca directamente desde Google Sheets en la Nube
-      if (APPS_SCRIPT_URL) {
-        ejecutarSincronizacionBidireccional(false);
-      }
+      // 1. Cargar primero almacenamiento local para arranque instantáneo
       cargarBaseDatosLocal();
-      // 2. Iniciar auto-sincronización continua cada 3.5 segundos con la nube
+      // 2. Conectar y traer inmediatamente todos los usuarios y conductores desde Google Sheets
+      if (APPS_SCRIPT_URL) {
+        await ejecutarSincronizacionBidireccional(false);
+      }
+      // 3. Iniciar auto-sincronización continua con la nube
       iniciarAutoSyncGoogleSheets();
       lucide.createIcons();
 
