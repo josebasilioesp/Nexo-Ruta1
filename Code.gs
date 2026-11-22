@@ -59,7 +59,7 @@ function configurarSistema() {
     "Conductores": [
       "ID_CONDUCTOR", "ID_USUARIO", "ID_EMPRESA", "DNI", "NOMBRES", 
       "APELLIDOS", "LICENCIA_CONDUCIR", "CATEGORIA_LICENCIA", "VENCIMIENTO_LICENCIA", 
-      "TELEFONO", "FOTO_PERFIL_URL", "ESTADO"
+      "TELEFONO", "FOTO_PERFIL_URL", "ESTADO", "PLACA_TRACTO", "PLACA_CARRETA"
     ],
     "Tractos": [
       "PLACA_TRACTO", "ID_EMPRESA", "MARCA", "MODELO", "ANIO_FABRICACION", 
@@ -363,11 +363,34 @@ function cargarDatosDemo() {
 /**
  * 2.5 CONTROLADOR API GET Y SINCRONIZACIÓN EN TIEMPO REAL
  */
+/**
+ * BLOQUEO: evita que dos dispositivos escriban a la vez y dupliquen o pisen filas.
+ */
+function conBloqueo(fn) {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(25000);
+  try { return fn(); } finally { lock.releaseLock(); }
+}
+
 function procesarApiGet(params) {
+  const a = params.action;
+  const soloLectura = (a === 'sistema/ping' || a === 'ping' || a === 'auth/login' ||
+    ((a === 'sistema/sync_bidireccional' || a === 'datos_completos' || a === 'admin/obtener_todo') && !params.data));
+  return soloLectura ? procesarApiGetInterno(params) : conBloqueo(function() { return procesarApiGetInterno(params); });
+}
+
+function procesarApiGetInterno(params) {
   const action = params.action;
 
-  if (action === 'sistema/ping') {
-    return jsonResponse({ status: 'OK', mensaje: 'Conexión activa con Nexa Ruta Google Sheets', version: '2026.1', timestamp: obtenerFechaHoraPeru() });
+  if (action === 'sistema/ping' || action === 'ping') {
+    const ss = obtenerSpreadsheet();
+    return jsonResponse({
+      status: 'OK',
+      mensaje: 'Conexión activa con Nexa Ruta Google Sheets',
+      version: '2026.1',
+      spreadsheetUrl: ss ? ss.getUrl() : '',
+      timestamp: obtenerFechaHoraPeru()
+    });
   }
 
   if (action === 'sistema/sync_bidireccional' || action === 'datos_completos' || action === 'admin/obtener_todo') {
@@ -451,14 +474,16 @@ function actualizarEstadoOperativoDirecto(payload) {
 
 function obtenerDatosCompletosSync() {
   const ss = obtenerSpreadsheet();
-  const getSheetData = function(name) {
+  const getSheetData = function(name, maxFilas) {
     try {
       const sheet = ss.getSheetByName(name);
       if (!sheet) return [];
       const values = sheet.getDataRange().getValues();
       if (values.length <= 1) return [];
       const headers = values[0];
-      return values.slice(1).map(function(row) {
+      let filas = values.slice(1);
+      if (maxFilas && filas.length > maxFilas) filas = filas.slice(-maxFilas);
+      return filas.map(function(row) {
         const obj = {};
         headers.forEach(function(h, idx) {
           let val = row[idx];
@@ -475,13 +500,14 @@ function obtenerDatosCompletosSync() {
   return {
     status: 'OK',
     timestamp: obtenerFechaHoraPeru(),
+    spreadsheetUrl: ss ? ss.getUrl() : '',
     empresas: getSheetData('Empresas'),
     usuarios: getSheetData('Usuarios'),
     conductores: getSheetData('Conductores'),
     servicios: getSheetData('Servicios'),
-    eventos: getSheetData('Eventos'),
+    eventos: getSheetData('Eventos', 200),
     incidencias: getSheetData('Incidencias'),
-    ubicaciones: getSheetData('Ubicaciones')
+    ubicaciones: getSheetData('Ubicaciones', 200)
   };
 }
 
@@ -630,42 +656,79 @@ function crearUsuarioDirecto(u) {
     'ACTIVO',
     obtenerFechaHoraPeru()
   ]);
+
+  if (String(u.rol || '').toUpperCase() === 'CONDUCTOR') {
+    crearConductorDirecto({
+      id_conductor: u.id_conductor || ('CND-' + idUsuario.replace('USR-', '')),
+      id_usuario: idUsuario,
+      id_empresa: u.id_empresa || 'TRP-001',
+      dni: u.dni || '',
+      nombre: u.nombre || u.nombre_completo || u.usuario || '',
+      licencia: u.licencia || ('Q' + (u.dni || '45892147')),
+      categoria: u.categoria || 'A-IIIc',
+      telefono: u.telefono || '',
+      estado: 'Disponible'
+    });
+  }
+}
+
+function asegurarColumnasConductores(sheet) {
+  const faltan = ['PLACA_TRACTO', 'PLACA_CARRETA'];
+  const lastCol = Math.max(sheet.getLastColumn(), 1);
+  const headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0].map(String);
+  faltan.forEach(function(h) {
+    if (headers.indexOf(h) === -1) {
+      sheet.getRange(1, sheet.getLastColumn() + 1).setValue(h);
+      headers.push(h);
+    }
+  });
+  return headers;
 }
 
 function crearConductorDirecto(c) {
   const ss = obtenerSpreadsheet();
   const sheet = ss.getSheetByName('Conductores');
   if (!sheet) return;
+  const headers = asegurarColumnasConductores(sheet);
+  const col = function(nombre) { return headers.indexOf(nombre) + 1; };
   const data = sheet.getDataRange().getValues();
   const cDni = String(c.dni || '').trim();
   const cId = String(c.id_conductor || '').trim();
+  const nombreCompleto = String(c.nombres || c.nombre || '');
 
   for (let i = 1; i < data.length; i++) {
-    if ((cId && String(data[i][0]) === cId) || (cDni && String(data[i][3]) === cDni)) {
-      if (c.nombres || c.nombre) sheet.getRange(i + 1, 5).setValue(c.nombres || c.nombre);
-      if (c.apellidos) sheet.getRange(i + 1, 6).setValue(c.apellidos);
-      if (c.licencia) sheet.getRange(i + 1, 7).setValue(c.licencia);
-      if (c.categoria) sheet.getRange(i + 1, 8).setValue(c.categoria);
-      if (c.telefono) sheet.getRange(i + 1, 10).setValue(c.telefono);
-      if (c.estado) sheet.getRange(i + 1, 12).setValue(c.estado);
+    if ((cId && String(data[i][0]) === cId) || (cDni && String(data[i][3]).trim() === cDni)) {
+      const fila = i + 1;
+      if (c.id_usuario) sheet.getRange(fila, col('ID_USUARIO')).setValue(c.id_usuario);
+      if (nombreCompleto) sheet.getRange(fila, col('NOMBRES')).setValue(nombreCompleto);
+      if (c.apellidos) sheet.getRange(fila, col('APELLIDOS')).setValue(c.apellidos);
+      if (c.licencia) sheet.getRange(fila, col('LICENCIA_CONDUCIR')).setValue(c.licencia);
+      if (c.categoria) sheet.getRange(fila, col('CATEGORIA_LICENCIA')).setValue(c.categoria);
+      if (c.telefono) sheet.getRange(fila, col('TELEFONO')).setValue(c.telefono);
+      if (c.estado) sheet.getRange(fila, col('ESTADO')).setValue(c.estado);
+      if (c.placa_tracto) sheet.getRange(fila, col('PLACA_TRACTO')).setValue(c.placa_tracto);
+      if (c.placa_carreta) sheet.getRange(fila, col('PLACA_CARRETA')).setValue(c.placa_carreta);
       return; // Actualizado
     }
   }
 
-  sheet.appendRow([
-    c.id_conductor || ('CND-' + Utilities.getUuid().substring(0, 4).toUpperCase()),
-    c.id_usuario || '',
-    c.id_empresa || 'TRP-001',
-    c.dni || '',
-    c.nombres || c.nombre || '',
-    c.apellidos || '',
-    c.licencia || '',
-    c.categoria || 'A-IIIc',
-    c.vencimiento || '20/12/2028',
-    c.telefono || '',
-    c.foto || '',
-    c.estado || 'Disponible'
-  ]);
+  const fila = new Array(headers.length).fill('');
+  const set = function(nombre, valor) { const k = headers.indexOf(nombre); if (k >= 0) fila[k] = valor; };
+  set('ID_CONDUCTOR', c.id_conductor || ('CND-' + Utilities.getUuid().substring(0, 4).toUpperCase()));
+  set('ID_USUARIO', c.id_usuario || '');
+  set('ID_EMPRESA', c.id_empresa || 'TRP-001');
+  set('DNI', c.dni || '');
+  set('NOMBRES', nombreCompleto);
+  set('APELLIDOS', c.apellidos || '');
+  set('LICENCIA_CONDUCIR', c.licencia || '');
+  set('CATEGORIA_LICENCIA', c.categoria || 'A-IIIc');
+  set('VENCIMIENTO_LICENCIA', c.vencimiento || '20/12/2028');
+  set('TELEFONO', c.telefono || '');
+  set('FOTO_PERFIL_URL', c.foto || '');
+  set('ESTADO', c.estado || 'Disponible');
+  set('PLACA_TRACTO', c.placa_tracto || '');
+  set('PLACA_CARRETA', c.placa_carreta || '');
+  sheet.appendRow(fila);
 }
 
 function obtenerDashboardAdminGlobal() {
@@ -713,7 +776,24 @@ function doGet(e) {
     return procesarApiGet(e.parameter);
   }
 
-  // Servir la aplicación web Nexa Ruta completa (Index.html) o panel maestro
+  // 1. Redirección a la Hoja de Cálculo Central de Google Sheets
+  if (e && e.parameter && (e.parameter.view === 'sheet' || e.parameter.sheet === '1')) {
+    const ss = obtenerSpreadsheet();
+    const sheetUrl = ss ? ss.getUrl() : "https://docs.google.com/spreadsheets/";
+    return HtmlService.createHtmlOutput(
+      '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=' + sheetUrl + '" /></head><body style="font-family:sans-serif;text-align:center;padding:50px;"><h2>Abriendo Google Sheets...</h2><p><a href="' + sheetUrl + '">Haz clic aquí para abrir la Hoja de Cálculo Central</a></p></body></html>'
+    );
+  }
+
+  // 2. Consola Administrativa HTML Service de Google Apps Script
+  if (e && e.parameter && (e.parameter.view === 'admin' || e.parameter.admin === '1')) {
+    return HtmlService.createHtmlOutput(obtenerHtmlAdminAppsScript())
+      .setTitle("Nexa Ruta | Consola Maestra Google Apps Script")
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
+      .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+  }
+
+  // 3. Servir la aplicación web Nexa Ruta completa (Index.html) o panel maestro
   try {
     return HtmlService.createTemplateFromFile("Index")
       .evaluate()
@@ -733,6 +813,17 @@ function doGet(e) {
  * Recibe y despacha todas las operaciones autenticadas del sistema.
  */
 function doPost(e) {
+  let accion = '', conEscritura = false;
+  try {
+    const p = JSON.parse(e.postData.contents);
+    accion = p.action;
+    conEscritura = !!(p.nuevoUsuario || p.nuevoConductor || p.actualizacionEstado || p.actualizacionGps);
+  } catch (err) {}
+  const soloLectura = (accion === 'sistema/ping' || accion === 'auth/login' || (accion === 'sistema/sync_bidireccional' && !conEscritura));
+  return soloLectura ? doPostInterno(e) : conBloqueo(function() { return doPostInterno(e); });
+}
+
+function doPostInterno(e) {
   try {
     if (!e || !e.postData || !e.postData.contents) {
       return jsonResponse({ status: "ERROR", mensaje: "Cuerpo de solicitud vacío" });
@@ -1949,6 +2040,9 @@ function obtenerHtmlAdminAppsScript() {
           <button onclick="ejecutarAccion('configurarSistema')" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition">
             Verificar 15 Hojas en Sheets
           </button>
+          <button onclick="abrirGoogleSheetDirecto()" class="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl transition">
+            📊 Abrir Hoja Central Google Sheets
+          </button>
           <button onclick="ejecutarAccion('crearRespaldoAhora')" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold rounded-xl transition">
             Crear Respaldo Manual Ahora
           </button>
@@ -1962,6 +2056,11 @@ function obtenerHtmlAdminAppsScript() {
   </div>
 
   <script>
+    function abrirGoogleSheetDirecto() {
+      google.script.run
+        .withSuccessHandler(url => { if (url) window.open(url, '_blank'); })
+        .obtenerSpreadsheetUrl();
+    }
     function ejecutarAccion(nombreFuncion) {
       const out = document.getElementById('resultado-accion');
       out.classList.remove('hidden');
@@ -1977,4 +2076,9 @@ function obtenerHtmlAdminAppsScript() {
   </script>
 </body>
 </html>`;
+}
+
+function obtenerSpreadsheetUrl() {
+  const ss = obtenerSpreadsheet();
+  return ss ? ss.getUrl() : "https://docs.google.com/spreadsheets/";
 }

@@ -1096,11 +1096,8 @@
     const APPS_SCRIPT_DEFAULT_URL = "https://script.google.com/macros/s/AKfycbz6JyNP1RmCQJRq_LyuAmlJrKgav5cTw-dHBsc3I7rPfiuClQ3DFM1VnckZREo1NY71/exec";
     function sanitizarUrlGoogleAppsScript(url) {
       if (!url || typeof url !== "string") return APPS_SCRIPT_DEFAULT_URL;
-      url = url.trim();
-      if (url.includes("AKfycbz6JyNP1RmCQJRq_LyuAmlJrKgav5cTw-dHBsc3I7rPfi") || url.length < 60 || !url.endsWith("/exec")) {
-        return APPS_SCRIPT_DEFAULT_URL;
-      }
-      return url;
+      // Todos los dispositivos deben usar SIEMPRE la misma URL (la oficial). Se ignora cualquier URL vieja guardada en el navegador.
+      return APPS_SCRIPT_DEFAULT_URL;
     }
     let rawUrl = "";
     try { rawUrl = localStorage.getItem("NEXA_RUTA_GAS_URL") || ""; } catch(e) {}
@@ -1123,7 +1120,7 @@
             (c.id_usuario && c.id_usuario === u.id) ||
             (c.id_conductor && c.id_conductor === u.id_conductor) ||
             (c.nombre && c.nombre.trim().toLowerCase() === userNom) ||
-            (c.nombre && c.nombre.trim().toLowerCase().includes(u.usuario.trim().toLowerCase()))
+            (c.nombre && c.nombre.trim().toLowerCase().includes(String(u.usuario || "").trim().toLowerCase()))
           );
 
           if (!cndExistente) {
@@ -1646,14 +1643,63 @@
     }
 
     // Auto-sincronización bidireccional en vivo con Google Sheets
+    // COLA DE PENDIENTES: lo que no llegó a Google Sheets se conserva y se reintenta
+    const CLAVE_PENDIENTES = "NEXA_RUTA_PENDIENTES_NUBE";
+    function leerPendientes() {
+      try { return JSON.parse(localStorage.getItem(CLAVE_PENDIENTES) || "[]"); } catch(e) { return []; }
+    }
+    function guardarPendientes(lista) {
+      try { localStorage.setItem(CLAVE_PENDIENTES, JSON.stringify(lista)); } catch(e) {}
+    }
+    function encolarPendiente(payload) {
+      const lista = leerPendientes();
+      lista.push({ payload, _id: Date.now() + "_" + Math.random().toString(36).slice(2, 7) });
+      guardarPendientes(lista);
+    }
+    let enviandoPendientes = false;
+    async function enviarPendientesNube() {
+      if (!APPS_SCRIPT_URL || enviandoPendientes) return 0;
+      enviandoPendientes = true;
+      let enviados = 0;
+      try {
+        for (const item of leerPendientes()) {
+          const res = await llamarApiGoogleSheets(item.payload);
+          if (res && res.status === "OK") {
+            guardarPendientes(leerPendientes().filter(x => x._id !== item._id));
+            enviados++;
+          } else {
+            break; // sin conexión o error: se reintenta en el próximo ciclo
+          }
+        }
+      } finally { enviandoPendientes = false; }
+      return enviados;
+    }
+    // Si se recarga la página antes de que llegue a la nube, el conductor pendiente se vuelve a mostrar
+    function reaplicarPendientesLocales() {
+      leerPendientes().forEach(({ payload }) => {
+        if (!payload) return;
+        if (payload.nuevoUsuario && !DB_LOCAL.usuarios.some(u => (u.usuario || "").toLowerCase() === (payload.nuevoUsuario.usuario || "").toLowerCase())) {
+          DB_LOCAL.usuarios.push(payload.nuevoUsuario);
+        }
+        if (payload.nuevoConductor && !DB_LOCAL.conductores.some(c => c.id_conductor === payload.nuevoConductor.id_conductor || String(c.dni) === String(payload.nuevoConductor.dni))) {
+          DB_LOCAL.conductores.push(payload.nuevoConductor);
+        }
+      });
+    }
+
     function iniciarAutoSyncGoogleSheets() {
       if (timerAutoSync) clearInterval(timerAutoSync);
-      timerAutoSync = setInterval(() => {
+      timerAutoSync = setInterval(async () => {
         const autoSyncHabilitado = localStorage.getItem("NEXA_RUTA_AUTOSYNC") !== "false";
+        if (document.hidden) return; // no consumir cuota con la pestaña en segundo plano
         if (APPS_SCRIPT_URL && autoSyncHabilitado && !syncEnCurso) {
+          await enviarPendientesNube();
           ejecutarSincronizacionBidireccional(false);
         }
-      }, 4000);
+      }, 8000);
+      document.addEventListener("visibilitychange", () => {
+        if (!document.hidden && APPS_SCRIPT_URL && !syncEnCurso) ejecutarSincronizacionBidireccional(false);
+      });
     }
 
     async function ejecutarSincronizacionBidireccional(mostrarNotificacion = true) {
@@ -1666,12 +1712,25 @@
           action: "sistema/sync_bidireccional"
         });
         if (data && data.status === "OK") {
+          // Google Sheets convierte DNI/usuarios numéricos (ej. 74605329) en NÚMEROS; se pasan a texto
+          // para que una sola fila así no rompa toda la sincronización.
+          ["usuarios", "conductores", "servicios"].forEach(k => {
+            if (!Array.isArray(data[k])) return;
+            data[k] = data[k].map(fila => {
+              const o = {};
+              Object.keys(fila).forEach(col => {
+                const v = fila[col];
+                o[col] = (typeof v === "number" && !/^(KM|LATITUD|LONGITUD|PRECISION)/.test(col)) ? String(v) : v;
+              });
+              return o;
+            });
+          });
           // 1. SINCRONIZAR USUARIOS DESDE GOOGLE SHEETS
           if (Array.isArray(data.usuarios) && data.usuarios.length > 0) {
             data.usuarios.forEach(uCloud => {
-              const uKey = (uCloud.USUARIO || uCloud.usuario || "").trim().toLowerCase();
+              const uKey = String(uCloud.USUARIO || uCloud.usuario || "").trim().toLowerCase();
               if (!uKey) return;
-              const idx = DB_LOCAL.usuarios.findIndex(u => u.usuario.trim().toLowerCase() === uKey);
+              const idx = DB_LOCAL.usuarios.findIndex(u => String(u.usuario || "").trim().toLowerCase() === uKey);
               const passEnNube = uCloud.PASSWORD_HASH || uCloud.password || uCloud.pass || (idx >= 0 ? DB_LOCAL.usuarios[idx].pass : "123456");
               const uNorm = {
                 id: uCloud.ID_USUARIO || uCloud.id || ("USR-" + Date.now()),
@@ -3023,7 +3082,7 @@
       };
 
       // 1. INSERTAR DE INMEDIATO EN PANTALLA (APARECE EN EL SEGUNDO CERO)
-      const idxExist = DB_LOCAL.usuarios.findIndex(u => u.usuario.trim().toLowerCase() === user.toLowerCase());
+      const idxExist = DB_LOCAL.usuarios.findIndex(u => String(u.usuario || "").trim().toLowerCase() === user.toLowerCase());
       if (idxExist >= 0) {
         DB_LOCAL.usuarios[idxExist] = nuevoUsuario;
       } else {
@@ -3043,16 +3102,19 @@
       abrirModalConfirmacionAcceso(nombreCompleto, user, pass);
 
       // 3. GUARDAR DIRECTAMENTE EN GOOGLE SHEETS EN SEGUNDO PLANO
-      mostrarToast(`Sincronizando ${nombreCompleto} con Google Sheets...`, "info");
-      llamarApiGoogleSheets({
+      mostrarToast(`Guardando ${nombreCompleto} en Google Sheets...`, "info");
+      const payloadCrear = {
         action: "supervisor/crear_conductor",
         nuevoUsuario: nuevoUsuario,
         nuevoConductor: nuevoConductor
-      }).then(res => {
-        if (res && res.status === "OK") {
-          mostrarToast(`✅ ${nombreCompleto} guardado en Google Sheets con éxito`, "success");
+      };
+      encolarPendiente(payloadCrear); // se guarda en cola hasta confirmar que llegó a la nube
+      enviarPendientesNube().then(n => {
+        if (n > 0) {
+          mostrarToast(`✅ ${nombreCompleto} guardado en Google Sheets. Ya se verá en otros dispositivos.`, "success");
+          ejecutarSincronizacionBidireccional(false);
         } else {
-          mostrarToast("Aviso: Conductor visible en pantalla, sincronizando con Google Sheets...", "info");
+          mostrarToast(`⚠️ ${nombreCompleto} NO llegó a Google Sheets todavía. No lo verás en otros dispositivos hasta que se conecte; se reintenta solo cada 8 s. No cierres esta pestaña.`, "error");
         }
       }).catch(err => console.warn("Sync Sheets conductor:", err));
 
@@ -4966,7 +5028,7 @@
       }
 
       // 1. Inserción inmediata en memoria local (0ms en pantalla)
-      const uIdx = DB_LOCAL.usuarios.findIndex(u => u.usuario.trim().toLowerCase() === nuevoUsr.usuario.toLowerCase());
+      const uIdx = DB_LOCAL.usuarios.findIndex(u => String(u.usuario || "").trim().toLowerCase() === nuevoUsr.usuario.toLowerCase());
       if (uIdx >= 0) DB_LOCAL.usuarios[uIdx] = nuevoUsr;
       else DB_LOCAL.usuarios.push(nuevoUsr);
 
@@ -5016,6 +5078,7 @@
       if (APPS_SCRIPT_URL) {
         await ejecutarSincronizacionBidireccional(false);
       }
+      reaplicarPendientesLocales();
       // 3. Iniciar auto-sincronización continua con la nube
       iniciarAutoSyncGoogleSheets();
       lucide.createIcons();
