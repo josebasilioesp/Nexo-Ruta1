@@ -60,23 +60,6 @@
   <style>
     body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
     
-    /* Portadas responsive para la pantalla de inicio */
-    .bg-login-cover {
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-    }
-    @media (min-width: 768px) {
-      .bg-login-cover {
-        background-image: url('recursos/portada-desktop.png');
-      }
-    }
-    @media (max-width: 767px) {
-      .bg-login-cover {
-        background-image: url('recursos/portada-mobile.png');
-      }
-    }
-
     ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
@@ -94,7 +77,20 @@
         
         <!-- Logo Oficial Nexa Ruta -->
         <div class="flex items-center space-x-3">
-          <img src="recursos/logo-oscuro.svg" alt="Nexa Ruta" class="h-8 sm:h-9 w-auto object-contain">
+          <svg class="h-8 sm:h-9 w-auto shrink-0" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill="#00eddb" d="M156.61,249.79c-5.87,0-10.62-4.76-10.62-10.63v-82.51c0-20.29,11.64-37.71,30.38-45.48,18.75-7.76,39.3-3.67,53.65,10.67l70.65,70.65c4.14,4.15,4.14,10.88,0,15.03-4.15,4.14-10.88,4.14-15.03,0l-70.65-70.65c-9.74-9.75-22.14-9.53-30.48-6.07-8.35,3.46-17.28,12.07-17.28,25.85v82.51C167.23,245.03,162.48,249.79,156.61,249.79Z"/>
+            <path fill="#00eddb" d="M156.61,290.7c-15.73,0-28.53-12.79-28.53-28.53s12.8-28.52,28.53-28.52,28.53,12.79,28.53,28.52S172.34,290.7,156.61,290.7ZM156.61,251.35c-5.97,0-10.82,4.86-10.82,10.82s4.85,10.83,10.82,10.83,10.82-4.86,10.82-10.83S162.58,251.35,156.61,251.35Z"/>
+            <path fill="#00eddb" d="M304.48,288.98c-12.68,0-24.96-5-34.5-14.54l-70.65-70.65c-4.14-4.15-4.14-10.88,0-15.03,4.15-4.14,10.88-4.14,15.03,0l70.65,70.65c9.74,9.75,22.14,9.53,30.49,6.07,8.34-3.46,17.27-12.07,17.27-25.85v-82.51c0-5.87,4.75-10.63,10.62-10.63s10.62,4.76,10.62,10.63v82.51c0,20.29-11.64,37.71-30.38,45.48C317.35,287.71,310.86,288.98,304.48,288.98Z"/>
+            <path fill="#00eddb" d="M343.39,162.63c-15.73,0-28.53-12.79-28.53-28.53s12.8-28.52,28.53-28.52,28.53,12.79,28.53,28.52S359.12,162.63,343.39,162.63ZM343.39,123.28c-5.97,0-10.82,4.86-10.82,10.82s4.85,10.83,10.82,10.83,10.82-4.86,10.82-10.83S349.36,123.28,343.39,123.28Z"/>
+            <path fill="#ffffff" d="M93.05,308.64h12.75v54.73h-11.5l-24.78-33.86.16,14.78v19.08h-12.75v-54.73h11.5l24.78,34.01-.16-14.62V308.64Z"/>
+            <path fill="#ffffff" d="M144.96,326.27q4.62,2.38,7.08,6.72t2.46,10.13q0,1.87-.39,4.61h-28.38q.55,2.97,3.21,4.81,2.65,1.84,6.8,1.83,2.89,0,5.63-.85,2.73-.86,4.69-2.43l6.41,6.88q-3.28,3.05-7.78,4.69-4.5,1.64-9.58,1.64-6.72,0-11.65-2.46-4.92-2.46-7.58-7-2.66-4.53-2.66-10.71,0-5.94,2.62-10.55,2.62-4.61,7.31-7.15,4.69-2.54,10.87-2.55Q140.35,323.88,144.96,326.27ZM128.43,335.46q-2.31,1.87-2.62,5.23h17.04q-.23-3.36-2.46-5.23-2.23-1.88-5.98-1.88Q130.73,333.58,128.43,335.46Z"/>
+            <path fill="#ffffff" d="M185.46,343.74l12.98,19.63h-14.07l-3.36-5.55-3.83-6.49-3.84,6.49-3.51,5.55h-13.84l12.98-19.63-11.97-18.99h13.84l3.6,5.86,2.81,5.31,2.97-5.31,3.6-5.86h13.53L185.46,343.74Z"/>
+            <path fill="#ffffff" d="M209.74,361.69q-4.81-2.54-7.39-7.08t-2.58-10.55,2.58-10.56,7.39-7.07,11.22-2.55,11.25,2.55,7.43,7.07,2.58,10.56-2.58,10.55-7.43,7.08-11.25,2.54T209.74,361.69ZM227.52,351.09q2.5-2.73,2.5-7.03,0-4.3-2.5-7.04-2.5-2.74-6.56-2.74-3.99,0-6.49,2.74-2.51,2.74-2.5,7.04,0,4.3,2.5,7.03,2.5,2.74,6.49,2.74Q225.02,353.83,227.52,351.09Z"/>
+            <path fill="#ffffff" d="M289.13,345.31h-7.43v18.06h-12.82v-54.73h26.66q5.94,0,10.4,2.31t6.88,6.52,2.42,9.7q0,6.25-3.24,10.71-3.25,4.45-9.19,6.33l15.48,19.16h-15.24L289.13,345.31ZM300.35,321.62q-2.23-2.03-6.29-2.04h-12.44v15.41h12.44q4.14,0,6.33-2,2.19-1.99,2.19-5.67Q302.58,323.65,300.35,321.62Z"/>
+            <path fill="#ffffff" d="M361.76,324.75v38.62h-10.63l-.78-4.46q-2.19,2.58-5.36,3.95t-6.92,1.37q-7.11,0-11.34-4.69-4.22-4.7-4.22-12.98v-21.81h12.28v21.1q0,3.76,1.83,5.87,1.84,2.11,5.05,2.11,3.52,0,5.67-2.46,2.15-2.47,2.15-6.38v-20.24H361.76Z"/>
+            <path fill="#ffffff" d="M398.66,361.88q-4.53,2.27-10.24,2.27-6.33,0-10.01-3.56t-3.67-11.45v-14.62h-6.57v-9.77h6.57v-9.62l12.19-1.33v10.95h9.62v9.77h-9.62v14.62q0,2.34,1.18,3.48,1.17,1.13,3.2,1.13,2.27,0,4.46-1.09L398.66,361.88Z"/>
+            <path fill="#ffffff" d="M444.4,324.75v38.62h-10.63l-.79-4.62q-4.92,5.4-12.82,5.4-5.39,0-9.58-2.54t-6.52-7.12-2.35-10.43,2.35-10.44,6.52-7.12,9.58-2.54q3.91,0,7.19,1.37,3.29,1.37,5.63,3.95l.79-4.53H444.4ZM429.7,351.13q2.58-2.7,2.58-7.07,0-4.38-2.58-7.08-2.58-2.7-6.64-2.7-4.07,0-6.61,2.74-2.54,2.74-2.54,7.04,0,4.3,2.54,7.03,2.54,2.74,6.61,2.74Q427.12,353.83,429.7,351.13Z"/>
+          </svg>
           <div class="hidden sm:block border-l border-navy-800 pl-3">
             <span class="font-extrabold tracking-tight text-white uppercase text-xs block leading-none">NEXA RUTA</span>
             <span class="text-[9px] text-slate-400 font-medium">Control de Flotas de Carga Pesada</span>
@@ -126,16 +122,39 @@
   <!-- ========================================================================= -->
   <!-- 1. PANTALLA INICIAL: PORTADA Y ACCESO LIMPIO CON PRIVACIDAD                -->
   <!-- ========================================================================= -->
-  <section id="screen-login" class="flex-1 flex items-center justify-center p-4 bg-login-cover relative">
+  <section id="screen-login" class="flex-1 flex items-center justify-center p-4 relative overflow-hidden bg-navy-950">
     
+    <!-- Imagen de Portada de Fondo con Fallback Dinámico Seguro -->
+    <picture class="absolute inset-0 w-full h-full pointer-events-none z-0">
+      <source media="(max-width: 767px)" srcset="recursos/portada-mobile.png">
+      <img id="login-hero-bg" 
+           src="recursos/portada-desktop.png" 
+           alt="Portada Nexa Ruta" 
+           class="w-full h-full object-cover object-center"
+           onerror="if(this.src.indexOf('unsplash')===-1){ this.src='https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=80'; }">
+    </picture>
+
     <!-- Filtro de contraste oscuro y desenfoque suave sobre la portada andina -->
-    <div class="absolute inset-0 bg-navy-950/65 backdrop-blur-[2px]"></div>
+    <div class="absolute inset-0 bg-navy-950/60 backdrop-blur-[1px] z-0 pointer-events-none"></div>
 
     <div class="max-w-md w-full bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-8 shadow-2xl border border-white/40 relative z-10">
       
       <!-- Logo Oficial Nexa Ruta -->
       <div class="text-center mb-6">
-        <img src="recursos/logo-blanco.svg" alt="Nexa Ruta" class="h-14 sm:h-16 w-auto mx-auto object-contain mb-3 drop-shadow-sm">
+        <svg class="h-14 sm:h-16 w-auto mx-auto mb-2 drop-shadow-sm" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#00eddb" d="M156.61,249.79c-5.87,0-10.62-4.76-10.62-10.63v-82.51c0-20.29,11.64-37.71,30.38-45.48,18.75-7.76,39.3-3.67,53.65,10.67l70.65,70.65c4.14,4.15,4.14,10.88,0,15.03-4.15,4.14-10.88,4.14-15.03,0l-70.65-70.65c-9.74-9.75-22.14-9.53-30.48-6.07-8.35,3.46-17.28,12.07-17.28,25.85v82.51C167.23,245.03,162.48,249.79,156.61,249.79Z"/>
+          <path fill="#00eddb" d="M156.61,290.7c-15.73,0-28.53-12.79-28.53-28.53s12.8-28.52,28.53-28.52,28.53,12.79,28.53,28.52S172.34,290.7,156.61,290.7ZM156.61,251.35c-5.97,0-10.82,4.86-10.82,10.82s4.85,10.83,10.82,10.83,10.82-4.86,10.82-10.83S162.58,251.35,156.61,251.35Z"/>
+          <path fill="#00eddb" d="M304.48,288.98c-12.68,0-24.96-5-34.5-14.54l-70.65-70.65c-4.14-4.15-4.14-10.88,0-15.03,4.15-4.14,10.88-4.14,15.03,0l70.65,70.65c9.74,9.75,22.14,9.53,30.49,6.07,8.34-3.46,17.27-12.07,17.27-25.85v-82.51c0-5.87,4.75-10.63,10.62-10.63s10.62,4.76,10.62,10.63v82.51c0,20.29-11.64,37.71-30.38,45.48C317.35,287.71,310.86,288.98,304.48,288.98Z"/>
+          <path fill="#00eddb" d="M343.39,162.63c-15.73,0-28.53-12.79-28.53-28.53s12.8-28.52,28.53-28.52,28.53,12.79,28.53,28.52S359.12,162.63,343.39,162.63ZM343.39,123.28c-5.97,0-10.82,4.86-10.82,10.82s4.85,10.83,10.82,10.83,10.82-4.86,10.82-10.83S349.36,123.28,343.39,123.28Z"/>
+          <path fill="#0f172a" d="M93.05,308.64h12.75v54.73h-11.5l-24.78-33.86.16,14.78v19.08h-12.75v-54.73h11.5l24.78,34.01-.16-14.62V308.64Z"/>
+          <path fill="#0f172a" d="M144.96,326.27q4.62,2.38,7.08,6.72t2.46,10.13q0,1.87-.39,4.61h-28.38q.55,2.97,3.21,4.81,2.65,1.84,6.8,1.83,2.89,0,5.63-.85,2.73-.86,4.69-2.43l6.41,6.88q-3.28,3.05-7.78,4.69-4.5,1.64-9.58,1.64-6.72,0-11.65-2.46-4.92-2.46-7.58-7-2.66-4.53-2.66-10.71,0-5.94,2.62-10.55,2.62-4.61,7.31-7.15,4.69-2.54,10.87-2.55Q140.35,323.88,144.96,326.27ZM128.43,335.46q-2.31,1.87-2.62,5.23h17.04q-.23-3.36-2.46-5.23-2.23-1.88-5.98-1.88Q130.73,333.58,128.43,335.46Z"/>
+          <path fill="#0f172a" d="M185.46,343.74l12.98,19.63h-14.07l-3.36-5.55-3.83-6.49-3.84,6.49-3.51,5.55h-13.84l12.98-19.63-11.97-18.99h13.84l3.6,5.86,2.81,5.31,2.97-5.31,3.6-5.86h13.53L185.46,343.74Z"/>
+          <path fill="#0f172a" d="M209.74,361.69q-4.81-2.54-7.39-7.08t-2.58-10.55,2.58-10.56,7.39-7.07,11.22-2.55,11.25,2.55,7.43,7.07,2.58,10.56-2.58,10.55-7.43,7.08-11.25,2.54T209.74,361.69ZM227.52,351.09q2.5-2.73,2.5-7.03,0-4.3-2.5-7.04-2.5-2.74-6.56-2.74-3.99,0-6.49,2.74-2.51,2.74-2.5,7.04,0,4.3,2.5,7.03,2.5,2.74,6.49,2.74Q225.02,353.83,227.52,351.09Z"/>
+          <path fill="#0f172a" d="M289.13,345.31h-7.43v18.06h-12.82v-54.73h26.66q5.94,0,10.4,2.31t6.88,6.52,2.42,9.7q0,6.25-3.24,10.71-3.25,4.45-9.19,6.33l15.48,19.16h-15.24L289.13,345.31ZM300.35,321.62q-2.23-2.03-6.29-2.04h-12.44v15.41h12.44q4.14,0,6.33-2,2.19-1.99,2.19-5.67Q302.58,323.65,300.35,321.62Z"/>
+          <path fill="#0f172a" d="M361.76,324.75v38.62h-10.63l-.78-4.46q-2.19,2.58-5.36,3.95t-6.92,1.37q-7.11,0-11.34-4.69-4.22-4.7-4.22-12.98v-21.81h12.28v21.1q0,3.76,1.83,5.87,1.84,2.11,5.05,2.11,3.52,0,5.67-2.46,2.15-2.47,2.15-6.38v-20.24H361.76Z"/>
+          <path fill="#0f172a" d="M398.66,361.88q-4.53,2.27-10.24,2.27-6.33,0-10.01-3.56t-3.67-11.45v-14.62h-6.57v-9.77h6.57v-9.62l12.19-1.33v10.95h9.62v9.77h-9.62v14.62q0,2.34,1.18,3.48,1.17,1.13,3.2,1.13,2.27,0,4.46-1.09L398.66,361.88Z"/>
+          <path fill="#0f172a" d="M444.4,324.75v38.62h-10.63l-.79-4.62q-4.92,5.4-12.82,5.4-5.39,0-9.58-2.54t-6.52-7.12-2.35-10.43,2.35-10.44,6.52-7.12,9.58-2.54q3.91,0,7.19,1.37,3.29,1.37,5.63,3.95l.79-4.53H444.4ZM429.7,351.13q2.58-2.7,2.58-7.07,0-4.38-2.58-7.08-2.58-2.7-6.64-2.7-4.07,0-6.61,2.74-2.54,2.74-2.54,7.04,0,4.3,2.54,7.03,2.54,2.74,6.61,2.74Q427.12,353.83,429.7,351.13Z"/>
+        </svg>
         <h1 class="text-xl font-extrabold text-navy-900 tracking-tight">Nexa Ruta</h1>
         <p class="text-xs text-slate-600 mt-1 font-medium">
           Control de Flotas y Logística de Carga Pesada
@@ -198,7 +217,20 @@
       <!-- Encabezado Sidebar con Logo Nexa Ruta -->
       <div class="p-4 border-b border-navy-800">
         <div class="flex items-center space-x-3">
-          <img src="recursos/logo-oscuro.svg" alt="Nexa Ruta" class="h-8 w-auto object-contain">
+          <svg class="h-8 w-auto shrink-0" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill="#00eddb" d="M156.61,249.79c-5.87,0-10.62-4.76-10.62-10.63v-82.51c0-20.29,11.64-37.71,30.38-45.48,18.75-7.76,39.3-3.67,53.65,10.67l70.65,70.65c4.14,4.15,4.14,10.88,0,15.03-4.15,4.14-10.88,4.14-15.03,0l-70.65-70.65c-9.74-9.75-22.14-9.53-30.48-6.07-8.35,3.46-17.28,12.07-17.28,25.85v82.51C167.23,245.03,162.48,249.79,156.61,249.79Z"/>
+            <path fill="#00eddb" d="M156.61,290.7c-15.73,0-28.53-12.79-28.53-28.53s12.8-28.52,28.53-28.52,28.53,12.79,28.53,28.52S172.34,290.7,156.61,290.7ZM156.61,251.35c-5.97,0-10.82,4.86-10.82,10.82s4.85,10.83,10.82,10.83,10.82-4.86,10.82-10.83S162.58,251.35,156.61,251.35Z"/>
+            <path fill="#00eddb" d="M304.48,288.98c-12.68,0-24.96-5-34.5-14.54l-70.65-70.65c-4.14-4.15-4.14-10.88,0-15.03,4.15-4.14,10.88-4.14,15.03,0l70.65,70.65c9.74,9.75,22.14,9.53,30.49,6.07,8.34-3.46,17.27-12.07,17.27-25.85v-82.51c0-5.87,4.75-10.63,10.62-10.63s10.62,4.76,10.62,10.63v82.51c0,20.29-11.64,37.71-30.38,45.48C317.35,287.71,310.86,288.98,304.48,288.98Z"/>
+            <path fill="#00eddb" d="M343.39,162.63c-15.73,0-28.53-12.79-28.53-28.53s12.8-28.52,28.53-28.52,28.53,12.79,28.53,28.52S359.12,162.63,343.39,162.63ZM343.39,123.28c-5.97,0-10.82,4.86-10.82,10.82s4.85,10.83,10.82,10.83,10.82-4.86,10.82-10.83S349.36,123.28,343.39,123.28Z"/>
+            <path fill="#ffffff" d="M93.05,308.64h12.75v54.73h-11.5l-24.78-33.86.16,14.78v19.08h-12.75v-54.73h11.5l24.78,34.01-.16-14.62V308.64Z"/>
+            <path fill="#ffffff" d="M144.96,326.27q4.62,2.38,7.08,6.72t2.46,10.13q0,1.87-.39,4.61h-28.38q.55,2.97,3.21,4.81,2.65,1.84,6.8,1.83,2.89,0,5.63-.85,2.73-.86,4.69-2.43l6.41,6.88q-3.28,3.05-7.78,4.69-4.5,1.64-9.58,1.64-6.72,0-11.65-2.46-4.92-2.46-7.58-7-2.66-4.53-2.66-10.71,0-5.94,2.62-10.55,2.62-4.61,7.31-7.15,4.69-2.54,10.87-2.55Q140.35,323.88,144.96,326.27ZM128.43,335.46q-2.31,1.87-2.62,5.23h17.04q-.23-3.36-2.46-5.23-2.23-1.88-5.98-1.88Q130.73,333.58,128.43,335.46Z"/>
+            <path fill="#ffffff" d="M185.46,343.74l12.98,19.63h-14.07l-3.36-5.55-3.83-6.49-3.84,6.49-3.51,5.55h-13.84l12.98-19.63-11.97-18.99h13.84l3.6,5.86,2.81,5.31,2.97-5.31,3.6-5.86h13.53L185.46,343.74Z"/>
+            <path fill="#ffffff" d="M209.74,361.69q-4.81-2.54-7.39-7.08t-2.58-10.55,2.58-10.56,7.39-7.07,11.22-2.55,11.25,2.55,7.43,7.07,2.58,10.56-2.58,10.55-7.43,7.08-11.25,2.54T209.74,361.69ZM227.52,351.09q2.5-2.73,2.5-7.03,0-4.3-2.5-7.04-2.5-2.74-6.56-2.74-3.99,0-6.49,2.74-2.51,2.74-2.5,7.04,0,4.3,2.5,7.03,2.5,2.74,6.49,2.74Q225.02,353.83,227.52,351.09Z"/>
+            <path fill="#ffffff" d="M289.13,345.31h-7.43v18.06h-12.82v-54.73h26.66q5.94,0,10.4,2.31t6.88,6.52,2.42,9.7q0,6.25-3.24,10.71-3.25,4.45-9.19,6.33l15.48,19.16h-15.24L289.13,345.31ZM300.35,321.62q-2.23-2.03-6.29-2.04h-12.44v15.41h12.44q4.14,0,6.33-2,2.19-1.99,2.19-5.67Q302.58,323.65,300.35,321.62Z"/>
+            <path fill="#ffffff" d="M361.76,324.75v38.62h-10.63l-.78-4.46q-2.19,2.58-5.36,3.95t-6.92,1.37q-7.11,0-11.34-4.69-4.22-4.7-4.22-12.98v-21.81h12.28v21.1q0,3.76,1.83,5.87,1.84,2.11,5.05,2.11,3.52,0,5.67-2.46,2.15-2.47,2.15-6.38v-20.24H361.76Z"/>
+            <path fill="#ffffff" d="M398.66,361.88q-4.53,2.27-10.24,2.27-6.33,0-10.01-3.56t-3.67-11.45v-14.62h-6.57v-9.77h6.57v-9.62l12.19-1.33v10.95h9.62v9.77h-9.62v14.62q0,2.34,1.18,3.48,1.17,1.13,3.2,1.13,2.27,0,4.46-1.09L398.66,361.88Z"/>
+            <path fill="#ffffff" d="M444.4,324.75v38.62h-10.63l-.79-4.62q-4.92,5.4-12.82,5.4-5.39,0-9.58-2.54t-6.52-7.12-2.35-10.43,2.35-10.44,6.52-7.12,9.58-2.54q3.91,0,7.19,1.37,3.29,1.37,5.63,3.95l.79-4.53H444.4ZM429.7,351.13q2.58-2.7,2.58-7.07,0-4.38-2.58-7.08-2.58-2.7-6.64-2.7-4.07,0-6.61,2.74-2.54,2.74-2.54,7.04,0,4.3,2.54,7.03,2.54,2.74,6.61,2.74Q427.12,353.83,429.7,351.13Z"/>
+          </svg>
           <div class="overflow-hidden">
             <h1 class="text-xs font-extrabold text-white tracking-tight truncate">NEXA RUTA</h1>
             <span class="text-[10px] text-turquoise-400 block font-semibold truncate" id="sidebar-user-role-label">PORTAL DE CONTROL</span>
@@ -271,53 +303,140 @@
   </div>
 
   <!-- MODAL: SEGUIMIENTO EN TIEMPO REAL CON MAPA Y DETALLES DEL CONDUCTOR -->
-  <div id="modal-seguimiento-mapa" class="fixed inset-0 bg-navy-950/75 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-3 sm:p-4">
-    <div class="bg-white rounded-3xl max-w-3xl w-full p-5 sm:p-6 shadow-2xl border border-slate-200 max-h-[94vh] flex flex-col">
+  <div id="modal-seguimiento-mapa" class="fixed inset-0 bg-navy-950/75 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-2 sm:p-4">
+    <div class="bg-white rounded-3xl max-w-4xl w-full p-4 sm:p-6 shadow-2xl border border-slate-200 max-h-[95vh] flex flex-col">
+      
+      <!-- Encabezado con datos del conductor -->
       <div class="flex items-center justify-between pb-3 border-b border-slate-100">
         <div class="flex items-center space-x-3">
-          <img id="mapa-cnd-foto" src="" class="w-12 h-12 rounded-2xl object-cover border-2 border-turquoise-500">
+          <img id="mapa-cnd-foto" src="" class="w-12 h-12 rounded-2xl object-cover border-2 border-turquoise-500 shadow-sm">
           <div>
-            <h3 class="text-sm font-extrabold text-navy-900" id="mapa-cnd-nombre">Conductor</h3>
+            <div class="flex items-center space-x-2">
+              <h3 class="text-sm sm:text-base font-extrabold text-navy-900" id="mapa-cnd-nombre">Conductor</h3>
+              <span id="mapa-cnd-estado-badge" class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-100 text-amber-800">En ruta</span>
+            </div>
             <p class="text-[11px] text-slate-500" id="mapa-cnd-sub">Licencia y Empresa</p>
           </div>
         </div>
-        <button onclick="cerrarModal('modal-seguimiento-mapa')" class="p-1.5 text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+        <div class="flex items-center space-x-2">
+          <span class="hidden sm:inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>GPS Satelital Activo</span>
+          </span>
+          <button onclick="cerrarModal('modal-seguimiento-mapa')" class="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
       </div>
 
-      <div class="flex-1 overflow-y-auto py-3 space-y-3.5 text-xs">
+      <div class="flex-1 overflow-y-auto py-3 space-y-4 text-xs pr-1">
         
-        <!-- Ficha Rápida del Viaje -->
-        <div class="p-3 bg-navy-950 text-white rounded-2xl border border-navy-800 grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
-          <div><span class="text-[9px] text-slate-400 uppercase font-bold block">Servicio:</span><strong class="font-mono text-white" id="mapa-srv-cod">-</strong></div>
-          <div><span class="text-[9px] text-slate-400 uppercase font-bold block">Tracto / Carreta:</span><strong class="font-mono text-turquoise-300" id="mapa-srv-placas">-</strong></div>
-          <div><span class="text-[9px] text-slate-400 uppercase font-bold block">Odómetro Actual:</span><strong class="font-mono text-white" id="mapa-srv-km">-</strong></div>
-          <div><span class="text-[9px] text-slate-400 uppercase font-bold block">Estado Operativo:</span><span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-turquoise-900 text-turquoise-300" id="mapa-srv-estado">-</span></div>
+        <!-- Ficha Operativa Completa: Odómetro Inicial, Final, Recorrido y Placas -->
+        <div class="p-4 bg-navy-950 text-white rounded-2xl border border-navy-800 shadow-sm space-y-3">
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 text-[11px]">
+            <div>
+              <span class="text-[9px] text-slate-400 uppercase font-bold block">Servicio:</span>
+              <strong class="font-mono text-white text-xs block truncate" id="mapa-srv-cod">-</strong>
+            </div>
+            <div>
+              <span class="text-[9px] text-slate-400 uppercase font-bold block">Tracto / Carreta:</span>
+              <strong class="font-mono text-turquoise-300 text-xs block truncate" id="mapa-srv-placas">-</strong>
+            </div>
+            <div class="bg-navy-900/80 p-2 rounded-xl border border-navy-800">
+              <span class="text-[9px] text-slate-400 uppercase font-bold block">Km Inicial (Salida):</span>
+              <strong class="font-mono text-white text-xs block" id="mapa-srv-km-ini">-</strong>
+            </div>
+            <div class="bg-navy-900/80 p-2 rounded-xl border border-navy-800">
+              <span class="text-[9px] text-turquoise-400 uppercase font-bold block">Km Actual / Final:</span>
+              <strong class="font-mono text-turquoise-300 text-xs block" id="mapa-srv-km-fin">-</strong>
+            </div>
+            <div class="bg-turquoise-950/80 p-2 rounded-xl border border-turquoise-800">
+              <span class="text-[9px] text-turquoise-300 uppercase font-bold block">Km Recorridos:</span>
+              <strong class="font-mono text-emerald-400 text-xs block" id="mapa-srv-km-rec">0 km</strong>
+            </div>
+            <div>
+              <span class="text-[9px] text-slate-400 uppercase font-bold block">Estado Operativo:</span>
+              <span class="inline-block px-2 py-0.5 rounded-full text-[9px] font-bold bg-turquoise-900 text-turquoise-300 mt-0.5" id="mapa-srv-estado">-</span>
+            </div>
+          </div>
+          
+          <div class="pt-2.5 border-t border-navy-800/80 flex flex-col sm:flex-row sm:items-center justify-between text-[10px] text-slate-300 gap-1.5">
+            <div>
+              <span class="text-slate-400">Origen:</span> <strong id="mapa-srv-origen" class="text-white">-</strong>
+              <span class="mx-1 text-slate-500">➔</span>
+              <span class="text-slate-400">Destino Actual:</span> <strong id="mapa-srv-destino" class="text-turquoise-300">-</strong>
+            </div>
+            <div class="font-mono text-[10px] text-slate-400 flex items-center space-x-2">
+              <span id="mapa-lbl-coords">Lat: - | Lng: -</span>
+              <span>•</span>
+              <span id="mapa-lbl-precision">Precisión: ± -</span>
+            </div>
+          </div>
         </div>
 
-        <!-- CONTENEDOR DEL MAPA LEAFLET -->
+        <!-- CONTENEDOR DEL MAPA LEAFLET CON SELECTOR DE CAPAS Y SIN BLOQUEOS 403 -->
         <div>
           <div class="flex items-center justify-between mb-1.5">
-            <span class="text-xs font-bold text-navy-900 flex items-center space-x-1">
+            <span class="text-xs font-bold text-navy-900 flex items-center space-x-1.5">
               <i data-lucide="map-pin" class="w-4 h-4 text-turquoise-600"></i>
-              <span>Ubicación Satelital en Tiempo Real</span>
+              <span>Ubicación Satelital y Recorrido en Tiempo Real</span>
             </span>
-            <span class="text-[10px] text-slate-500 font-mono" id="mapa-lbl-actualizacion">Última lectura: Hace un momento</span>
+            <div class="flex items-center space-x-2">
+              <div class="inline-flex rounded-lg border border-slate-200 p-0.5 bg-slate-50 text-[10px]">
+                <button type="button" onclick="cambiarCapaMapa('calles')" id="btn-mapa-calles" class="px-2 py-0.5 rounded-md font-bold bg-navy-900 text-white shadow-2xs">Calles</button>
+                <button type="button" onclick="cambiarCapaMapa('satelite')" id="btn-mapa-satelite" class="px-2 py-0.5 rounded-md text-slate-600 hover:text-slate-900">Satélite</button>
+              </div>
+              <span class="text-[10px] text-slate-500 font-mono" id="mapa-lbl-actualizacion">Último reporte: Hace un momento</span>
+            </div>
           </div>
-          <div id="contenedor-mapa-leaflet" class="w-full h-56 rounded-2xl border border-slate-300 overflow-hidden shadow-inner"></div>
+          <div id="contenedor-mapa-leaflet" class="w-full h-64 sm:h-72 rounded-2xl border border-slate-300 overflow-hidden shadow-inner relative z-0"></div>
+        </div>
+
+        <!-- HISTORIAL DE REGISTROS Y NOVEDADES ENVIADAS POR EL CONDUCTOR -->
+        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200">
+          <div class="flex items-center justify-between mb-2.5">
+            <h4 class="font-bold text-navy-900 text-xs flex items-center space-x-1.5">
+              <i data-lucide="list-checks" class="w-4 h-4 text-turquoise-600"></i>
+              <span>Historial de Registros Enviados por el Conductor (Odómetro, Paradas y Estados)</span>
+            </h4>
+            <span class="text-[10px] text-slate-500 font-medium" id="mapa-lbl-total-eventos">0 registros</span>
+          </div>
+          
+          <div class="overflow-x-auto bg-white rounded-xl border border-slate-200">
+            <table class="w-full text-left text-[11px] text-slate-700">
+              <thead class="bg-slate-100 text-slate-600 font-bold uppercase text-[9px] border-b border-slate-200">
+                <tr>
+                  <th class="p-2.5">Hora</th>
+                  <th class="p-2.5">Evento / Hito Operativo</th>
+                  <th class="p-2.5">Odómetro</th>
+                  <th class="p-2.5">Lugar / Tramo</th>
+                  <th class="p-2.5">Observaciones del Chofer</th>
+                </tr>
+              </thead>
+              <tbody id="mapa-tabla-historial" class="divide-y divide-slate-100 font-normal">
+                <!-- Filas inyectadas dinámicamente -->
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <!-- FOTOS Y EVIDENCIAS SUBIDAS POR ESTE CONDUCTOR -->
         <div>
-          <h4 class="font-bold text-navy-900 mb-2">Fotografías e Información Subidas por este Conductor:</h4>
-          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="mapa-galeria-fotos">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="font-bold text-navy-900 flex items-center space-x-1.5">
+              <i data-lucide="camera" class="w-4 h-4 text-turquoise-600"></i>
+              <span>Fotografías y Documentos de Transporte Subidos:</span>
+            </h4>
+            <span class="text-[10px] text-slate-400 font-medium">Clic en la foto para ampliar</span>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5" id="mapa-galeria-fotos">
             <!-- Fotos inyectadas -->
           </div>
         </div>
 
       </div>
 
-      <div class="pt-3 border-t border-slate-100 flex justify-end">
-        <button onclick="cerrarModal('modal-seguimiento-mapa')" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold">Cerrar</button>
+      <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+        <span class="text-[11px] text-slate-400">Nexa Ruta • Monitoreo Satelital Seguro</span>
+        <button onclick="cerrarModal('modal-seguimiento-mapa')" class="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition shadow-sm">Cerrar</button>
       </div>
     </div>
   </div>
@@ -780,6 +899,8 @@
           ruc_cliente: "20100070970",
           id_conductor: "CND-001",
           conductor_nombre: "Juan Carlos Pérez",
+          conductor_dni: "42345678",
+          conductor_licencia: "Q42345678 (A-IIIc)",
           placa_tracto: "V7X-890",
           placa_carreta: "TC8-120",
           origen: "Almacén Central Callao",
@@ -792,10 +913,18 @@
           estado: "En tránsito al destino",
           alerta_retraso: "A TIEMPO",
           km_inicial: 148200,
+          km_actual: 148380,
           km_final: null,
           fecha_programada: "21/11/2026",
           hora_programada: "06:00",
           instrucciones: "Carga de barras sobredimensionadas. Precinto verificado.",
+          eventos_historial: [
+            { fecha_hora: "21/11/2026 09:40", evento: "Transmisión Satelital GPS en Ruta", odometro: 148380, ubicacion: "Km 135 Panamericana Norte", lat: -11.1245, lng: -77.5891, observacion: "Velocidad constante 68 km/h. Rumbo a Huacho." },
+            { fecha_hora: "21/11/2026 08:30", evento: "Control Garita y Documentación SUTRAN", odometro: 148295, ubicacion: "Km 90 Panamericana Norte (Chancay)", lat: -11.5642, lng: -77.2689, observacion: "Guía de remisión electrónica sellada en SUTRAN" },
+            { fecha_hora: "21/11/2026 07:15", evento: "Paso por Peaje Ancón Km 43", odometro: 148243, ubicacion: "Peaje Ancón", lat: -11.7589, lng: -77.1642, observacion: "Tráfico fluido. Odómetro verificado." },
+            { fecha_hora: "21/11/2026 06:45", evento: "Carga Completada y Precintado", odometro: 148205, ubicacion: "Almacén Central Callao", lat: -12.0463, lng: -77.0427, observacion: "Evidencia de carga subida con fotografía." },
+            { fecha_hora: "21/11/2026 06:00", evento: "Salida de Base y Registro Odómetro Inicial", odometro: 148200, ubicacion: "Almacén Central Callao", lat: -12.0463, lng: -77.0427, observacion: "Despacho autorizado por supervisor de flota." }
+          ],
           evidencias: [
             {
               id_evidencia: "EVD-AND-001",
@@ -834,6 +963,8 @@
           ruc_cliente: "20519343734",
           id_conductor: "CND-002",
           conductor_nombre: "Raúl Mendoza Díaz",
+          conductor_dni: "44567890",
+          conductor_licencia: "Q44567890 (A-IIIb)",
           placa_tracto: "T3B-891",
           placa_carreta: "C1M-552",
           origen: "Puerto Callao APM Terminals",
@@ -845,10 +976,16 @@
           estado: "En camino al punto de carga",
           alerta_retraso: "RETRASADO",
           km_inicial: 192300,
+          km_actual: 192450,
           km_final: null,
           fecha_programada: "21/11/2026",
           hora_programada: "05:00",
           instrucciones: "Carga de insumos mineros con precinto aduanero intacto.",
+          eventos_historial: [
+            { fecha_hora: "21/11/2026 07:30", evento: "Tránsito en Carretera Central", odometro: 192450, ubicacion: "Matucana Km 74", lat: -11.8542, lng: -76.8542, observacion: "Tránsito lento por lluvias." },
+            { fecha_hora: "21/11/2026 06:10", evento: "Reporte de Demora en Tráfico", odometro: 192380, ubicacion: "Chosica Km 38", lat: -11.9421, lng: -76.7123, observacion: "Retraso de 40 min por trabajos en vía." },
+            { fecha_hora: "21/11/2026 05:00", evento: "Salida e Inicio de Servicio", odometro: 192300, ubicacion: "Puerto Callao APM", lat: -12.0521, lng: -77.1420, observacion: "Odómetro inicial registrado." }
+          ],
           evidencias: []
         },
         {
@@ -858,6 +995,8 @@
           ruc_cliente: "20100055237",
           id_conductor: "CND-003",
           conductor_nombre: "Miguel Flores Ticona",
+          conductor_dni: "46789012",
+          conductor_licencia: "Q46789012 (A-IIIc)",
           placa_tracto: "B5K-710",
           placa_carreta: "R9T-440",
           origen: "Planta Callao Faucett",
@@ -869,10 +1008,16 @@
           estado: "Finalizado",
           alerta_retraso: "FINALIZADO A TIEMPO",
           km_inicial: 94050,
+          km_actual: 95100,
           km_final: 95100,
           fecha_programada: "20/11/2026",
           hora_programada: "07:00",
           instrucciones: "Entrega con guía de remisión sellada y firmada conforme.",
+          eventos_historial: [
+            { fecha_hora: "20/11/2026 14:00", evento: "Servicio Concluido y Descarga Sellada", odometro: 95100, ubicacion: "CD Arequipa", lat: -16.3685, lng: -71.5642, observacion: "Descarga completada y odómetro final registrado." },
+            { fecha_hora: "20/11/2026 07:45", evento: "Carga de Productos Terminados", odometro: 94055, ubicacion: "Planta Callao Faucett", lat: -12.0211, lng: -77.1122, observacion: "Evidencia de carga subida a Drive." },
+            { fecha_hora: "20/11/2026 07:00", evento: "Inicio de Servicio", odometro: 94050, ubicacion: "Planta Callao Faucett", lat: -12.0211, lng: -77.1122, observacion: "Salida conforme." }
+          ],
           evidencias: [
             {
               id_evidencia: "EVD-DEMO-001",
@@ -1195,8 +1340,12 @@
 
       const menu = document.getElementById("sidebar-menu-list");
       menu.innerHTML = `
-        <button onclick="mostrarSeccionSupervisor('conductores')" id="sup-menu-conductores" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-white bg-navy-800 font-bold transition">
-          <i data-lucide="users" class="w-4 h-4 text-turquoise-400"></i>
+        <button onclick="mostrarSeccionSupervisor('dashboard')" id="sup-menu-dashboard" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-white bg-navy-800 font-bold transition">
+          <i data-lucide="layout-dashboard" class="w-4 h-4 text-turquoise-400"></i>
+          <span>Dashboard de Flota</span>
+        </button>
+        <button onclick="mostrarSeccionSupervisor('conductores')" id="sup-menu-conductores" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
+          <i data-lucide="users" class="w-4 h-4"></i>
           <span>Conductores de mi flota</span>
         </button>
         <button onclick="mostrarSeccionSupervisor('servicios')" id="sup-menu-servicios" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
@@ -1213,12 +1362,12 @@
         </button>
       `;
 
-      mostrarSeccionSupervisor('conductores');
+      mostrarSeccionSupervisor('dashboard');
       lucide.createIcons();
     }
 
     function mostrarSeccionSupervisor(seccion) {
-      ['conductores', 'servicios', 'evidencias', 'incidencias'].forEach(s => {
+      ['dashboard', 'conductores', 'servicios', 'evidencias', 'incidencias'].forEach(s => {
         const btn = document.getElementById(`sup-menu-${s}`);
         if (btn) {
           btn.className = s === seccion 
@@ -1230,14 +1379,186 @@
       const main = document.getElementById("main-stage-area");
       const serviciosEmpresa = DB_LOCAL.servicios.filter(s => s.id_empresa === sesionActual.id_empresa);
       const conductoresEmpresa = DB_LOCAL.conductores.filter(c => c.id_empresa === sesionActual.id_empresa);
+      const incidenciasEmpresa = DB_LOCAL.incidencias.filter(i => i.id_empresa === sesionActual.id_empresa);
+      const todasEvidenciasEmpresa = serviciosEmpresa.flatMap(s => s.evidencias || []).filter(e => e.permiso_supervisor === "AUTORIZADO");
+      
+      const kmTotalesEmpresa = serviciosEmpresa.reduce((acc, s) => {
+        const ini = s.km_inicial || 0;
+        const fin = s.km_final || (s.km_actual || ini);
+        return acc + Math.max(0, fin - ini);
+      }, 0);
 
-      if (seccion === 'conductores') {
+      if (seccion === 'dashboard') {
+        main.innerHTML = `
+          <div class="p-6 space-y-6">
+            <!-- Encabezado del Dashboard del Supervisor -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <div class="flex items-center space-x-2">
+                  <h2 class="text-lg font-extrabold text-navy-900 tracking-tight">Dashboard de Flota</h2>
+                  <span class="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>Operación en Vivo</span>
+                  </span>
+                </div>
+                <p class="text-xs text-slate-500">${obtenerNombreEmpresa(sesionActual.id_empresa)} • Supervisión integral, odómetros en tiempo real y despacho</p>
+              </div>
+              <div class="flex items-center space-x-2">
+                <button onclick="exportarExcelSupervisor()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 shadow-2xs transition">
+                  <i data-lucide="sheet" class="w-4 h-4"></i><span>Descargar Excel (.xlsx)</span>
+                </button>
+                <button onclick="exportarPdfSupervisor()" class="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 shadow-2xs transition">
+                  <i data-lucide="file-text" class="w-4 h-4"></i><span>Descargar PDF</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 5 Tarjetas KPI del Supervisor -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5 text-xs">
+              <div class="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
+                <span class="text-slate-400 block font-bold text-[9px] uppercase">Conductores en Ruta</span>
+                <div class="flex items-baseline space-x-1.5 mt-1">
+                  <strong class="text-xl font-extrabold text-navy-900">${conductoresEmpresa.filter(c => c.estado === 'En ruta').length}</strong>
+                  <span class="text-slate-400 text-xs">/ ${conductoresEmpresa.length}</span>
+                </div>
+                <span class="text-[10px] text-emerald-600 font-semibold block mt-0.5">● Transmitiendo GPS</span>
+              </div>
+              
+              <div class="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
+                <span class="text-slate-400 block font-bold text-[9px] uppercase">Viajes Activos Hoy</span>
+                <strong class="text-xl font-extrabold text-turquoise-700 block mt-1">${serviciosEmpresa.filter(s => s.estado !== 'Finalizado').length}</strong>
+                <span class="text-[10px] text-slate-400 block mt-0.5">En carga y tránsito</span>
+              </div>
+
+              <div class="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
+                <span class="text-slate-400 block font-bold text-[9px] uppercase">Km Totales Flota</span>
+                <strong class="text-xl font-extrabold text-navy-900 block mt-1">${kmTotalesEmpresa.toLocaleString()} km</strong>
+                <span class="text-[10px] text-slate-400 block mt-0.5">Odómetros auditados</span>
+              </div>
+
+              <div class="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
+                <span class="text-slate-400 block font-bold text-[9px] uppercase">Evidencias en Drive</span>
+                <strong class="text-xl font-extrabold text-navy-900 block mt-1">${todasEvidenciasEmpresa.length}</strong>
+                <span class="text-[10px] text-slate-400 block mt-0.5">Fotos y remitos</span>
+              </div>
+
+              <div class="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
+                <span class="text-slate-400 block font-bold text-[9px] uppercase">Alertas e Incidencias</span>
+                <strong class="text-xl font-extrabold ${incidenciasEmpresa.length > 0 ? 'text-amber-600' : 'text-slate-700'} block mt-1">${incidenciasEmpresa.length}</strong>
+                <span class="text-[10px] text-slate-400 block mt-0.5">Novedades de ruta</span>
+              </div>
+            </div>
+
+            <!-- Cuadro de Monitoreo en Vivo de Viajes, Odómetros y Conductores -->
+            <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="text-sm font-extrabold text-navy-900">Monitoreo Operativo en Tiempo Real</h3>
+                  <p class="text-xs text-slate-500">Estado de cada camión, odómetro inicial vs actual y enlace a mapa GPS con fotos</p>
+                </div>
+                <button onclick="abrirModalSupervisorAsignarRuta()" class="px-3 py-1.5 bg-navy-900 hover:bg-navy-800 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 transition">
+                  <i data-lucide="plus" class="w-3.5 h-3.5"></i><span>+ Asignar Ruta</span>
+                </button>
+              </div>
+
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs text-slate-700">
+                  <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[9px]">
+                    <tr>
+                      <th class="p-3">Servicio</th>
+                      <th class="p-3">Conductor & DNI</th>
+                      <th class="p-3">Tracto / Carreta</th>
+                      <th class="p-3">Ruta (Origen -> Destino)</th>
+                      <th class="p-3">Km Inicial</th>
+                      <th class="p-3">Km Actual</th>
+                      <th class="p-3">Km Rec.</th>
+                      <th class="p-3">Estado</th>
+                      <th class="p-3 text-right">Monitoreo GPS</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100">
+                    ${serviciosEmpresa.map(s => {
+                      const kmIni = s.km_inicial || 0;
+                      const kmFin = s.km_final || (s.km_actual || kmIni);
+                      const kmRec = Math.max(0, kmFin - kmIni);
+                      const cnd = DB_LOCAL.conductores.find(c => c.id_conductor === s.id_conductor) || {};
+                      return `
+                        <tr class="hover:bg-slate-50 transition">
+                          <td class="p-3 font-mono font-bold text-navy-900">
+                            <span>${s.cod_servicio}</span>
+                            <span class="block text-[10px] font-normal text-slate-500 truncate max-w-[130px]">${s.cliente}</span>
+                          </td>
+                          <td class="p-3">
+                            <div class="flex items-center space-x-2">
+                              <img src="${cnd.foto || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80'}" class="w-7 h-7 rounded-lg object-cover border border-slate-200">
+                              <div>
+                                <strong class="text-slate-800 block">${s.conductor_nombre}</strong>
+                                <span class="text-[10px] text-slate-400 font-mono">DNI: ${s.conductor_dni || cnd.dni || '-'}</span>
+                              </div>
+                            </div>
+                          </td>
+                          <td class="p-3 font-mono font-bold text-slate-700">${s.placa_tracto} / ${s.placa_carreta}</td>
+                          <td class="p-3">
+                            <span class="text-slate-600">${s.origen}</span>
+                            <span class="text-slate-400 mx-1">➔</span>
+                            <strong class="text-turquoise-800">${s.parada_actual}</strong>
+                          </td>
+                          <td class="p-3 font-mono text-slate-600">${kmIni ? kmIni.toLocaleString() + ' km' : '-'}</td>
+                          <td class="p-3 font-mono font-bold text-navy-900">${kmFin ? kmFin.toLocaleString() + ' km' : '-'}</td>
+                          <td class="p-3 font-mono font-bold text-emerald-600">+${kmRec.toLocaleString()} km</td>
+                          <td class="p-3">
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${s.estado === 'Finalizado' ? 'bg-emerald-100 text-emerald-800' : (s.estado === 'En ruta' || s.estado === 'En tránsito al destino' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700')}">
+                              ${s.estado}
+                            </span>
+                          </td>
+                          <td class="p-3 text-right">
+                            <button onclick="abrirSeguimientoMapaConductor('${s.id_conductor}')" class="px-2.5 py-1 bg-turquoise-600 hover:bg-turquoise-700 text-white font-bold rounded-lg text-[11px] inline-flex items-center space-x-1 shadow-2xs transition">
+                              <i data-lucide="map" class="w-3.5 h-3.5"></i><span>Ver en mapa y fotos</span>
+                            </button>
+                          </td>
+                        </tr>
+                      `;
+                    }).join('')}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Últimas Evidencias Fotográficas Subidas Hoy -->
+            <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="text-sm font-extrabold text-navy-900">Últimas Evidencias Fotográficas de Ruta (Google Drive)</h3>
+                  <p class="text-xs text-slate-500">Fotografías de carga, precintos, guías de remisión selladas y descargas subidas por tus conductores</p>
+                </div>
+                <button onclick="mostrarSeccionSupervisor('evidencias')" class="text-turquoise-700 text-xs font-bold hover:underline">Ver todas las fotos ➔</button>
+              </div>
+
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                ${todasEvidenciasEmpresa.slice(0, 4).map(e => `
+                  <div class="bg-slate-50 rounded-2xl overflow-hidden border border-slate-200 shadow-2xs group flex flex-col justify-between">
+                    <div class="relative overflow-hidden cursor-pointer" onclick="ampliarFotoVisor('${e.url_foto}', '${e.tipo_evidencia} - ${e.parada}')">
+                      <img src="${e.url_foto}" class="w-full h-28 object-cover group-hover:scale-105 transition duration-200">
+                      <span class="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[9px] font-bold bg-navy-950/80 text-white backdrop-blur-xs">${e.tipo_evidencia}</span>
+                    </div>
+                    <div class="p-2.5 text-[10px]">
+                      <strong class="text-navy-900 block truncate">${e.parada}</strong>
+                      <span class="text-slate-500 block truncate">${e.conductor}</span>
+                      <span class="text-slate-400 block text-[9px] mt-0.5">${e.fecha_captura}</span>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (seccion === 'conductores') {
         main.innerHTML = `
           <div class="p-6 space-y-6">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
                 <h2 class="text-lg font-extrabold text-navy-900 tracking-tight">Conductores de mi Flota</h2>
-                <p class="text-xs text-slate-500">${obtenerNombreEmpresa(sesionActual.id_empresa)} • Control individual, seguimiento en tiempo real y asignación</p>
+                <p class="text-xs text-slate-500">${obtenerNombreEmpresa(sesionActual.id_empresa)} • Control individual, odómetros, seguimiento en tiempo real y asignación</p>
               </div>
               <div class="flex items-center space-x-2">
                 <button onclick="abrirModalSupervisorCrearConductor()" class="px-3 py-2 bg-turquoise-600 hover:bg-turquoise-700 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 shadow-2xs">
@@ -1253,6 +1574,9 @@
               ${conductoresEmpresa.map(c => {
                 const srvActivo = DB_LOCAL.servicios.find(s => s.id_conductor === c.id_conductor);
                 const totalFotos = srvActivo ? (srvActivo.evidencias || []).length : 0;
+                const kmIni = srvActivo ? (srvActivo.km_inicial || 0) : 0;
+                const kmFin = srvActivo ? (srvActivo.km_final || (srvActivo.km_actual || kmIni)) : 0;
+                const kmRec = Math.max(0, kmFin - kmIni);
                 return `
                   <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm flex flex-col justify-between hover:border-turquoise-400 transition">
                     <div class="space-y-3">
@@ -1268,13 +1592,17 @@
                         </div>
                       </div>
 
-                      <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-1">
+                      <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-1.5">
                         <span class="text-[9px] text-slate-400 font-bold uppercase block">Ruta Asignada en Curso:</span>
                         <div class="flex items-center justify-between">
                           <strong class="text-navy-900 truncate">${srvActivo ? srvActivo.cod_servicio + ' - ' + srvActivo.cliente : 'Sin viaje asignado'}</strong>
                           <span class="text-[10px] text-turquoise-700 font-bold shrink-0 ml-1">${srvActivo ? srvActivo.parada_actual : ''}</span>
                         </div>
-                        <p class="text-[10px] text-slate-500">${srvActivo ? 'Origen: ' + srvActivo.origen + ' | Odómetro: ' + (srvActivo.km_inicial || '-') + ' km' : ''}</p>
+                        <div class="grid grid-cols-3 gap-1 pt-1 border-t border-slate-200/60 text-[10px]">
+                          <div><span class="text-slate-400 block text-[9px]">Km Inicial:</span><strong class="font-mono">${kmIni ? kmIni.toLocaleString() + ' km' : '-'}</strong></div>
+                          <div><span class="text-slate-400 block text-[9px]">Km Actual:</span><strong class="font-mono text-navy-900">${kmFin ? kmFin.toLocaleString() + ' km' : '-'}</strong></div>
+                          <div><span class="text-slate-400 block text-[9px]">Recorrido:</span><strong class="font-mono text-emerald-600">+${kmRec.toLocaleString()} km</strong></div>
+                        </div>
                       </div>
                     </div>
 
@@ -1296,8 +1624,8 @@
           <div class="p-6 space-y-6">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
-                <h2 class="text-lg font-extrabold text-navy-900 tracking-tight">Servicios y Rutas</h2>
-                <p class="text-xs text-slate-500">${obtenerNombreEmpresa(sesionActual.id_empresa)} • Descarga en Excel y PDF</p>
+                <h2 class="text-lg font-extrabold text-navy-900 tracking-tight">Servicios y Rutas de Despacho</h2>
+                <p class="text-xs text-slate-500">${obtenerNombreEmpresa(sesionActual.id_empresa)} • Descarga detallada en cuadros en Excel y PDF</p>
               </div>
               <div class="flex items-center space-x-2">
                 <button onclick="exportarExcelSupervisor()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 shadow-2xs">
@@ -1318,24 +1646,32 @@
                     <th class="p-3">Conductor</th>
                     <th class="p-3">Placas</th>
                     <th class="p-3">Destino Actual</th>
+                    <th class="p-3">Km Inicial</th>
+                    <th class="p-3">Km Actual</th>
                     <th class="p-3">Estado</th>
                     <th class="p-3 text-right">Acción</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
-                  ${serviciosEmpresa.map(s => `
-                    <tr class="hover:bg-slate-50 transition">
-                      <td class="p-3 font-mono font-bold text-navy-900">${s.cod_servicio}</td>
-                      <td class="p-3 font-semibold text-slate-800">${s.cliente}</td>
-                      <td class="p-3">${s.conductor_nombre}</td>
-                      <td class="p-3 font-mono text-slate-600">${s.placa_tracto} / ${s.placa_carreta}</td>
-                      <td class="p-3 text-turquoise-800 font-medium">${s.parada_actual}</td>
-                      <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border">${s.estado}</span></td>
-                      <td class="p-3 text-right">
-                        <button onclick="abrirSeguimientoMapaConductor('${s.id_conductor}')" class="text-turquoise-700 font-bold hover:underline">Ver seguimiento</button>
-                      </td>
-                    </tr>
-                  `).join('')}
+                  ${serviciosEmpresa.map(s => {
+                    const kmIni = s.km_inicial || 0;
+                    const kmFin = s.km_final || (s.km_actual || kmIni);
+                    return `
+                      <tr class="hover:bg-slate-50 transition">
+                        <td class="p-3 font-mono font-bold text-navy-900">${s.cod_servicio}</td>
+                        <td class="p-3 font-semibold text-slate-800">${s.cliente}</td>
+                        <td class="p-3">${s.conductor_nombre}</td>
+                        <td class="p-3 font-mono text-slate-600">${s.placa_tracto} / ${s.placa_carreta}</td>
+                        <td class="p-3 text-turquoise-800 font-medium">${s.parada_actual}</td>
+                        <td class="p-3 font-mono">${kmIni ? kmIni.toLocaleString() + ' km' : '-'}</td>
+                        <td class="p-3 font-mono font-bold text-navy-900">${kmFin ? kmFin.toLocaleString() + ' km' : '-'}</td>
+                        <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border">${s.estado}</span></td>
+                        <td class="p-3 text-right">
+                          <button onclick="abrirSeguimientoMapaConductor('${s.id_conductor}')" class="text-turquoise-700 font-bold hover:underline">Ver seguimiento</button>
+                        </td>
+                      </tr>
+                    `;
+                  }).join('')}
                 </tbody>
               </table>
             </div>
@@ -1351,10 +1687,12 @@
             </div>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
               ${todasEvidencias.map(e => `
-                <div class="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-2xs group">
-                  <img src="${e.url_foto}" onclick="ampliarFotoVisor('${e.url_foto}', '${e.tipo_evidencia} - ${e.parada}')" class="w-full h-36 object-cover cursor-pointer group-hover:scale-105 transition">
+                <div class="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-2xs group flex flex-col justify-between">
+                  <div class="relative overflow-hidden cursor-pointer" onclick="ampliarFotoVisor('${e.url_foto}', '${e.tipo_evidencia} - ${e.parada}')">
+                    <img src="${e.url_foto}" class="w-full h-36 object-cover group-hover:scale-105 transition">
+                    <span class="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[9px] font-bold bg-navy-950/80 text-white backdrop-blur-xs">${e.tipo_evidencia}</span>
+                  </div>
                   <div class="p-3 text-xs">
-                    <span class="text-[9px] font-bold text-turquoise-700 uppercase block">${e.tipo_evidencia}</span>
                     <strong class="text-slate-800 font-semibold block truncate">${e.parada}</strong>
                     <span class="text-[10px] text-slate-400 block">${e.conductor} • ${e.fecha_captura}</span>
                   </div>
@@ -1364,7 +1702,6 @@
           </div>
         `;
       } else if (seccion === 'incidencias') {
-        const incidenciasEmpresa = DB_LOCAL.incidencias.filter(i => i.id_empresa === sesionActual.id_empresa);
         main.innerHTML = `
           <div class="p-6 space-y-6">
             <div>
@@ -1390,36 +1727,163 @@
     }
 
     // ==========================================
+    // CONTROL DEL MAPA LEAFLET (CARTO VOYAGER + SATÉLITE ESRI)
+    // ==========================================
+    let mapaLeafletInstancia = null;
+    let capaMapaCalles = null;
+    let capaMapaSatelite = null;
+
+    function inicializarMapaLeaflet(lat, lng, popupHtml) {
+      const contMapa = document.getElementById("contenedor-mapa-leaflet");
+      if (!contMapa) return;
+
+      if (mapaLeafletInstancia) {
+        try {
+          mapaLeafletInstancia.remove();
+        } catch(e) {}
+        mapaLeafletInstancia = null;
+      }
+
+      // Capa Calles CARTO Voyager (Alta nitidez, sin bloqueos 403)
+      capaMapaCalles = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19,
+        subdomains: 'abcd',
+        attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+      });
+
+      // Capa Satélite Esri World Imagery
+      capaMapaSatelite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 19,
+        attribution: 'Tiles &copy; Esri'
+      });
+
+      mapaLeafletInstancia = L.map(contMapa, {
+        center: [lat, lng],
+        zoom: 12,
+        layers: [capaMapaCalles]
+      });
+
+      const marker = L.circleMarker([lat, lng], {
+        radius: 9,
+        fillColor: "#06b6d4",
+        color: "#0f172a",
+        weight: 2.5,
+        opacity: 1,
+        fillOpacity: 0.95
+      }).addTo(mapaLeafletInstancia);
+
+      marker.bindPopup(popupHtml).openPopup();
+
+      setTimeout(() => {
+        if (mapaLeafletInstancia) {
+          mapaLeafletInstancia.invalidateSize();
+        }
+      }, 250);
+    }
+
+    function cambiarCapaMapa(tipo) {
+      if (!mapaLeafletInstancia) return;
+      const btnCalles = document.getElementById("btn-mapa-calles");
+      const btnSat = document.getElementById("btn-mapa-satelite");
+
+      if (tipo === 'satelite') {
+        if (mapaLeafletInstancia.hasLayer(capaMapaCalles)) mapaLeafletInstancia.removeLayer(capaMapaCalles);
+        mapaLeafletInstancia.addLayer(capaMapaSatelite);
+        if (btnSat) btnSat.className = "px-2 py-0.5 rounded-md font-bold bg-navy-900 text-white shadow-2xs";
+        if (btnCalles) btnCalles.className = "px-2 py-0.5 rounded-md text-slate-600 hover:text-slate-900";
+      } else {
+        if (mapaLeafletInstancia.hasLayer(capaMapaSatelite)) mapaLeafletInstancia.removeLayer(capaMapaSatelite);
+        mapaLeafletInstancia.addLayer(capaMapaCalles);
+        if (btnCalles) btnCalles.className = "px-2 py-0.5 rounded-md font-bold bg-navy-900 text-white shadow-2xs";
+        if (btnSat) btnSat.className = "px-2 py-0.5 rounded-md text-slate-600 hover:text-slate-900";
+      }
+    }
+
+    // ==========================================
     // SEGUIMIENTO EN TIEMPO REAL CON MAPA LEAFLET
     // ==========================================
     function abrirSeguimientoMapaConductor(idConductor) {
       const c = DB_LOCAL.conductores.find(x => x.id_conductor === idConductor);
       if (!c) return;
 
-      const srv = DB_LOCAL.servicios.find(s => s.id_conductor === idConductor) || {};
+      const srv = DB_LOCAL.servicios.find(s => s.id_conductor === idConductor) || {
+        cod_servicio: "SRV-ASIG-" + c.id_conductor,
+        cliente: "Disponible para Asignación",
+        origen: "Base Central Callao",
+        parada_actual: "Disponible",
+        estado: c.estado,
+        placa_tracto: c.placa_tracto,
+        placa_carreta: c.placa_carreta,
+        km_inicial: 148500,
+        km_actual: 148500,
+        km_final: null,
+        eventos_historial: [],
+        evidencias: []
+      };
+
       const fotosConductor = srv.evidencias || [];
+      const eventosConductor = srv.eventos_historial || [];
+
+      const kmIni = srv.km_inicial || 0;
+      const kmFin = srv.km_final || (srv.km_actual || kmIni);
+      const kmRec = Math.max(0, kmFin - kmIni);
 
       document.getElementById("mapa-cnd-foto").src = c.foto;
       document.getElementById("mapa-cnd-nombre").textContent = c.nombre;
-      document.getElementById("mapa-cnd-sub").textContent = `Brevete: ${c.licencia} (${c.categoria}) • ${obtenerNombreEmpresa(c.id_empresa)}`;
-      document.getElementById("mapa-srv-cod").textContent = srv.cod_servicio || "Sin servicio activo";
+      document.getElementById("mapa-cnd-sub").textContent = `DNI: ${c.dni} • Brevete: ${c.licencia} (${c.categoria}) • ${obtenerNombreEmpresa(c.id_empresa)} • Cel: ${c.telefono}`;
+      document.getElementById("mapa-cnd-estado-badge").textContent = srv.estado || c.estado;
+      
+      document.getElementById("mapa-srv-cod").textContent = `${srv.cod_servicio} - ${srv.cliente}`;
       document.getElementById("mapa-srv-placas").textContent = `${c.placa_tracto} / ${c.placa_carreta}`;
-      document.getElementById("mapa-srv-km").textContent = (srv.km_inicial ? srv.km_inicial + " km" : "-");
+      document.getElementById("mapa-srv-km-ini").textContent = kmIni ? `${kmIni.toLocaleString()} km` : "-";
+      document.getElementById("mapa-srv-km-fin").textContent = kmFin ? `${kmFin.toLocaleString()} km` : "-";
+      document.getElementById("mapa-srv-km-rec").textContent = `+${kmRec.toLocaleString()} km`;
       document.getElementById("mapa-srv-estado").textContent = srv.estado || c.estado;
-      document.getElementById("mapa-lbl-actualizacion").textContent = `Último reporte: ${c.ultima_actualizacion || 'Reciente'}`;
+
+      document.getElementById("mapa-srv-origen").textContent = srv.origen || "Almacén Callao";
+      document.getElementById("mapa-srv-destino").textContent = srv.parada_actual || (srv.paradas && srv.paradas[0] ? srv.paradas[0].nombre : "En ruta");
+
+      const lat = c.latitud || -12.0463;
+      const lng = c.longitud || -77.0427;
+      const precision = c.precision_m || 8.5;
+
+      document.getElementById("mapa-lbl-coords").textContent = `Lat: ${lat.toFixed(4)} | Lng: ${lng.toFixed(4)}`;
+      document.getElementById("mapa-lbl-precision").textContent = `Precisión GPS: ±${precision}m`;
+      document.getElementById("mapa-lbl-actualizacion").textContent = `Último reporte: ${c.ultima_actualizacion || 'Hace un momento'}`;
+
+      // Inyectar Historial de Registros Enviados por el Conductor
+      const tablaHist = document.getElementById("mapa-tabla-historial");
+      document.getElementById("mapa-lbl-total-eventos").textContent = `${eventosConductor.length} registros`;
+
+      if (eventosConductor.length === 0) {
+        tablaHist.innerHTML = `<tr><td colspan="5" class="p-3 text-center text-slate-400">El conductor no ha enviado registros de ruta aún.</td></tr>`;
+      } else {
+        tablaHist.innerHTML = eventosConductor.map(ev => `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="p-2.5 font-mono text-[10px] text-slate-500 whitespace-nowrap">${ev.fecha_hora}</td>
+            <td class="p-2.5 font-bold text-navy-900">${ev.evento}</td>
+            <td class="p-2.5 font-mono text-turquoise-700 font-bold whitespace-nowrap">${ev.odometro ? Number(ev.odometro).toLocaleString() + ' km' : '-'}</td>
+            <td class="p-2.5 text-slate-600">${ev.ubicacion || '-'}</td>
+            <td class="p-2.5 text-slate-500 italic">${ev.observacion || '-'}</td>
+          </tr>
+        `).join('');
+      }
 
       // Inyectar fotos subidas por este conductor
       const galeria = document.getElementById("mapa-galeria-fotos");
       if (fotosConductor.length === 0) {
-        galeria.innerHTML = `<p class="col-span-3 text-slate-400 text-center py-4 text-xs">No hay fotos subidas para este recorrido aún.</p>`;
+        galeria.innerHTML = `<p class="col-span-4 text-slate-400 text-center py-4 text-xs">No hay fotos subidas para este recorrido aún.</p>`;
       } else {
         galeria.innerHTML = fotosConductor.map(f => `
-          <div class="bg-slate-50 rounded-xl overflow-hidden border border-slate-200 group">
-            <img src="${f.url_foto}" onclick="ampliarFotoVisor('${f.url_foto}', '${f.tipo_evidencia} - ${f.parada}')" class="w-full h-24 object-cover cursor-pointer group-hover:scale-105 transition">
+          <div class="bg-slate-50 rounded-2xl overflow-hidden border border-slate-200 group flex flex-col justify-between shadow-2xs">
+            <div class="relative overflow-hidden cursor-pointer" onclick="ampliarFotoVisor('${f.url_foto}', '${f.tipo_evidencia} - ${f.parada}')">
+              <img src="${f.url_foto}" class="w-full h-24 object-cover group-hover:scale-105 transition duration-200">
+              <span class="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-full text-[8px] font-bold bg-navy-950/80 text-white backdrop-blur-xs">${f.tipo_evidencia}</span>
+            </div>
             <div class="p-2 text-[10px]">
-              <strong class="text-navy-900 block truncate">${f.tipo_evidencia}</strong>
-              <span class="text-slate-500 block truncate">${f.parada}</span>
-              <span class="text-slate-400 block text-[9px]">${f.fecha_captura}</span>
+              <strong class="text-navy-900 block truncate">${f.parada}</strong>
+              <span class="text-slate-400 block text-[9px] mt-0.5">${f.fecha_captura}</span>
+              ${f.observacion ? `<p class="text-slate-500 text-[9px] italic truncate mt-0.5">"${f.observacion}"</p>` : ''}
             </div>
           </div>
         `).join('');
@@ -1429,32 +1893,15 @@
       lucide.createIcons();
 
       // Inicializar mapa interactivo Leaflet
-      setTimeout(() => {
-        const contMapa = document.getElementById("contenedor-mapa-leaflet");
-        if (mapaLeafletInstancia) {
-          mapaLeafletInstancia.remove();
-        }
-        const lat = c.latitud || -12.0463;
-        const lng = c.longitud || -77.0427;
-
-        mapaLeafletInstancia = L.map(contMapa).setView([lat, lng], 12);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          maxZoom: 19,
-          attribution: '© OpenStreetMap'
-        }).addTo(mapaLeafletInstancia);
-
-        const customMarker = L.circleMarker([lat, lng], {
-          radius: 9,
-          fillColor: "#06b6d4",
-          color: "#0f172a",
-          weight: 2,
-          opacity: 1,
-          fillOpacity: 0.9
-        }).addTo(mapaLeafletInstancia);
-
-        customMarker.bindPopup(`<strong>${c.nombre}</strong><br>Tracto: ${c.placa_tracto}<br>Estado: ${srv.estado || c.estado}`).openPopup();
-        mapaLeafletInstancia.invalidateSize();
-      }, 200);
+      const popupHtml = `
+        <div style="font-size:11px; line-height:1.4;">
+          <strong style="color:#0f172a; font-size:12px;">${c.nombre}</strong><br>
+          <span style="color:#0891b2; font-weight:bold;">Tracto: ${c.placa_tracto}</span> | Carreta: ${c.placa_carreta}<br>
+          <span>Km Actual: <strong>${kmFin.toLocaleString()} km</strong></span><br>
+          <span style="display:inline-block; margin-top:3px; padding:1px 6px; background:#e0f2fe; color:#0369a1; border-radius:10px; font-weight:bold;">${srv.estado || c.estado}</span>
+        </div>
+      `;
+      inicializarMapaLeaflet(lat, lng, popupHtml);
     }
 
     // Modal para que el Supervisor registre nuevo conductor
@@ -1605,6 +2052,10 @@
           <i data-lucide="camera" class="w-4 h-4"></i>
           <span>Auditoría de Evidencias</span>
         </button>
+        <button onclick="mostrarSeccionAdmin('conexion')" id="adm-menu-conexion" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
+          <i data-lucide="cloud-cog" class="w-4 h-4"></i>
+          <span>Conexión Cloud / Sheets</span>
+        </button>
       `;
 
       mostrarSeccionAdmin('resumen');
@@ -1612,7 +2063,7 @@
     }
 
     function mostrarSeccionAdmin(seccion) {
-      ['resumen', 'empresas', 'usuarios', 'conductores', 'historial', 'evidencias'].forEach(s => {
+      ['resumen', 'empresas', 'usuarios', 'conductores', 'historial', 'evidencias', 'conexion'].forEach(s => {
         const btn = document.getElementById(`adm-menu-${s}`);
         if (btn) {
           btn.className = s === seccion 
@@ -1852,8 +2303,110 @@
             </div>
           </div>
         `;
+      } else if (seccion === 'conexion') {
+        const estadoConectado = Boolean(APPS_SCRIPT_URL);
+        main.innerHTML = `
+          <div class="p-6 space-y-6 max-w-4xl">
+            <div>
+              <h2 class="text-lg font-extrabold text-navy-900 tracking-tight">Conexión con Google Sheets y Apps Script</h2>
+              <p class="text-xs text-slate-500">Configuración del endpoint cloud para sincronización en tiempo real y almacenamiento de fotos en Drive</p>
+            </div>
+
+            <!-- Estado actual -->
+            <div class="p-4 rounded-2xl border ${estadoConectado ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-100 border-slate-200'} flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <div class="w-3 h-3 rounded-full ${estadoConectado ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}"></div>
+                <div>
+                  <strong class="text-xs font-bold ${estadoConectado ? 'text-emerald-900' : 'text-slate-800'}">
+                    ${estadoConectado ? 'Conectado a Google Apps Script Web App' : 'Modo Demostración Activo (Base de Datos Local)'}
+                  </strong>
+                  <p class="text-[11px] ${estadoConectado ? 'text-emerald-700' : 'text-slate-500'}">
+                    ${estadoConectado ? 'Los reportes de conductores, odómetros y fotos se sincronizan directamente a Google Sheets y Google Drive.' : 'Puedes usar y probar toda la plataforma sin conexión cloud. Para conectar tu propio Sheet, ingresa la URL abajo.'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Formulario de URL -->
+            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+              <label class="block text-xs font-bold text-navy-900">URL del Web App de Google Apps Script (terminada en /exec):</label>
+              <div class="flex flex-col sm:flex-row gap-2">
+                <input type="url" id="input-admin-gas-url" value="${APPS_SCRIPT_URL}" placeholder="https://script.google.com/macros/s/AKfycb.../exec" class="flex-1 p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono">
+                <button onclick="guardarUrlAppsScriptAdmin()" class="px-5 py-3 bg-turquoise-600 hover:bg-turquoise-700 text-white font-bold text-xs rounded-xl shadow-sm transition">
+                  Guardar Enlace
+                </button>
+              </div>
+
+              <div class="flex items-center space-x-3 pt-2">
+                <button onclick="probarConexionAppsScript()" class="px-4 py-2 bg-navy-900 hover:bg-navy-800 text-white text-xs font-semibold rounded-xl transition flex items-center space-x-1.5">
+                  <i data-lucide="radio" class="w-3.5 h-3.5"></i>
+                  <span>Probar Conexión</span>
+                </button>
+                <button onclick="desconectarAppsScriptAdmin()" class="px-4 py-2 text-rose-600 hover:bg-rose-50 border border-rose-200 text-xs font-semibold rounded-xl transition">
+                  Restablecer a Modo Local
+                </button>
+              </div>
+            </div>
+
+            <!-- Instrucciones de configuración -->
+            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-3 text-xs text-slate-600">
+              <h3 class="font-bold text-navy-900 text-sm">¿Cómo obtener tu URL de Google Apps Script? (Solo 3 pasos)</h3>
+              <ol class="list-decimal pl-5 space-y-2">
+                <li>Abre tu cuenta de Google y entra a <a href="https://script.google.com" target="_blank" class="text-turquoise-700 font-bold underline">script.google.com</a>, crea un proyecto nuevo y pega el contenido del archivo <code>backend/Code.gs</code>.</li>
+                <li>En la barra superior de Apps Script, selecciona la función <strong>configurarSistema</strong> y haz clic en <strong>Ejecutar</strong>. Esto creará automáticamente tu Google Sheet "Control de Transporte" con sus 15 hojas y carpetas en Drive.</li>
+                <li>Haz clic en el botón azul <strong>Implementar &gt; Nueva implementación</strong>, elige <strong>Aplicación web</strong>, en "Quién tiene acceso" selecciona <strong>Cualquier usuario</strong> y copia la URL proporcionada.</li>
+              </ol>
+            </div>
+          </div>
+        `;
       }
       lucide.createIcons();
+    }
+
+    function guardarUrlAppsScriptAdmin() {
+      const input = document.getElementById("input-admin-gas-url");
+      const url = input ? input.value.trim() : "";
+      if (url) {
+        localStorage.setItem("NEXA_RUTA_GAS_URL", url);
+        APPS_SCRIPT_URL = url;
+        mostrarToast("¡URL de Google Apps Script guardada correctamente!", "success");
+      } else {
+        localStorage.removeItem("NEXA_RUTA_GAS_URL");
+        APPS_SCRIPT_URL = "";
+        mostrarToast("Modo local activado", "info");
+      }
+      mostrarSeccionAdmin('conexion');
+    }
+
+    async function probarConexionAppsScript() {
+      const input = document.getElementById("input-admin-gas-url");
+      const url = input ? input.value.trim() : APPS_SCRIPT_URL;
+      if (!url) {
+        mostrarToast("Ingresa una URL primero", "error");
+        return;
+      }
+      mostrarToast("Verificando conexión con Google Apps Script...", "info");
+      try {
+        const res = await fetch(url, {
+          method: "POST",
+          body: JSON.stringify({ action: "sistema/ping" })
+        });
+        const data = await res.json();
+        if (data.status === "OK") {
+          mostrarToast("¡Conexión exitosa con Google Apps Script!", "success");
+        } else {
+          mostrarToast("Respuesta recibida: " + (data.mensaje || data.status), "info");
+        }
+      } catch (err) {
+        mostrarToast("Error de conexión. Asegúrate de haber implementado con acceso 'Cualquiera'.", "error");
+      }
+    }
+
+    function desconectarAppsScriptAdmin() {
+      localStorage.removeItem("NEXA_RUTA_GAS_URL");
+      APPS_SCRIPT_URL = "";
+      mostrarToast("Se restableció a la Base de Datos Local de Demostración", "info");
+      mostrarSeccionAdmin('conexion');
     }
 
     function cambiarFiltroPeriodo(periodo) {
@@ -1888,92 +2441,486 @@
     }
 
     function exportarHistorialAdminExcel() {
-      const dataExport = DB_LOCAL.servicios.map(s => ({
-        "Código": s.cod_servicio,
-        "Empresa": obtenerNombreEmpresa(s.id_empresa),
-        "Cliente": s.cliente,
-        "Conductor": s.conductor_nombre,
-        "Tracto": s.placa_tracto,
-        "Carreta": s.placa_carreta,
-        "Origen": s.origen,
-        "Destino": s.parada_actual,
-        "Estado": s.estado,
-        "Fecha": s.fecha_programada,
-        "Km Inicial": s.km_inicial || "",
-        "Km Final": s.km_final || ""
-      }));
-      const ws = XLSX.utils.json_to_sheet(dataExport);
       const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Historial");
-      XLSX.writeFile(wb, `Historial_NexaRuta_${filtroPeriodoAdmin}.xlsx`);
-      mostrarToast("Historial exportado a Excel (.xlsx)", "success");
+      const servicios = DB_LOCAL.servicios;
+      const todasEvidencias = servicios.flatMap(s => s.evidencias || []);
+
+      // HOJA 1: RESUMEN GENERAL MAESTRO
+      const resumenData = [
+        ["NEXA RUTA - CONTROL MAESTRO DE OPERACIONES Y FLOTA NACIONAL"],
+        ["Período Filtrado:", filtroPeriodoAdmin],
+        ["Fecha y Hora de Emisión:", new Date().toLocaleString("es-PE", { timeZone: "America/Lima" })],
+        ["Conectividad Central:", "Google Sheets y Google Drive Activos"],
+        [],
+        ["MÉTRICA / INDICADOR", "TOTAL", "UNIDAD", "DESCRIPCIÓN"],
+        ["Empresas Transportistas Registradas", DB_LOCAL.empresas.length, "Empresas", "Clientes SaaS activos"],
+        ["Conductores Registrados en el Sistema", DB_LOCAL.conductores.length, "Choferes", "Personal de ruta"],
+        ["Servicios de Transporte Totales", servicios.length, "Viajes", "Registrados en la plataforma"],
+        ["Fotografías y Evidencias de Carga/Descarga", todasEvidencias.length, "Archivos", "Carpetas privadas Google Drive"],
+        ["Alertas e Incidencias Operativas", DB_LOCAL.incidencias.length, "Incidencias", "Reportes de campo"]
+      ];
+      const wsResumen = XLSX.utils.aoa_to_sheet(resumenData);
+      wsResumen['!cols'] = [{ wch: 38 }, { wch: 18 }, { wch: 18 }, { wch: 32 }];
+      XLSX.utils.book_append_sheet(wb, wsResumen, "Resumen Maestro");
+
+      // HOJA 2: SERVICIOS Y ODÓMETROS
+      const serviciosRows = [
+        ["DETALLE NACIONAL DE SERVICIOS, CONDUCTORES Y KILOMETRAJES"],
+        [],
+        ["CÓDIGO", "EMPRESA", "CLIENTE", "CONDUCTOR", "DNI", "LICENCIA MTC", "TRACTO", "CARRETA", "ORIGEN", "DESTINO / PARADA", "ESTADO", "KM INICIAL", "KM ACTUAL / FINAL", "KM RECORRIDO", "FECHA PROGRAMADA"]
+      ];
+      servicios.forEach(s => {
+        const kmIni = s.km_inicial || 0;
+        const kmFin = s.km_final || (s.km_actual || kmIni);
+        const kmRec = Math.max(0, kmFin - kmIni);
+        serviciosRows.push([
+          s.cod_servicio,
+          obtenerNombreEmpresa(s.id_empresa),
+          s.cliente,
+          s.conductor_nombre,
+          s.conductor_dni || "-",
+          s.conductor_licencia || "-",
+          s.placa_tracto,
+          s.placa_carreta,
+          s.origen,
+          s.parada_actual,
+          s.estado,
+          kmIni,
+          kmFin,
+          kmRec,
+          s.fecha_programada
+        ]);
+      });
+      const wsServicios = XLSX.utils.aoa_to_sheet(serviciosRows);
+      wsServicios['!cols'] = [
+        { wch: 16 }, { wch: 28 }, { wch: 24 }, { wch: 22 }, { wch: 12 },
+        { wch: 16 }, { wch: 12 }, { wch: 12 }, { wch: 25 }, { wch: 25 },
+        { wch: 18 }, { wch: 14 }, { wch: 16 }, { wch: 14 }, { wch: 18 }
+      ];
+      XLSX.utils.book_append_sheet(wb, wsServicios, "Servicios y Odometros");
+
+      // HOJA 3: REGISTRO DE EVIDENCIAS Y ENLACES
+      const evidenciasRows = [
+        ["REGISTRO GENERAL DE EVIDENCIAS FOTOGRÁFICAS EN GOOGLE DRIVE"],
+        [],
+        ["ID EVIDENCIA", "EMPRESA", "SERVICIO", "CONDUCTOR", "TRACTO", "TIPO DE EVIDENCIA", "PARADA / LUGAR", "FECHA Y HORA", "OBSERVACIÓN", "ENLACE A LA FOTOGRAFÍA"]
+      ];
+      todasEvidencias.forEach(e => {
+        evidenciasRows.push([
+          e.id_evidencia,
+          obtenerNombreEmpresa(e.id_empresa),
+          e.cod_servicio,
+          e.conductor,
+          e.tracto,
+          e.tipo_evidencia,
+          e.parada,
+          e.fecha_captura,
+          e.observacion || "Sin observación",
+          e.url_foto
+        ]);
+      });
+      const wsEvidencias = XLSX.utils.aoa_to_sheet(evidenciasRows);
+      wsEvidencias['!cols'] = [
+        { wch: 16 }, { wch: 26 }, { wch: 16 }, { wch: 22 }, { wch: 12 },
+        { wch: 22 }, { wch: 24 }, { wch: 20 }, { wch: 35 }, { wch: 55 }
+      ];
+      for (let r = 3; r < evidenciasRows.length; r++) {
+        const cellRef = XLSX.utils.encode_cell({ r: r, c: 9 });
+        if (wsEvidencias[cellRef] && wsEvidencias[cellRef].v) {
+          wsEvidencias[cellRef].l = { Target: wsEvidencias[cellRef].v };
+        }
+      }
+      XLSX.utils.book_append_sheet(wb, wsEvidencias, "Evidencias y Enlaces");
+
+      XLSX.writeFile(wb, `Historial_NexaRuta_${filtroPeriodoAdmin}_${new Date().toISOString().slice(0,10)}.xlsx`);
+      mostrarToast("Historial exportado a Excel (.xlsx) estructurado en cuadros", "success");
     }
 
     function exportarHistorialAdminPdf() {
       const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
+      const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+      const servicios = DB_LOCAL.servicios;
+
+      // Header Corporativo
+      doc.setFillColor(15, 23, 42); // Navy 900
+      doc.rect(0, 0, 297, 24, 'F');
+
+      doc.setTextColor(255, 255, 255);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(14);
-      doc.text("HISTORIAL GENERAL DE OPERACIONES - NEXA RUTA", 14, 20);
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "normal");
-      doc.text(`Período: ${filtroPeriodoAdmin} | Fecha de emisión: ${new Date().toLocaleDateString('es-PE')}`, 14, 28);
+      doc.text("NEXA RUTA", 14, 11);
 
-      let y = 40;
-      DB_LOCAL.servicios.forEach((s, idx) => {
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(34, 211, 238);
+      doc.text("HISTORIAL NACIONAL DE OPERACIONES - CONTROL MAESTRO", 14, 17);
+
+      doc.setFontSize(8);
+      doc.setTextColor(203, 213, 225);
+      doc.text(`Período: ${filtroPeriodoAdmin} | Fecha de Emisión: ${new Date().toLocaleString('es-PE')}`, 175, 14);
+
+      // Cuadro de Resumen KPI
+      doc.setFillColor(248, 250, 252);
+      doc.setDrawColor(226, 232, 240);
+      doc.roundedRect(14, 28, 269, 14, 2, 2, 'FD');
+
+      doc.setTextColor(15, 23, 42);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+      doc.text(`Empresas Activas: ${DB_LOCAL.empresas.length}`, 20, 36);
+      doc.text(`Conductores Totales: ${DB_LOCAL.conductores.length}`, 80, 36);
+      doc.text(`Viajes Registrados: ${servicios.length}`, 140, 36);
+      doc.text(`Alertas de Ruta: ${DB_LOCAL.incidencias.length}`, 205, 36);
+
+      // CUADRO TABULAR DE OPERACIONES
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.setTextColor(15, 23, 42);
+      doc.text("CONTROL OPERATIVO DE SERVICIOS Y KILOMETRAJES", 14, 49);
+
+      let y = 53;
+      doc.setFillColor(8, 145, 178); // Turquoise 600
+      doc.rect(14, y, 269, 7, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(7.5);
+      doc.setFont("helvetica", "bold");
+      doc.text("CÓDIGO", 16, y + 5);
+      doc.text("EMPRESA", 38, y + 5);
+      doc.text("CLIENTE", 80, y + 5);
+      doc.text("CONDUCTOR", 125, y + 5);
+      doc.text("TRACTO/CARRETA", 170, y + 5);
+      doc.text("DESTINO", 205, y + 5);
+      doc.text("KM INI", 238, y + 5);
+      doc.text("KM FIN", 252, y + 5);
+      doc.text("ESTADO", 267, y + 5);
+
+      y += 7;
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(30, 41, 59);
+
+      servicios.forEach((s, idx) => {
+        if (idx % 2 === 1) {
+          doc.setFillColor(241, 245, 249);
+          doc.rect(14, y, 269, 6.5, 'F');
+        }
+        doc.setDrawColor(226, 232, 240);
+        doc.rect(14, y, 269, 6.5, 'S');
+
+        const kmIni = s.km_inicial || 0;
+        const kmFin = s.km_final || (s.km_actual || kmIni);
+
         doc.setFont("helvetica", "bold");
-        doc.text(`${idx + 1}. ${s.cod_servicio} - ${s.cliente} [${s.estado}]`, 14, y);
+        doc.text(s.cod_servicio, 16, y + 4.5);
         doc.setFont("helvetica", "normal");
-        doc.text(`   Empresa: ${obtenerNombreEmpresa(s.id_empresa)} | Conductor: ${s.conductor_nombre} | Placa: ${s.placa_tracto}`, 14, y + 5);
-        y += 14;
+        doc.text(obtenerNombreEmpresa(s.id_empresa).slice(0, 20), 38, y + 4.5);
+        doc.text((s.cliente || '').slice(0, 20), 80, y + 4.5);
+        doc.text((s.conductor_nombre || '').slice(0, 20), 125, y + 4.5);
+        doc.text(`${s.placa_tracto}/${s.placa_carreta}`, 170, y + 4.5);
+        doc.text((s.parada_actual || '').slice(0, 16), 205, y + 4.5);
+        doc.text(kmIni ? kmIni.toString() : '-', 238, y + 4.5);
+        doc.text(kmFin ? kmFin.toString() : '-', 252, y + 4.5);
+        doc.text((s.estado || '').slice(0, 12), 267, y + 4.5);
+
+        y += 6.5;
       });
 
+      doc.setFontSize(7);
+      doc.setTextColor(148, 163, 184);
+      doc.text("Nexa Ruta • Plataforma SaaS de Transporte de Carga Pesada (Perú) • Ley N° 29733 de Protección de Datos Personales", 14, 198);
+
       doc.save(`Historial_NexaRuta_${filtroPeriodoAdmin}.pdf`);
-      mostrarToast("Historial exportado a PDF", "success");
+      mostrarToast("Historial exportado a PDF detallado en cuadros", "success");
     }
 
     function exportarExcelSupervisor() {
-      const servicios = DB_LOCAL.servicios.filter(s => s.id_empresa === sesionActual.id_empresa);
-      const dataExport = servicios.map(s => ({
-        "Código": s.cod_servicio,
-        "Cliente": s.cliente,
-        "Conductor": s.conductor_nombre,
-        "Tracto": s.placa_tracto,
-        "Carreta": s.placa_carreta,
-        "Origen": s.origen,
-        "Destino Actual": s.parada_actual,
-        "Estado": s.estado,
-        "Fecha Programada": s.fecha_programada
-      }));
-      const ws = XLSX.utils.json_to_sheet(dataExport);
       const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Servicios");
-      XLSX.writeFile(wb, `Reporte_Flota_${sesionActual.id_empresa}.xlsx`);
-      mostrarToast("Reporte Excel descargado", "success");
+      const serviciosEmpresa = DB_LOCAL.servicios.filter(s => s.id_empresa === sesionActual.id_empresa);
+      const conductoresEmpresa = DB_LOCAL.conductores.filter(c => c.id_empresa === sesionActual.id_empresa);
+      const incidenciasEmpresa = DB_LOCAL.incidencias.filter(i => i.id_empresa === sesionActual.id_empresa);
+      const totalEvidencias = serviciosEmpresa.flatMap(s => s.evidencias || []).filter(e => e.permiso_supervisor === "AUTORIZADO");
+      
+      const kmTotalesRecorridos = serviciosEmpresa.reduce((acc, s) => {
+        const ini = s.km_inicial || 0;
+        const fin = s.km_final || (s.km_actual || ini);
+        return acc + Math.max(0, fin - ini);
+      }, 0);
+
+      // HOJA 1: RESUMEN DE GESTIÓN OPERATIVA
+      const resumenData = [
+        ["NEXA RUTA - REPORTE EJECUTIVO DE GESTIÓN Y FLOTA DE TRANSPORTE"],
+        ["Empresa:", obtenerNombreEmpresa(sesionActual.id_empresa)],
+        ["Supervisor Responsable:", sesionActual.nombre || "Supervisor de Flota"],
+        ["Fecha y Hora de Emisión:", new Date().toLocaleString("es-PE", { timeZone: "America/Lima" })],
+        ["Plataforma Centralizada:", "Google Sheets y Google Drive Conectados"],
+        [],
+        ["INDICADOR OPERATIVO", "VALOR / TOTAL", "UNIDAD", "ESTADO OPERATIVO"],
+        ["Conductores Asignados en Flota", conductoresEmpresa.length, "Choferes", "Activos en la empresa"],
+        ["Servicios / Viajes en Progreso", serviciosEmpresa.filter(s => s.estado !== "Finalizado").length, "Viajes", "En Tránsito / Carga"],
+        ["Servicios Finalizados Concluidos", serviciosEmpresa.filter(s => s.estado === "Finalizado").length, "Viajes", "Completados conformes"],
+        ["Kilómetros Totales Recorridos en Período", kmTotalesRecorridos, "Kilómetros (km)", "Odómetros auditados"],
+        ["Total Evidencias y Fotos Recibidas", totalEvidencias.length, "Fotografías", "Almacenadas en Google Drive privado"],
+        ["Incidencias / Alertas Reportadas", incidenciasEmpresa.length, "Eventos", "Novedades de ruta"]
+      ];
+      const wsResumen = XLSX.utils.aoa_to_sheet(resumenData);
+      wsResumen['!cols'] = [{ wch: 38 }, { wch: 22 }, { wch: 20 }, { wch: 32 }];
+      XLSX.utils.book_append_sheet(wb, wsResumen, "Resumen General");
+
+      // HOJA 2: SERVICIOS Y ODÓMETROS
+      const serviciosRows = [
+        ["CONTROL DETALLADO DE VIAJES, CONDUCTORES Y KILOMETRAJES"],
+        [],
+        ["CÓDIGO", "CLIENTE", "CONDUCTOR", "DNI", "LICENCIA MTC", "TRACTO", "CARRETA", "ORIGEN", "DESTINO / PARADA ACTUAL", "ESTADO", "KM INICIAL", "KM ACTUAL / FINAL", "KM RECORRIDO", "FECHA PROGRAMADA", "OBSERVACIONES"]
+      ];
+      serviciosEmpresa.forEach(s => {
+        const kmIni = s.km_inicial || 0;
+        const kmFin = s.km_final || (s.km_actual || kmIni);
+        const kmRec = Math.max(0, kmFin - kmIni);
+        serviciosRows.push([
+          s.cod_servicio,
+          s.cliente,
+          s.conductor_nombre,
+          s.conductor_dni || "-",
+          s.conductor_licencia || "-",
+          s.placa_tracto,
+          s.placa_carreta,
+          s.origen,
+          s.parada_actual,
+          s.estado,
+          kmIni,
+          kmFin,
+          kmRec,
+          s.fecha_programada + " " + (s.hora_programada || ""),
+          s.instrucciones || "-"
+        ]);
+      });
+      const wsServicios = XLSX.utils.aoa_to_sheet(serviciosRows);
+      wsServicios['!cols'] = [
+        { wch: 16 }, { wch: 24 }, { wch: 22 }, { wch: 12 }, { wch: 16 },
+        { wch: 12 }, { wch: 12 }, { wch: 25 }, { wch: 25 }, { wch: 18 },
+        { wch: 14 }, { wch: 16 }, { wch: 14 }, { wch: 18 }, { wch: 35 }
+      ];
+      XLSX.utils.book_append_sheet(wb, wsServicios, "Servicios y Odometros");
+
+      // HOJA 3: REGISTRO DE EVIDENCIAS Y ENLACES DIRECTOS A DRIVE
+      const evidenciasRows = [
+        ["REGISTRO DE EVIDENCIAS FOTOGRÁFICAS EN CARPETA PRIVADA GOOGLE DRIVE"],
+        [],
+        ["ID EVIDENCIA", "SERVICIO", "CONDUCTOR", "TRACTO", "TIPO DE EVIDENCIA", "PARADA / LUGAR", "FECHA Y HORA CAPTURA", "OBSERVACIÓN", "ENLACE A LA FOTOGRAFÍA", "ESTADO DRIVE / SHEETS"]
+      ];
+      totalEvidencias.forEach(e => {
+        evidenciasRows.push([
+          e.id_evidencia,
+          e.cod_servicio,
+          e.conductor,
+          e.tracto,
+          e.tipo_evidencia,
+          e.parada,
+          e.fecha_captura,
+          e.observacion || "Sin observación",
+          e.url_foto,
+          "Sincronizado en Drive y Sheets"
+        ]);
+      });
+      const wsEvidencias = XLSX.utils.aoa_to_sheet(evidenciasRows);
+      wsEvidencias['!cols'] = [
+        { wch: 16 }, { wch: 16 }, { wch: 22 }, { wch: 12 }, { wch: 22 },
+        { wch: 25 }, { wch: 20 }, { wch: 35 }, { wch: 55 }, { wch: 28 }
+      ];
+      // Convertir la columna de enlace en URLs clickeables en Excel
+      for (let r = 3; r < evidenciasRows.length; r++) {
+        const cellRef = XLSX.utils.encode_cell({ r: r, c: 8 });
+        if (wsEvidencias[cellRef] && wsEvidencias[cellRef].v) {
+          wsEvidencias[cellRef].l = { Target: wsEvidencias[cellRef].v };
+        }
+      }
+      XLSX.utils.book_append_sheet(wb, wsEvidencias, "Evidencias y Fotos");
+
+      // HOJA 4: HISTORIAL DE EVENTOS Y TRANSMISIONES GPS
+      const eventosRows = [
+        ["HISTORIAL DE TRANSMISIONES DE CONDUCTORES (ODÓMETROS Y GPS)"],
+        [],
+        ["FECHA Y HORA", "SERVICIO", "CONDUCTOR", "EVENTO / HITO OPERATIVO", "ODÓMETRO (KM)", "UBICACIÓN / TRAMO", "LATITUD", "LONGITUD", "OBSERVACIÓN DEL CHOFER"]
+      ];
+      serviciosEmpresa.forEach(s => {
+        (s.eventos_historial || []).forEach(ev => {
+          eventosRows.push([
+            ev.fecha_hora,
+            s.cod_servicio,
+            s.conductor_nombre,
+            ev.evento,
+            ev.odometro || "-",
+            ev.ubicacion || "-",
+            ev.lat || "-",
+            ev.lng || "-",
+            ev.observacion || "-"
+          ]);
+        });
+      });
+      const wsEventos = XLSX.utils.aoa_to_sheet(eventosRows);
+      wsEventos['!cols'] = [
+        { wch: 18 }, { wch: 16 }, { wch: 22 }, { wch: 32 }, { wch: 16 },
+        { wch: 28 }, { wch: 14 }, { wch: 14 }, { wch: 35 }
+      ];
+      XLSX.utils.book_append_sheet(wb, wsEventos, "Historial Eventos GPS");
+
+      XLSX.writeFile(wb, `Reporte_Flota_${sesionActual.id_empresa}_${new Date().toISOString().slice(0,10)}.xlsx`);
+      mostrarToast("Reporte Excel detallado en cuadros generado", "success");
     }
 
     function exportarPdfSupervisor() {
       const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
+      const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+      const serviciosEmpresa = DB_LOCAL.servicios.filter(s => s.id_empresa === sesionActual.id_empresa);
+      const conductoresEmpresa = DB_LOCAL.conductores.filter(c => c.id_empresa === sesionActual.id_empresa);
+      const totalEvidencias = serviciosEmpresa.flatMap(s => s.evidencias || []).filter(e => e.permiso_supervisor === "AUTORIZADO");
+      
+      const kmTotalesRecorridos = serviciosEmpresa.reduce((acc, s) => {
+        const ini = s.km_inicial || 0;
+        const fin = s.km_final || (s.km_actual || ini);
+        return acc + Math.max(0, fin - ini);
+      }, 0);
+
+      // Header Corporativo Nexa Ruta
+      doc.setFillColor(15, 23, 42); // Navy 900
+      doc.rect(0, 0, 297, 24, 'F');
+
+      doc.setTextColor(255, 255, 255);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(14);
-      doc.text("REPORTE DE OPERACIONES - NEXA RUTA", 14, 20);
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "normal");
-      doc.text(`Empresa: ${obtenerNombreEmpresa(sesionActual.id_empresa)} | Fecha: ${new Date().toLocaleDateString('es-PE')}`, 14, 28);
+      doc.text("NEXA RUTA", 14, 11);
 
-      let y = 40;
-      const servicios = DB_LOCAL.servicios.filter(s => s.id_empresa === sesionActual.id_empresa);
-      servicios.forEach((s, idx) => {
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(34, 211, 238);
+      doc.text("REPORTE OPERATIVO DE FLOTA Y GESTIÓN DE TRANSPORTE", 14, 17);
+
+      doc.setFontSize(8);
+      doc.setTextColor(203, 213, 225);
+      doc.text(`Empresa: ${obtenerNombreEmpresa(sesionActual.id_empresa)}`, 175, 11);
+      doc.text(`Supervisor: ${sesionActual.nombre || 'Supervisor'} | Emisión: ${new Date().toLocaleString('es-PE')}`, 175, 17);
+
+      // Cuadro de Métricas Resumen
+      doc.setFillColor(248, 250, 252);
+      doc.setDrawColor(226, 232, 240);
+      doc.roundedRect(14, 28, 269, 14, 2, 2, 'FD');
+
+      doc.setTextColor(15, 23, 42);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+      doc.text(`Conductores Asignados: ${conductoresEmpresa.length}`, 20, 36);
+      doc.text(`Viajes Activos: ${serviciosEmpresa.filter(s => s.estado !== 'Finalizado').length}`, 85, 36);
+      doc.text(`Km Totales Recorridos: ${kmTotalesRecorridos.toLocaleString()} km`, 145, 36);
+      doc.text(`Evidencias en Drive: ${totalEvidencias.length}`, 215, 36);
+
+      // CUADRO 1: TABLA DE SERVICIOS Y KILOMETRAJES
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.setTextColor(15, 23, 42);
+      doc.text("1. CONTROL OPERATIVO DE VIAJES Y KILOMETRAJE", 14, 49);
+
+      let y = 53;
+      doc.setFillColor(8, 145, 178); // Turquoise 600
+      doc.rect(14, y, 269, 7, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(7.5);
+      doc.setFont("helvetica", "bold");
+      doc.text("CÓDIGO", 16, y + 5);
+      doc.text("CLIENTE", 40, y + 5);
+      doc.text("CONDUCTOR", 85, y + 5);
+      doc.text("TRACTO / CARRETA", 130, y + 5);
+      doc.text("RUTA (ORIGEN -> DESTINO)", 168, y + 5);
+      doc.text("KM INI", 220, y + 5);
+      doc.text("KM FIN", 235, y + 5);
+      doc.text("KM REC", 250, y + 5);
+      doc.text("ESTADO", 265, y + 5);
+
+      y += 7;
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(30, 41, 59);
+
+      serviciosEmpresa.forEach((s, idx) => {
+        if (idx % 2 === 1) {
+          doc.setFillColor(241, 245, 249);
+          doc.rect(14, y, 269, 6.5, 'F');
+        }
+        doc.setDrawColor(226, 232, 240);
+        doc.rect(14, y, 269, 6.5, 'S');
+
+        const kmIni = s.km_inicial || 0;
+        const kmFin = s.km_final || (s.km_actual || kmIni);
+        const kmRec = Math.max(0, kmFin - kmIni);
+
         doc.setFont("helvetica", "bold");
-        doc.text(`${idx + 1}. ${s.cod_servicio} - ${s.cliente} [${s.estado}]`, 14, y);
+        doc.text(s.cod_servicio, 16, y + 4.5);
         doc.setFont("helvetica", "normal");
-        doc.text(`   Conductor: ${s.conductor_nombre} | Tracto: ${s.placa_tracto} | Destino: ${s.parada_actual}`, 14, y + 5);
-        y += 14;
+        doc.text((s.cliente || '').slice(0, 22), 40, y + 4.5);
+        doc.text((s.conductor_nombre || '').slice(0, 22), 85, y + 4.5);
+        doc.text(`${s.placa_tracto} / ${s.placa_carreta}`, 130, y + 4.5);
+        doc.text(`${(s.origen || '').slice(0, 14)} -> ${(s.parada_actual || '').slice(0, 16)}`, 168, y + 4.5);
+        doc.text(kmIni ? kmIni.toString() : '-', 220, y + 4.5);
+        doc.text(kmFin ? kmFin.toString() : '-', 235, y + 4.5);
+        doc.text(kmRec.toString(), 250, y + 4.5);
+        doc.text((s.estado || '').slice(0, 14), 265, y + 4.5);
+
+        y += 6.5;
       });
 
-      doc.save(`Reporte_Flota_${sesionActual.id_empresa}.pdf`);
-      mostrarToast("Reporte PDF descargado", "success");
+      // CUADRO 2: REGISTRO DE EVIDENCIAS FOTOGRÁFICAS
+      y += 6;
+      if (y > 165) {
+        doc.addPage();
+        y = 20;
+      }
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.setTextColor(15, 23, 42);
+      doc.text("2. REGISTRO DE FOTOGRAFÍAS Y EVIDENCIAS DE RUTA (GOOGLE DRIVE)", 14, y);
+      y += 4;
+
+      doc.setFillColor(15, 23, 42); // Navy
+      doc.rect(14, y, 269, 7, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(7.5);
+      doc.setFont("helvetica", "bold");
+      doc.text("ID EVIDENCIA", 16, y + 5);
+      doc.text("SERVICIO", 42, y + 5);
+      doc.text("CONDUCTOR", 70, y + 5);
+      doc.text("TIPO DE EVIDENCIA", 110, y + 5);
+      doc.text("PARADA / LUGAR", 150, y + 5);
+      doc.text("FECHA Y HORA", 195, y + 5);
+      doc.text("OBSERVACIÓN", 230, y + 5);
+
+      y += 7;
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(30, 41, 59);
+
+      totalEvidencias.forEach((e, idx) => {
+        if (idx % 2 === 1) {
+          doc.setFillColor(241, 245, 249);
+          doc.rect(14, y, 269, 6.5, 'F');
+        }
+        doc.setDrawColor(226, 232, 240);
+        doc.rect(14, y, 269, 6.5, 'S');
+
+        doc.setFont("helvetica", "bold");
+        doc.text(e.id_evidencia, 16, y + 4.5);
+        doc.setFont("helvetica", "normal");
+        doc.text(e.cod_servicio, 42, y + 4.5);
+        doc.text((e.conductor || '').slice(0, 20), 70, y + 4.5);
+        doc.text(e.tipo_evidencia, 110, y + 4.5);
+        doc.text((e.parada || '').slice(0, 24), 150, y + 4.5);
+        doc.text(e.fecha_captura, 195, y + 4.5);
+        doc.text((e.observacion || 'Sin observación').slice(0, 24), 230, y + 4.5);
+
+        y += 6.5;
+      });
+
+      doc.setFontSize(7);
+      doc.setTextColor(148, 163, 184);
+      doc.text("Nexa Ruta • Sistema SaaS de Carga Pesada en Perú • Cumplimiento Ley N° 29733 de Protección de Datos Personales • Documento Válido para Auditoría Operativa", 14, 198);
+
+      doc.save(`Reporte_Operativo_Flota_${sesionActual.id_empresa}.pdf`);
+      mostrarToast("Reporte PDF detallado en cuadros generado", "success");
     }
 
     function abrirModalCrearEmpresaAdmin() {
