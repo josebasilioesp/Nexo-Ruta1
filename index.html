@@ -1090,10 +1090,14 @@
   <!-- ========================================================================= -->
   <script>
     const APPS_SCRIPT_DEFAULT_URL = "https://script.google.com/macros/s/AKfycbz6JyNP1RmCQJRq_LyuAmlJrKgav5cTw-dHBsc3I7rPfiuClQ3DFM1VnckZREo1NY71/exec";
-    let APPS_SCRIPT_URL = localStorage.getItem("NEXA_RUTA_GAS_URL") || APPS_SCRIPT_DEFAULT_URL;
-    if (!localStorage.getItem("NEXA_RUTA_GAS_URL")) {
+    let rawUrl = "";
+    try { rawUrl = localStorage.getItem("NEXA_RUTA_GAS_URL") || ""; } catch(e) {}
+    // Sanitización obligatoria: si la URL guardada no termina en /exec o está truncada, forzar la oficial
+    if (!rawUrl || !rawUrl.endsWith("/exec") || rawUrl.length < 60) {
+      rawUrl = APPS_SCRIPT_DEFAULT_URL;
       try { localStorage.setItem("NEXA_RUTA_GAS_URL", APPS_SCRIPT_DEFAULT_URL); } catch(e) {}
     }
+    let APPS_SCRIPT_URL = rawUrl;
 
     // =========================================================================
     // COMUNICACIÓN SEGURA Y RESISTENTE A CORS CON GOOGLE APPS SCRIPT (POST + GET)
