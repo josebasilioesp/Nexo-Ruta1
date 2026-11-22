@@ -1,9 +1,9 @@
 @echo off
 chcp 65001 >nul
-title Subir Trans-SaaS Perú a GitHub
+title Subir Nexa Ruta a GitHub
 cls
 echo =====================================================================
-echo           SUBIR PROYECTO TRANS-SAAS PERÚ A GITHUB
+echo                 SUBIR PROYECTO NEXA RUTA A GITHUB
 echo =====================================================================
 echo.
 
@@ -17,7 +17,7 @@ if %ERRORLEVEL% neq 0 (
     echo OPCIÓN 1 (Directa desde la web sin instalar nada):
     echo   1. Entra a https://github.com/new y crea tu repositorio.
     echo   2. En la página de tu repositorio haz clic en "uploading an existing file".
-    echo   3. Arrastra los archivos de este proyecto o el archivo "trans-saas-peru.zip".
+    echo   3. Arrastra los archivos de este proyecto o el archivo "nexa-ruta.zip".
     echo.
     echo OPCIÓN 2 (Instalar Git):
     echo   1. Descarga e instala Git desde: https://git-scm.com/
@@ -29,7 +29,7 @@ if %ERRORLEVEL% neq 0 (
 
 echo [OK] Git detectado correctamente.
 echo.
-set /p REPO_URL="Pega la URL de tu repositorio de GitHub (ej. https://github.com/tu-usuario/tu-repo.git): "
+set /p REPO_URL="Pega la URL de tu repositorio de GitHub (ej. https://github.com/tu-usuario/nexa-ruta.git): "
 
 if "%REPO_URL%"=="" (
     echo [ERROR] Debes ingresar una URL válida de GitHub.
@@ -45,7 +45,7 @@ echo [2/5] Agregando todos los archivos...
 git add .
 
 echo [3/5] Creando commit inicial...
-git commit -m "feat: Sistema integral de transporte de carga pesada Trans-SaaS Peru"
+git commit -m "feat: Plataforma Nexa Ruta con control de flotas, mapa GPS y portales por rol"
 
 echo [4/5] Configurando rama principal main...
 git branch -M main
@@ -58,7 +58,7 @@ git push -u origin main
 if %ERRORLEVEL% equ 0 (
     echo.
     echo =====================================================================
-    echo   ¡ÉXITO! Tu proyecto se ha subido correctamente a GitHub.
+    echo   ¡ÉXITO! Tu proyecto Nexa Ruta se ha subido correctamente a GitHub.
     echo =====================================================================
 ) else (
     echo.

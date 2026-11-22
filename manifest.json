@@ -1,7 +1,7 @@
 {
-  "name": "Trans-SaaS Perú | Control de Flotas",
-  "short_name": "Trans-SaaS",
-  "description": "Plataforma multi-empresa de transporte de carga pesada y logística para el Perú",
+  "name": "Nexa Ruta | Control de Flotas de Carga Pesada",
+  "short_name": "Nexa Ruta",
+  "description": "Plataforma integral de gestión de flotas, transporte de carga pesada y seguimiento en tiempo real para el Perú",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "portrait",
@@ -10,7 +10,7 @@
   "lang": "es-PE",
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230f172a'/><path d='M20 60 L35 30 L65 30 L80 60 Z' fill='%2306b6d4'/><circle cx='35' cy='70' r='10' fill='%23ffffff'/><circle cx='65' cy='70' r='10' fill='%23ffffff'/></svg>",
+      "src": "./recursos/logo-oscuro.svg",
       "sizes": "192x192 512x512",
       "type": "image/svg+xml",
       "purpose": "any maskable"
