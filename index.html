@@ -203,16 +203,9 @@
         </div>
 
         <!-- Acciones del Usuario -->
-        <div class="flex items-center space-x-2">
-          <!-- Botón Directo Sincronizar Nube (Siempre visible en móvil y PC) -->
-          <button onclick="forzarSincronizacionNubeManual()" class="flex items-center space-x-1.5 px-2.5 py-1.5 bg-slate-800/90 hover:bg-slate-700 text-turquoise-400 border border-slate-700 rounded-xl text-xs font-bold shadow-sm transition active:scale-95" title="Sincronizar en vivo con Google Sheets">
-            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-            <span class="hidden sm:inline">Sincronizar</span>
-            <span class="sm:hidden">Sync</span>
-          </button>
-
+        <div class="flex items-center space-x-2.5">
           <!-- Indicador de Red Online/Offline -->
-          <div id="badge-red-status" class="flex items-center space-x-1.5 px-2 py-1 rounded-full text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">
+          <div id="badge-red-status" class="flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
             <span id="txt-red-status">En línea</span>
           </div>
@@ -1544,11 +1537,28 @@
       refrescarVistaActualEnVivo(data);
     }
 
+    let ultimaFirmaDatosSupervisor = "";
+
     function refrescarVistaActualEnVivo(data) {
       if (!sesionActual) return;
+
+      // 1. Si hay un modal abierto (como el de Registrar Conductor), ¡NO TOCAR LA PANTALLA!
+      const algunModalAbierto = document.querySelector(".fixed.inset-0:not(.hidden)");
+      if (algunModalAbierto) return;
+
+      // 2. Si el usuario está escribiendo en cualquier input, no refrescar para no interrumpir
+      if (document.activeElement && (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "SELECT" || document.activeElement.tagName === "TEXTAREA")) {
+        return;
+      }
+
       if (sesionActual.rol === "SUPERVISOR") {
-        if (seccionSupervisorActual) {
-          mostrarSeccionSupervisor(seccionSupervisorActual);
+        // 3. Solo refrescar si los datos realmente cambiaron en Google Sheets (evita parpadeos)
+        const firmaActual = `${(DB_LOCAL.conductores || []).length}_${(DB_LOCAL.servicios || []).length}_${(DB_LOCAL.usuarios || []).length}`;
+        if (firmaActual !== ultimaFirmaDatosSupervisor) {
+          ultimaFirmaDatosSupervisor = firmaActual;
+          if (seccionSupervisorActual) {
+            mostrarSeccionSupervisor(seccionSupervisorActual);
+          }
         }
         if (data && data.tipo === "GPS_CONDUCTOR" && mapaLeafletInstancia && marcadorLeafletActual) {
           marcadorLeafletActual.setLatLng([data.lat, data.lng]);
@@ -2489,10 +2499,7 @@
                 <h2 class="text-lg font-extrabold text-navy-900 tracking-tight">Conductores de mi Flota</h2>
                 <p class="text-xs text-slate-500">${obtenerNombreEmpresa(sesionActual.id_empresa)} • Control individual, odómetros, seguimiento en tiempo real y asignación</p>
               </div>
-              <div class="flex items-center space-x-2 flex-wrap gap-y-2">
-                <button onclick="forzarSincronizacionNubeManual()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-turquoise-400 border border-slate-700 text-xs font-bold rounded-xl flex items-center space-x-1.5 shadow-2xs" title="Actualizar datos desde Google Sheets">
-                  <i data-lucide="refresh-cw" class="w-4 h-4"></i><span>Sincronizar Nube</span>
-                </button>
+              <div class="flex items-center space-x-2">
                 <button onclick="abrirModalSupervisorCrearConductor()" class="px-3 py-2 bg-turquoise-600 hover:bg-turquoise-700 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 shadow-2xs">
                   <i data-lucide="user-plus" class="w-4 h-4"></i><span>+ Registrar Conductor</span>
                 </button>
@@ -2853,13 +2860,37 @@
 
     // Modal para que el Supervisor registre nuevo conductor
     function abrirModalSupervisorCrearConductor() {
-      const idEmp = sesionActual.id_empresa;
-      const tractos = DB_LOCAL.tractos.filter(t => t.id_empresa === idEmp);
-      const carretas = DB_LOCAL.carretas.filter(c => c.id_empresa === idEmp);
+      const idEmp = (sesionActual && sesionActual.id_empresa) ? sesionActual.id_empresa : 'TRP-001';
+      const tractos = (DB_LOCAL.tractos || []).filter(t => t.id_empresa === idEmp);
+      const carretas = (DB_LOCAL.carretas || []).filter(c => c.id_empresa === idEmp);
 
-      document.getElementById("sup-cnd-tracto").innerHTML = tractos.map(t => `<option value="${t.placa}">${t.placa} - ${t.marca}</option>`).join('');
-      document.getElementById("sup-cnd-carreta").innerHTML = carretas.map(c => `<option value="${c.placa}">${c.placa} (${c.tipo})</option>`).join('');
-      document.getElementById("modal-supervisor-crear-conductor").classList.remove("hidden");
+      const elTracto = document.getElementById("sup-cnd-tracto");
+      if (elTracto) {
+        if (tractos.length) {
+          elTracto.innerHTML = tractos.map(t => `<option value="${t.placa}">${t.placa} - ${t.marca || ''}</option>`).join('');
+        } else {
+          elTracto.innerHTML = '<option value="V7X-890">V7X-890 - Volvo FH 540</option><option value="F4C-902">F4C-902 - Scania R500</option>';
+        }
+      }
+
+      const elCarreta = document.getElementById("sup-cnd-carreta");
+      if (elCarreta) {
+        if (carretas.length) {
+          elCarreta.innerHTML = carretas.map(c => `<option value="${c.placa}">${c.placa} (${c.tipo || ''})</option>`).join('');
+        } else {
+          elCarreta.innerHTML = '<option value="TC8-120">TC8-120 (Plataforma 3 Ejes)</option><option value="TR8-901">TR8-901 (Furgón Seco)</option>';
+        }
+      }
+
+      // Limpiar campos previos
+      ["sup-cnd-nombres", "sup-cnd-apellidos", "sup-cnd-dni", "sup-cnd-tel", "sup-cnd-licencia", "sup-cnd-user", "sup-cnd-pass"].forEach(id => {
+        const inp = document.getElementById(id);
+        if (inp) inp.value = "";
+      });
+
+      const modal = document.getElementById("modal-supervisor-crear-conductor");
+      if (modal) modal.classList.remove("hidden");
+      lucide.createIcons();
     }
 
     async function guardarNuevoConductorSupervisor() {
