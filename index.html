@@ -203,9 +203,16 @@
         </div>
 
         <!-- Acciones del Usuario -->
-        <div class="flex items-center space-x-2.5">
+        <div class="flex items-center space-x-2">
+          <!-- Botón Directo Sincronizar Nube (Siempre visible en móvil y PC) -->
+          <button onclick="forzarSincronizacionNubeManual()" class="flex items-center space-x-1.5 px-2.5 py-1.5 bg-slate-800/90 hover:bg-slate-700 text-turquoise-400 border border-slate-700 rounded-xl text-xs font-bold shadow-sm transition active:scale-95" title="Sincronizar en vivo con Google Sheets">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+            <span class="hidden sm:inline">Sincronizar</span>
+            <span class="sm:hidden">Sync</span>
+          </button>
+
           <!-- Indicador de Red Online/Offline -->
-          <div id="badge-red-status" class="flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">
+          <div id="badge-red-status" class="flex items-center space-x-1.5 px-2 py-1 rounded-full text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
             <span id="txt-red-status">En línea</span>
           </div>
@@ -1114,13 +1121,22 @@
         console.warn("POST Apps Script bloqueado por navegador, intentando vía GET:", errPost);
       }
 
-      // 2. Intento secundario: GET con parámetros (100% inmune a bloqueos de CORS)
+      // 2. Intento secundario: GET con parámetros (100% inmune a bloqueos de CORS en móviles y PC)
       try {
         const params = new URLSearchParams();
         params.set("action", payload.action || "sistema/ping");
         if (payload.usuario) params.set("usuario", payload.usuario);
         if (payload.password) params.set("password", payload.password);
-        params.set("data", JSON.stringify(payload));
+        if (payload.cod_servicio) params.set("cod_servicio", payload.cod_servicio);
+        if (payload.nuevo_estado) params.set("nuevo_estado", payload.nuevo_estado);
+
+        // Para acciones con datos nuevos que no sean sync general, enviar data limpio y corto
+        if (payload.action !== "sistema/sync_bidireccional") {
+          const strPayload = JSON.stringify(payload);
+          if (strPayload.length < 1800) {
+            params.set("data", strPayload);
+          }
+        }
 
         const separador = APPS_SCRIPT_URL.includes("?") ? "&" : "?";
         const urlGet = APPS_SCRIPT_URL + separador + params.toString();
@@ -1594,12 +1610,7 @@
 
       try {
         const data = await llamarApiGoogleSheets({
-          action: "sistema/sync_bidireccional",
-          datosLocales: {
-            conductores: DB_LOCAL.conductores,
-            usuarios: DB_LOCAL.usuarios,
-            servicios: DB_LOCAL.servicios
-          }
+          action: "sistema/sync_bidireccional"
         });
         if (data && data.status === "OK") {
           // 1. SINCRONIZAR USUARIOS DESDE GOOGLE SHEETS
@@ -1727,10 +1738,20 @@
     function actualizarBadgeSyncStatus(texto, estado = "info") {
       const el = document.getElementById("lbl-header-sync-status");
       if (el) el.textContent = texto;
+      const elTop = document.getElementById("txt-red-status");
+      if (elTop) elTop.textContent = estado === "success" ? "Nube Conectada" : (estado === "warning" ? "Sincronizando..." : "En línea");
       const lblPanel = document.getElementById("lbl-panel-sync-status");
       if (lblPanel) lblPanel.textContent = texto;
       const lblLast = document.getElementById("lbl-panel-last-sync");
       if (lblLast) lblLast.textContent = "Última sincronización: " + (new Date().toLocaleTimeString('es-PE'));
+    }
+
+    async function forzarSincronizacionNubeManual() {
+      mostrarToast("Conectando con Google Sheets...", "info");
+      await ejecutarSincronizacionBidireccional(true);
+      if (sesionActual && sesionActual.rol === "SUPERVISOR") {
+        mostrarSeccionSupervisor(seccionSupervisorActual || 'conductores');
+      }
     }
 
     // ==========================================
@@ -2484,7 +2505,10 @@
                 <h2 class="text-lg font-extrabold text-navy-900 tracking-tight">Conductores de mi Flota</h2>
                 <p class="text-xs text-slate-500">${obtenerNombreEmpresa(sesionActual.id_empresa)} • Control individual, odómetros, seguimiento en tiempo real y asignación</p>
               </div>
-              <div class="flex items-center space-x-2">
+              <div class="flex items-center space-x-2 flex-wrap gap-y-2">
+                <button onclick="forzarSincronizacionNubeManual()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-turquoise-400 border border-slate-700 text-xs font-bold rounded-xl flex items-center space-x-1.5 shadow-2xs" title="Actualizar datos desde Google Sheets">
+                  <i data-lucide="refresh-cw" class="w-4 h-4"></i><span>Sincronizar Nube</span>
+                </button>
                 <button onclick="abrirModalSupervisorCrearConductor()" class="px-3 py-2 bg-turquoise-600 hover:bg-turquoise-700 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 shadow-2xs">
                   <i data-lucide="user-plus" class="w-4 h-4"></i><span>+ Registrar Conductor</span>
                 </button>
@@ -2914,7 +2938,12 @@
         DB_LOCAL.usuarios.push(nuevoUsuario);
       }
 
-      DB_LOCAL.conductores.push(nuevoConductor);
+      const idxCndExist = DB_LOCAL.conductores.findIndex(c => (c.dni && String(c.dni).trim() === dni) || c.id_conductor === idCnd);
+      if (idxCndExist >= 0) {
+        DB_LOCAL.conductores[idxCndExist] = nuevoConductor;
+      } else {
+        DB_LOCAL.conductores.push(nuevoConductor);
+      }
 
       // GUARDADO PERMANENTE EN LOCALSTORAGE
       guardarBaseDatosLocal();
@@ -4744,23 +4773,22 @@
         mostrarToast("Ingresa una URL primero", "error");
         return;
       }
-      mostrarToast("Enviando ping a Google Apps Script...", "info");
+      mostrarToast("Verificando enlace con Google Apps Script...", "info");
       const t0 = performance.now();
       try {
-        const res = await fetch(url, {
-          method: "POST",
-          body: JSON.stringify({ action: "sistema/ping" })
-        });
-        const data = await res.json();
+        const data = await llamarApiGoogleSheets({ action: "sistema/ping" });
         const lat = Math.round(performance.now() - t0);
         document.getElementById("lbl-panel-latency").textContent = `${lat}ms`;
-        if (data.status === "OK") {
+        if (data && data.status === "OK") {
+          actualizarBadgeSyncStatus("Google Sheets Conectado", "success");
           mostrarToast(`¡Conexión exitosa con Google Apps Script! (${lat}ms)`, "success");
         } else {
-          mostrarToast("Respuesta: " + (data.mensaje || data.status), "info");
+          actualizarBadgeSyncStatus("Error de enlace", "error");
+          mostrarToast("Respuesta: " + (data ? (data.mensaje || data.status) : "Sin respuesta"), "info");
         }
       } catch(e) {
-        mostrarToast("Error de conexión. Revisa que el script esté implementado con acceso 'Cualquiera'", "error");
+        actualizarBadgeSyncStatus("Error de enlace", "error");
+        mostrarToast("Error de conexión con Google Sheets", "error");
       }
     }
 
