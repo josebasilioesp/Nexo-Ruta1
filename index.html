@@ -235,15 +235,14 @@
   <!-- ========================================================================= -->
   <section id="screen-login" class="flex-1 flex items-center justify-center p-4 relative overflow-hidden bg-navy-950">
     
-    <!-- Imagen de Portada de Fondo con Fallback Dinámico Seguro -->
-    <picture class="absolute inset-0 w-full h-full pointer-events-none z-0">
-      <source media="(max-width: 767px)" srcset="recursos/portada-mobile.png">
+    <!-- Imagen de Portada de Fondo con Carga Inteligente Multi-Ruta y Fallback HD -->
+    <div class="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden">
       <img id="login-hero-bg" 
-           src="recursos/portada-desktop.png" 
+           src="portada-mobile.png" 
            alt="Portada Nexa Ruta" 
-           class="w-full h-full object-cover object-center"
-           onerror="if(this.src.indexOf('unsplash')===-1){ this.src='https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=80'; }">
-    </picture>
+           class="w-full h-full object-cover object-center transition-opacity duration-700"
+           onerror="manejarErrorImagenPortada(this)">
+    </div>
 
     <!-- Filtro de contraste oscuro y desenfoque suave sobre la portada andina -->
     <div class="absolute inset-0 bg-navy-950/60 backdrop-blur-[1px] z-0 pointer-events-none"></div>
@@ -1090,7 +1089,11 @@
   <!-- LÓGICA JAVASCRIPT: AISLAMIENTO MULTI-EMPRESA, SEGUIMIENTO Y ROLES         -->
   <!-- ========================================================================= -->
   <script>
-    let APPS_SCRIPT_URL = localStorage.getItem("NEXA_RUTA_GAS_URL") || "";
+    const APPS_SCRIPT_DEFAULT_URL = "https://script.google.com/macros/s/AKfycbz6JyNP1RmCQJRq_LyuAmlJrKgav5cTw-dHBsc3I7rPfiuClQ3DFM1VnckZREo1NY71/exec";
+    let APPS_SCRIPT_URL = localStorage.getItem("NEXA_RUTA_GAS_URL") || APPS_SCRIPT_DEFAULT_URL;
+    if (!localStorage.getItem("NEXA_RUTA_GAS_URL")) {
+      try { localStorage.setItem("NEXA_RUTA_GAS_URL", APPS_SCRIPT_DEFAULT_URL); } catch(e) {}
+    }
     let sesionActual = null;
     let gpsActual = { lat: -12.046374, lng: -77.042793, precision: 12.0, disponible: false };
     let fotosSeleccionadas = [];
@@ -1451,7 +1454,8 @@
 
     window.addEventListener("storage", (e) => {
       if (e.key === "NEXA_RUTA_DB_v2" || e.key === "NEXA_RUTA_REALTIME_MSG") {
-        cargarBaseDatosLocal();
+        actualizarFondoLogin();
+      cargarBaseDatosLocal();
         refrescarVistaActualEnVivo();
       }
     });
@@ -1595,6 +1599,40 @@
     // ==========================================
     // INICIALIZACIÓN Y SEGURIDAD DE ACCESO
     // ==========================================
+    function manejarErrorImagenPortada(img) {
+      const intento = parseInt(img.getAttribute('data-intento') || '1', 10);
+      if (intento === 1) {
+        img.setAttribute('data-intento', '2');
+        img.src = 'recursos/portada-mobile.png';
+      } else if (intento === 2) {
+        img.setAttribute('data-intento', '3');
+        img.src = 'portada-desktop.png';
+      } else if (intento === 3) {
+        img.setAttribute('data-intento', '4');
+        img.src = 'recursos/portada-desktop.png';
+      } else {
+        img.src = 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=80';
+      }
+    }
+
+    function actualizarFondoLogin() {
+      const img = document.getElementById("login-hero-bg");
+      if (!img) return;
+      const esMovil = window.innerWidth <= 768;
+      const ruta = esMovil ? 'portada-mobile.png' : 'portada-desktop.png';
+      const test = new Image();
+      test.onload = () => { img.src = ruta; };
+      test.onerror = () => {
+        const testRec = new Image();
+        testRec.onload = () => { img.src = 'recursos/' + ruta; };
+        testRec.onerror = () => {
+          img.src = 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=80';
+        };
+        testRec.src = 'recursos/' + ruta;
+      };
+      test.src = ruta;
+    }
+
     function togglePasswordVisibility() {
       const input = document.getElementById("input-login-pass");
       const icon = document.getElementById("icon-toggle-pass");
@@ -2915,10 +2953,15 @@
       const destino = document.getElementById("sup-ruta-destino").value.trim();
       const obs = document.getElementById("sup-ruta-obs").value.trim();
 
+      if (!idCnd || !cliente || !origen || !destino) {
+        mostrarToast("Completa todos los campos obligatorios de la ruta", "error");
+        return;
+      }
+
       const cnd = DB_LOCAL.conductores.find(c => c.id_conductor === idCnd);
       const codServicio = "SRV-" + new Date().getFullYear() + "-" + Math.floor(1000 + Math.random() * 9000);
 
-      DB_LOCAL.servicios.push({
+      const nuevoServicio = {
         cod_servicio: codServicio,
         id_empresa: sesionActual.id_empresa,
         cliente: cliente,
@@ -2939,12 +2982,53 @@
         hora_programada: "08:00",
         instrucciones: obs,
         evidencias: []
+      };
+
+      DB_LOCAL.servicios.push(nuevoServicio);
+
+      if (cnd) {
+        cnd.estado = "En ruta";
+        cnd.ultima_actualizacion = "Ruta asignada recién";
+      }
+
+      // 1. GUARDADO PERMANENTE EN LOCALSTORAGE (¡No se borra al actualizar!)
+      guardarBaseDatosLocal();
+
+      // 2. REGISTRAR EN EL LOG DE AUDITORÍA EN TIEMPO REAL
+      registrarEventoAuditoria("ASIGNAR_RUTA", `Supervisor ${sesionActual.nombre} asignó viaje ${codServicio} (${cliente} -> ${destino}) a ${cnd ? cnd.nombre : idCnd}`, "Servicios");
+
+      // 3. NOTIFICAR EN VIVO A TODAS LAS PANTALLAS (Supervisor y Conductor)
+      notificarCambioRealtime({
+        tipo: "RUTA_ASIGNADA",
+        codServicio: codServicio,
+        idConductor: idCnd,
+        servicio: nuevoServicio
       });
 
-      if (cnd) cnd.estado = "En ruta";
+      // 4. GUARDAR DE INMEDIATO EN GOOGLE SHEETS
+      if (APPS_SCRIPT_URL) {
+        fetch(APPS_SCRIPT_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            action: "supervisor/asignar_ruta",
+            cod_servicio: codServicio,
+            id_empresa: sesionActual.id_empresa,
+            cliente_razon_social: cliente,
+            cliente_ruc: ruc,
+            id_conductor: idCnd,
+            placa_tracto: cnd ? cnd.placa_tracto : "V7X-890",
+            placa_carreta: cnd ? cnd.placa_carreta : "TC8-120",
+            origen: origen,
+            parada_actual: destino,
+            destinos: [{ id: "DST-1", punto_llegada: destino, orden: 1 }],
+            km_inicial: 148500,
+            instrucciones: obs
+          })
+        }).catch(err => console.warn("Error guardando ruta en Sheets:", err));
+      }
 
       cerrarModal("modal-supervisor-asignar-ruta");
-      mostrarToast(`Ruta asignada a ${cnd.nombre} (Servicio ${codServicio})`, "success");
+      mostrarToast(`✅ Ruta asignada con éxito a ${cnd ? cnd.nombre : 'conductor'} (${codServicio})`, "success");
       mostrarSeccionSupervisor('conductores');
     }
 
