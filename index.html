@@ -1356,6 +1356,84 @@
     </div>
   </div>
 
+    <!-- ========================================================================= -->
+  <!-- MODAL: REGISTRAR RASTREO GPS EN VIVO CON GOOGLE MAPS (CONDUCTOR)          -->
+  <!-- ========================================================================= -->
+  <div id="modal-conductor-registrar-gps" class="fixed inset-0 bg-navy-950/80 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-2 sm:p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-4 sm:p-6 shadow-2xl border border-slate-200 max-h-[95vh] flex flex-col">
+      <!-- Encabezado -->
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-9 h-9 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shadow-xs">
+            <i data-lucide="map-pin" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-extrabold text-navy-900">Registrar Rastreo GPS en Vivo</h3>
+            <p class="text-[10px] text-slate-500">Google Maps Satelital • Ubicación y hora actual exacta</p>
+          </div>
+        </div>
+        <button onclick="cerrarModal('modal-conductor-registrar-gps')" class="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto space-y-3 pr-1 text-xs">
+        <!-- Mapa Google Integrado con la Ubicación Actual (Sin salir de la web) -->
+        <div class="rounded-2xl border border-slate-200 overflow-hidden shadow-inner relative bg-slate-100 h-56 sm:h-64">
+          <iframe id="iframe-gmaps-conductor-gps" src="" class="w-full h-full border-0" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+          <div id="loading-gmaps-conductor-gps" class="absolute inset-0 bg-slate-900/40 backdrop-blur-2xs flex items-center justify-center text-white text-xs font-bold space-x-2 hidden">
+            <i data-lucide="loader" class="w-4 h-4 animate-spin"></i>
+            <span>Obteniendo GPS satelital...</span>
+          </div>
+        </div>
+
+        <!-- Tarjeta Informativa de Lectura Satelital en Tiempo Real -->
+        <div class="p-3 bg-navy-950 text-white rounded-2xl border border-navy-800 space-y-2">
+          <div class="flex items-center justify-between text-[11px]">
+            <span class="flex items-center space-x-1.5 text-emerald-400 font-bold">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>GPS Satelital Activo</span>
+            </span>
+            <span class="text-slate-300 font-mono text-[10px]" id="cnd-gps-fecha-hora">Recuperando hora...</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 text-[10px] font-mono pt-1 border-t border-navy-800/80">
+            <div>
+              <span class="text-slate-400 block text-[9px]">COORDENADAS:</span>
+              <strong class="text-white text-xs" id="cnd-gps-coords">-12.0463, -77.0427</strong>
+            </div>
+            <div>
+              <span class="text-slate-400 block text-[9px]">PRECISIÓN ESTIMADA:</span>
+              <strong class="text-turquoise-300 text-xs" id="cnd-gps-precision">±8 metros</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Campo de Referencia o Lugar de Parada -->
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Punto / Tramo / Lugar Actual:</label>
+          <input type="text" id="cnd-gps-lugar" placeholder="Ej. Km 48 Panamericana Sur - Chilca" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-rose-500 focus:outline-none text-slate-900">
+          <p class="text-[9px] text-slate-400 mt-1">El sistema asocia este punto a la hora exacta para el control de odómetro y ruta del Supervisor.</p>
+        </div>
+
+        <!-- Botón para Refrescar Ubicación en Vivo -->
+        <button type="button" onclick="obtenerUbicacionActualConductorEnVivo()" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 transition shadow-2xs">
+          <i data-lucide="crosshair" class="w-4 h-4 text-rose-600"></i>
+          <span>🛰️ Actualizar Mi Ubicación GPS Ahora</span>
+        </button>
+      </div>
+
+      <!-- Botón Principal: Confirmar y Registrar -->
+      <div class="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between">
+        <button type="button" onclick="cerrarModal('modal-conductor-registrar-gps')" class="px-3 py-2 text-slate-500 text-xs font-semibold">Cancelar</button>
+        <button type="button" onclick="confirmarYGuardarUbicacionGpsConductor()" id="btn-cnd-confirmar-gps" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-md flex items-center space-x-2 transition">
+          <i data-lucide="check-circle" class="w-4 h-4"></i>
+          <span>Registrar Ubicación Actual</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL: REGISTRAR KILOMETRAJE -->
   <div id="modal-registrar-km" class="fixed inset-0 bg-navy-950/75 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-3">
     <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-200">
@@ -2798,15 +2876,11 @@
             ` : ''}
           </div>
 
-          <!-- NAVEGACIÓN GPS EN RUTA: CO-MAPS OFFLINE Y GOOGLE MAPS -->
-          <div class="flex items-center space-x-2">
-            <a href="https://omaps.app/search?query=${encodeURIComponent(srv.parada_actual || 'Destino')}" target="_blank" class="flex-1 py-3 px-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-2xl text-xs font-bold flex items-center justify-center space-x-2 shadow-sm transition">
-              <i data-lucide="compass" class="w-4 h-4"></i>
-              <span>Navegar en CoMaps (Offline)</span>
-            </a>
-            <button type="button" onclick="abrirVisorMapaGoogleRutaInline('${encodeURIComponent(srv.origen || 'Lima')}', '${encodeURIComponent(srv.parada_actual || 'Destino')}', '${srv.parada_actual}')" class="py-3 px-3.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-2xl text-xs font-bold flex items-center justify-center space-x-1.5 shadow-sm transition">
-              <i data-lucide="map-pin" class="w-4 h-4 text-rose-500"></i>
-              <span>Google Maps</span>
+          <!-- NAVEGACIÓN GPS EN RUTA: SOLO GOOGLE MAPS OFICIAL INTEGRADO -->
+          <div class="w-full">
+            <button type="button" onclick="abrirVisorMapaGoogleRutaInline('${encodeURIComponent(srv.origen || 'Lima')}', '${encodeURIComponent(srv.parada_actual || 'Destino')}', '${srv.parada_actual}')" class="w-full py-3 px-4 bg-white hover:bg-slate-50 text-navy-900 border border-slate-200 rounded-2xl text-xs font-extrabold flex items-center justify-center space-x-2 shadow-xs transition">
+              <i data-lucide="map" class="w-4 h-4 text-rose-600"></i>
+              <span>Ver Ruta y Tráfico en Google Maps (En Vivo)</span>
             </button>
           </div>
 
@@ -2830,9 +2904,10 @@
                 <i data-lucide="navigation" class="w-4 h-4 text-slate-600 mb-1"></i>
                 <span class="text-xs font-bold text-slate-800 block">Actualizar estado</span>
               </button>
-              <button onclick="registrarUbicacionGpsManual('${srv.cod_servicio}')" class="p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-2xl text-left">
-                <i data-lucide="map-pin" class="w-4 h-4 text-slate-600 mb-1"></i>
-                <span class="text-xs font-bold text-slate-800 block">Registrar GPS</span>
+              <button onclick="abrirModalRegistrarGpsConductor('${srv.cod_servicio}')" class="p-3 bg-rose-50/60 hover:bg-rose-100/80 border border-rose-200 rounded-2xl text-left transition group">
+                <i data-lucide="map-pin" class="w-4 h-4 text-rose-600 mb-1 group-hover:scale-110 transition"></i>
+                <span class="text-xs font-extrabold text-navy-900 block">Registrar GPS</span>
+                <span class="text-[9px] text-rose-700 block font-medium">Google Maps en vivo</span>
               </button>
               <button onclick="abrirModalReportarIncidencia('${srv.cod_servicio}')" class="p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-2xl text-left">
                 <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 mb-1"></i>
@@ -6028,17 +6103,170 @@
       if (srv) abrirDetalleServicioConductor(srv.cod_servicio);
     }
 
-    function registrarUbicacionGpsManual(codServicio) {
+    let servicioGpsSeleccionado = null;
+    let lecturaGpsConductor = { lat: -12.0463, lng: -77.0427, precision: 10, fecha_hora: "" };
+
+    function abrirModalRegistrarGpsConductor(codServicio) {
+      let srv = (DB_LOCAL.servicios || []).find(s => s.cod_servicio === codServicio);
+      if (!srv) srv = servicioActivoSeleccionado;
+      servicioGpsSeleccionado = srv;
+
+      const inputLugar = document.getElementById("cnd-gps-lugar");
+      if (inputLugar) {
+        inputLugar.value = (srv && srv.parada_actual) ? srv.parada_actual : "En ruta";
+      }
+
+      document.getElementById("modal-conductor-registrar-gps").classList.remove("hidden");
+      lucide.createIcons();
+
+      // Solicitar GPS satelital de alta precisión al abrir
+      obtenerUbicacionActualConductorEnVivo();
+    }
+
+    function obtenerUbicacionActualConductorEnVivo() {
+      const loader = document.getElementById("loading-gmaps-conductor-gps");
+      if (loader) loader.classList.remove("hidden");
+
+      const fechaHoraActual = new Date().toLocaleString("es-PE", { timeZone: "America/Lima" });
+      const elFechaHora = document.getElementById("cnd-gps-fecha-hora");
+      if (elFechaHora) elFechaHora.textContent = fechaHoraActual;
+
+      const procesarPosicion = (lat, lng, prec) => {
+        lecturaGpsConductor = {
+          lat: lat,
+          lng: lng,
+          precision: prec,
+          fecha_hora: fechaHoraActual
+        };
+
+        const elCoords = document.getElementById("cnd-gps-coords");
+        if (elCoords) elCoords.textContent = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+
+        const elPrec = document.getElementById("cnd-gps-precision");
+        if (elPrec) elPrec.textContent = `±${Math.round(prec)} metros (${prec < 25 ? 'Alta precisión' : 'Estándar'})`;
+
+        // Cargar Google Maps centrado en la ubicación exacta del conductor sin salir de la página
+        const iframeG = document.getElementById("iframe-gmaps-conductor-gps");
+        if (iframeG) {
+          iframeG.src = `https://maps.google.com/maps?q=${lat},${lng}&hl=es&z=16&output=embed`;
+        }
+
+        if (loader) loader.classList.add("hidden");
+      };
+
       if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition(
           (pos) => {
-            mostrarToast(`Ubicación satelital registrada (±${Math.round(pos.coords.accuracy)}m)`, "success");
+            procesarPosicion(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy);
+            mostrarToast(`GPS satelital detectado (±${Math.round(pos.coords.accuracy)}m)`, "success");
           },
-          () => {
-            mostrarToast("GPS apagado. Enciende la ubicación en tu celular.", "error");
-          }
+          (err) => {
+            console.warn("GPS timeout/denegado, usando última ubicación conocida:", err);
+            // Fallback con la última posición conocida del conductor o Lima
+            const cnd = (DB_LOCAL.conductores || []).find(c => sesionActual && c.nombre.toLowerCase().includes(sesionActual.nombre.toLowerCase())) || DB_LOCAL.conductores[0];
+            const latDef = (cnd && cnd.latitud) ? cnd.latitud : -12.0463;
+            const lngDef = (cnd && cnd.longitud) ? cnd.longitud : -77.0427;
+            procesarPosicion(latDef, lngDef, 15);
+            mostrarToast("No se pudo obtener señal satelital en vivo. Verifica que la Ubicación/GPS esté encendida en tu celular.", "warning");
+          },
+          { enableHighAccuracy: true, timeout: 7000, maximumAge: 0 }
         );
+      } else {
+        procesarPosicion(-12.0463, -77.0427, 20);
+        if (loader) loader.classList.add("hidden");
       }
+    }
+
+    async function confirmarYGuardarUbicacionGpsConductor() {
+      const btn = document.getElementById("btn-cnd-confirmar-gps");
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i><span>Guardando en Google Sheets...</span>';
+        lucide.createIcons();
+      }
+
+      const srv = servicioGpsSeleccionado || servicioActivoSeleccionado;
+      const lugar = (document.getElementById("cnd-gps-lugar").value || "").trim() || (srv ? srv.parada_actual : "Punto de Control en Ruta");
+      const fechaCaptura = new Date().toLocaleString("es-PE", { timeZone: "America/Lima" });
+      const lat = lecturaGpsConductor.lat;
+      const lng = lecturaGpsConductor.lng;
+      const prec = lecturaGpsConductor.precision;
+
+      // 1. Guardar evento en el servicio local
+      if (srv) {
+        srv.parada_actual = lugar;
+        srv.eventos_historial = srv.eventos_historial || [];
+        srv.eventos_historial.unshift({
+          fecha_hora: fechaCaptura,
+          evento: `REPORTE_GPS: ${lugar}`,
+          odometro: srv.km_actual || srv.km_inicial || 0,
+          ubicacion: `Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}`,
+          observacion: `GPS Satelital (±${Math.round(prec)}m) - Registrado por Conductor`
+        });
+      }
+
+      // 2. Actualizar las coordenadas del conductor en DB_LOCAL.conductores
+      const cnd = (DB_LOCAL.conductores || []).find(c => 
+        (srv && srv.id_conductor && c.id_conductor === srv.id_conductor) || 
+        (sesionActual && c.nombre && c.nombre.toLowerCase().includes(sesionActual.nombre.toLowerCase()))
+      ) || (DB_LOCAL.conductores && DB_LOCAL.conductores[0]);
+
+      if (cnd) {
+        cnd.latitud = lat;
+        cnd.longitud = lng;
+        cnd.precision_m = prec;
+        cnd.ultima_actualizacion = `Reporte GPS: ${fechaCaptura}`;
+      }
+
+      guardarBaseDatosLocal(false);
+
+      // 3. ENVIAR A GOOGLE SHEETS EN SEGUNDO PLANO Y ENCOLAR
+      const payloadGps = {
+        action: "conductor/registrar_ubicacion",
+        token: sesionActual ? sesionActual.token : "",
+        cod_servicio: srv ? srv.cod_servicio : "SRV-ACTUAL",
+        id_empresa: srv ? srv.id_empresa : (sesionActual ? sesionActual.id_empresa : "TRP-001"),
+        id_conductor: cnd ? cnd.id_conductor : (sesionActual ? sesionActual.id_conductor : ""),
+        conductor: sesionActual ? sesionActual.nombre : (cnd ? cnd.nombre : "Conductor"),
+        parada: lugar,
+        latitud: lat,
+        longitud: lng,
+        precision_metros: prec,
+        fecha_hora_captura: fechaCaptura
+      };
+
+      encolarPendiente(payloadGps);
+      enviarPendientesNube().then(n => {
+        if (n > 0) {
+          mostrarToast("✅ Ubicación GPS guardada en Google Sheets", "success");
+        }
+      }).catch(err => console.warn("Sync GPS Sheets:", err));
+
+      // 4. Notificar a las pantallas del Supervisor en vivo
+      notificarCambioRealtime({
+        tipo: "GPS_CONDUCTOR",
+        cod_servicio: srv ? srv.cod_servicio : "",
+        lat: lat,
+        lng: lng,
+        timestamp: Date.now()
+      });
+
+      cerrarModal("modal-conductor-registrar-gps");
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="check-circle" class="w-4 h-4"></i><span>Registrar Ubicación Actual</span>';
+        lucide.createIcons();
+      }
+
+      mostrarToast(`✅ Rastreo GPS registrado: ${lugar} (${new Date().toLocaleTimeString('es-PE')}). Actualizado en Google Maps.`, "success");
+      if (srv) {
+        abrirDetalleServicioConductor(srv.cod_servicio);
+      }
+    }
+
+    // Compatibilidad para código legacy
+    function registrarUbicacionGpsManual(codServicio) {
+      abrirModalRegistrarGpsConductor(codServicio);
     }
 
     function abrirModalReportarIncidencia(codServicio) {

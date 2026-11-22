@@ -425,6 +425,15 @@ function procesarApiGetInterno(params) {
     return jsonResponse(asignarServicioDirecto(payload));
   }
 
+  if (action === 'conductor/registrar_ubicacion' || action === 'registrar_ubicacion') {
+    let payload = params;
+    if (params.data) {
+      try { payload = JSON.parse(params.data); } catch(e) {}
+    }
+    const sUbi = { valido: true, id_usuario: payload.id_conductor || "CONDUCTOR", id_empresa: payload.id_empresa || "TRP-001", nombre_completo: payload.conductor || "Conductor" };
+    return jsonResponse(registrarUbicacionGps(sUbi, payload));
+  }
+
   if (action === 'conductor/reportar_avance') {
     let payload = params;
     if (params.data) {
@@ -936,6 +945,23 @@ function doPostInterno(e) {
     }
 
     // Acción Conductor: Subida de Evidencia fotográfica y GPS (Directo y resiliente)
+    if (action === "conductor/registrar_ubicacion" || action === "registrar_ubicacion") {
+      let sUbi = {
+        valido: true,
+        id_usuario: payload.id_conductor || "CONDUCTOR",
+        id_empresa: payload.id_empresa || "TRP-001",
+        nombre_completo: payload.conductor || "Conductor Nexa",
+        rol: "CONDUCTOR"
+      };
+      if (payload.token) {
+        try {
+          const s = validarTokenSesion(payload.token);
+          if (s && s.valido) sUbi = s;
+        } catch(e) {}
+      }
+      return jsonResponse(registrarUbicacionGps(sUbi, payload));
+    }
+
     if (action === "conductor/subir_evidencia" || action === "subir_evidencia") {
       let sesionEv = {
         valido: true,
@@ -1382,26 +1408,79 @@ function registrarKilometrajeConductor(sesion, payload) {
  */
 function registrarUbicacionGps(sesion, payload) {
   const ss = obtenerSpreadsheet();
-  const sheetUbi = ss.getSheetByName("Ubicaciones");
+  let sheetUbi = ss.getSheetByName("Ubicaciones");
+  if (!sheetUbi) {
+    sheetUbi = ss.insertSheet("Ubicaciones");
+    sheetUbi.appendRow(["ID_UBICACION", "COD_SERVICIO", "ID_EMPRESA", "ID_USUARIO", "PARADA", "LATITUD", "LONGITUD", "PRECISION_METROS", "FECHA_HORA_CAPTURA", "FECHA_HORA_RECEPCION"]);
+  }
 
   const idUbi = "UBI-" + Utilities.getUuid().substring(0, 8);
+  const fechaCaptura = payload.fecha_hora_captura || obtenerFechaHoraPeru();
+  const fechaRecepcion = obtenerFechaHoraPeru();
+  const codServicio = payload.cod_servicio || "SIN_SERVICIO";
+  const idEmpresa = (sesion && sesion.id_empresa && sesion.id_empresa !== "TODAS") ? sesion.id_empresa : (payload.id_empresa || "TRP-001");
+  const idUsuario = (sesion && sesion.id_usuario) ? sesion.id_usuario : (payload.id_conductor || "CONDUCTOR");
+  const parada = payload.parada || "En ruta";
+  const lat = Number(payload.latitud) || 0;
+  const lng = Number(payload.longitud) || 0;
+  const prec = Number(payload.precision_metros || 10);
+
   sheetUbi.appendRow([
     idUbi,
-    payload.cod_servicio || "SIN_SERVICIO",
-    sesion.id_empresa || "TRP-001",
-    sesion.id_usuario,
-    payload.parada || "En ruta",
-    Number(payload.latitud),
-    Number(payload.longitud),
-    Number(payload.precision_metros || 0),
-    payload.fecha_hora_captura || obtenerFechaHoraPeru(),
-    obtenerFechaHoraPeru()
+    codServicio,
+    idEmpresa,
+    idUsuario,
+    parada,
+    lat,
+    lng,
+    prec,
+    fechaCaptura,
+    fechaRecepcion
   ]);
+
+  // Actualizar coordenadas en tiempo real en la pestaña Conductores
+  const sheetCnd = ss.getSheetByName("Conductores");
+  if (sheetCnd && lat && lng) {
+    try {
+      const cData = sheetCnd.getDataRange().getValues();
+      for (let i = 1; i < cData.length; i++) {
+        if ((payload.id_conductor && cData[i][0] === payload.id_conductor) || (cData[i][1] === idUsuario) || (payload.conductor && String(cData[i][2]).toLowerCase().includes(String(payload.conductor).toLowerCase()))) {
+          sheetCnd.getRange(i + 1, 14).setValue(lat);
+          sheetCnd.getRange(i + 1, 15).setValue(lng);
+          sheetCnd.getRange(i + 1, 16).setValue(prec);
+          sheetCnd.getRange(i + 1, 17).setValue(fechaCaptura);
+          break;
+        }
+      }
+    } catch(errCnd) {
+      console.warn("Aviso actualizando conductor en Sheets:", errCnd);
+    }
+  }
+
+  // Registrar también en Eventos para control de ruta del Supervisor
+  const sheetEvt = ss.getSheetByName("Eventos");
+  if (sheetEvt && codServicio !== "SIN_SERVICIO") {
+    try {
+      sheetEvt.appendRow([
+        "EVT-" + Utilities.getUuid().substring(0, 8),
+        codServicio,
+        idEmpresa,
+        "REPORTE_GPS: " + parada,
+        payload.odometro || 148500,
+        parada,
+        "Lat: " + lat.toFixed(4) + ", Lng: " + lng.toFixed(4) + " (±" + Math.round(prec) + "m)",
+        fechaCaptura
+      ]);
+    } catch(errEvt) {}
+  }
 
   return {
     status: "OK",
-    mensaje: "Ubicación GPS registrada correctamente.",
-    id_ubicacion: idUbi
+    mensaje: "Ubicación GPS registrada correctamente en Google Sheets.",
+    id_ubicacion: idUbi,
+    latitud: lat,
+    longitud: lng,
+    fecha: fechaCaptura
   };
 }
 
