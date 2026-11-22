@@ -1496,34 +1496,18 @@
     }
 
     function cargarBaseDatosLocal() {
+      // 100% NUBE: Limpiar residuos locales para que la PC no guarde nada en su disco
       try {
-        const raw = localStorage.getItem("NEXA_RUTA_DB_v2");
-        if (raw) {
-          const data = JSON.parse(raw);
-          if (data && data.usuarios && data.usuarios.length) {
-            // Asegurar que los usuarios estándar siempre estén disponibles
-            const usuariosExistentes = new Set(data.usuarios.map(u => (u.usuario || '').trim().toLowerCase()));
-            DB_LOCAL_DEFAULT.usuarios.forEach(uDef => {
-              if (!usuariosExistentes.has(uDef.usuario.trim().toLowerCase())) {
-                data.usuarios.push(uDef);
-              }
-            });
-            Object.assign(DB_LOCAL, data);
-            return;
-          }
-        }
-      } catch(e) {
-        console.warn("Fallo cargando base de datos local:", e);
-      }
-      guardarBaseDatosLocal(false);
+        localStorage.removeItem("NEXA_RUTA_DB_v2");
+        localStorage.removeItem("NEXA_RUTA_AUDIT_LOG");
+      } catch(e) {}
     }
 
     function guardarBaseDatosLocal(notificar = true) {
+      // 100% NUBE: No se almacena la base de datos en la memoria de la PC
       try {
-        localStorage.setItem("NEXA_RUTA_DB_v2", JSON.stringify(DB_LOCAL));
-      } catch(e) {
-        console.warn("Error guardando base de datos en localStorage:", e);
-      }
+        localStorage.removeItem("NEXA_RUTA_DB_v2");
+      } catch(e) {}
       if (notificar) {
         notificarCambioRealtime({ tipo: "DB_ACTUALIZADA", timestamp: Date.now() });
       }
@@ -2878,7 +2862,7 @@
       document.getElementById("modal-supervisor-crear-conductor").classList.remove("hidden");
     }
 
-    function guardarNuevoConductorSupervisor() {
+    async function guardarNuevoConductorSupervisor() {
       const idEmp = sesionActual.id_empresa;
       const nombres = document.getElementById("sup-cnd-nombres").value.trim();
       const apellidos = document.getElementById("sup-cnd-apellidos").value.trim();
@@ -2938,33 +2922,26 @@
         DB_LOCAL.usuarios.push(nuevoUsuario);
       }
 
-      const idxCndExist = DB_LOCAL.conductores.findIndex(c => (c.dni && String(c.dni).trim() === dni) || c.id_conductor === idCnd);
-      if (idxCndExist >= 0) {
-        DB_LOCAL.conductores[idxCndExist] = nuevoConductor;
-      } else {
-        DB_LOCAL.conductores.push(nuevoConductor);
-      }
+      mostrarToast(`Guardando ${nombreCompleto} en Google Sheets...`, "info");
 
-      // GUARDADO PERMANENTE EN LOCALSTORAGE
-      guardarBaseDatosLocal();
+      // 100% NUBE: Guardar directamente en Google Sheets primero
+      const res = await llamarApiGoogleSheets({
+        action: "supervisor/crear_conductor",
+        nuevoUsuario: nuevoUsuario,
+        nuevoConductor: nuevoConductor
+      });
+
+      if (res && res.status === "OK") {
+        mostrarToast(`✅ Conductor y usuario guardados en Google Sheets`, "success");
+        // Traer de inmediato la lista fresca de Google Sheets
+        await ejecutarSincronizacionBidireccional(false);
+      } else {
+        mostrarToast("No se pudo conectar a Google Sheets. Revisa la conexión.", "error");
+        return;
+      }
 
       // Registro en Auditoría
-      registrarEventoAuditoria("CREAR_CONDUCTOR", `Supervisor ${sesionActual.nombre} creó conductor ${nombreCompleto} con usuario ${user}`, "Usuarios");
-
-      // Notificación inmediata
-      notificarCambioRealtime({ tipo: "NUEVO_CONDUCTOR", conductor: nuevoConductor, usuario: nuevoUsuario });
-
-      // Sincronización robusta con Google Sheets
-      if (APPS_SCRIPT_URL) {
-        llamarApiGoogleSheets({
-          action: "supervisor/crear_conductor",
-          nuevoUsuario: nuevoUsuario,
-          nuevoConductor: nuevoConductor
-        }).then(res => {
-          console.log("Conductor sincronizado con Google Sheets:", res);
-          ejecutarSincronizacionBidireccional(false);
-        }).catch(err => console.warn("Sync Sheets conductor:", err));
-      }
+      registrarEventoAuditoria("CREAR_CONDUCTOR", `Supervisor ${sesionActual.nombre} creó conductor ${nombreCompleto} en Google Sheets`, "Usuarios");
 
       cerrarModal("modal-supervisor-crear-conductor");
 
@@ -3005,7 +2982,7 @@
       lucide.createIcons();
     }
 
-    function guardarEdicionConductorSupervisor() {
+    async function guardarEdicionConductorSupervisor() {
       const idCnd = document.getElementById("edit-sup-cnd-id").value;
       const idUsr = document.getElementById("edit-sup-cnd-usr-id").value;
       const nombres = document.getElementById("edit-sup-cnd-nombres").value.trim();
@@ -3057,29 +3034,27 @@
         DB_LOCAL.usuarios.push(usr);
       }
 
-      // GUARDADO PERMANENTE
-      guardarBaseDatosLocal();
+      mostrarToast(`Actualizando datos en Google Sheets...`, "info");
 
-      // Registro de auditoría
-      registrarEventoAuditoria("MODIFICAR_CONDUCTOR", `Supervisor modificó datos/contraseña de ${nombreCompleto}. Nueva clave asignada.`, "Usuarios");
+      // 100% NUBE: Enviar directamente a Google Sheets
+      const res = await llamarApiGoogleSheets({
+        action: "supervisor/crear_conductor",
+        nuevoUsuario: usr,
+        nuevoConductor: cnd
+      });
 
-      // Notificar cambio
-      notificarCambioRealtime({ tipo: "CONDUCTOR_ACTUALIZADO", idConductor: idCnd, usuario: usr });
-
-      // Enviar a Google Sheets con canal robusto
-      if (APPS_SCRIPT_URL) {
-        llamarApiGoogleSheets({
-          action: "supervisor/crear_conductor",
-          nuevoUsuario: usr,
-          nuevoConductor: cnd
-        }).then(res => {
-          console.log("Edición conductor sincronizada con Google Sheets:", res);
-          ejecutarSincronizacionBidireccional(false);
-        }).catch(err => console.warn("Error sync edición Sheets:", err));
+      if (res && res.status === "OK") {
+        mostrarToast(`✅ Datos y contraseña actualizados en Google Sheets`, "success");
+        await ejecutarSincronizacionBidireccional(false);
+      } else {
+        mostrarToast("No se pudo conectar a Google Sheets. Revisa la conexión.", "error");
+        return;
       }
 
+      // Registro de auditoría
+      registrarEventoAuditoria("MODIFICAR_CONDUCTOR", `Supervisor modificó datos/contraseña de ${nombreCompleto} en Google Sheets`, "Usuarios");
+
       cerrarModal("modal-supervisor-editar-conductor");
-      mostrarToast(`✅ Datos y contraseña de ${nombreCompleto} actualizados correctamente`, "success");
       mostrarSeccionSupervisor('conductores');
     }
 
@@ -3115,7 +3090,7 @@
       document.getElementById("modal-supervisor-asignar-ruta").classList.remove("hidden");
     }
 
-    function guardarRutaSupervisor() {
+    async function guardarRutaSupervisor() {
       const idCnd = document.getElementById("sup-ruta-conductor").value;
       const cliente = document.getElementById("sup-ruta-cliente").value.trim();
       const ruc = document.getElementById("sup-ruta-ruc").value.trim();
@@ -3164,41 +3139,37 @@
       // 1. GUARDADO PERMANENTE EN LOCALSTORAGE (¡No se borra al actualizar!)
       guardarBaseDatosLocal();
 
+      mostrarToast(`Guardando ruta en Google Sheets...`, "info");
+
+      // 100% NUBE: Guardar directamente en Google Sheets
+      const res = await llamarApiGoogleSheets({
+        action: "supervisor/asignar_ruta",
+        cod_servicio: codServicio,
+        id_empresa: sesionActual.id_empresa,
+        cliente_razon_social: cliente,
+        cliente_ruc: ruc,
+        id_conductor: idCnd,
+        placa_tracto: cnd ? cnd.placa_tracto : "V7X-890",
+        placa_carreta: cnd ? cnd.placa_carreta : "TC8-120",
+        origen: origen,
+        parada_actual: destino,
+        destinos: [{ id: "DST-1", punto_llegada: destino, orden: 1 }],
+        km_inicial: 148500,
+        instrucciones: obs
+      });
+
+      if (res && res.status === "OK") {
+        mostrarToast(`✅ Ruta asignada y guardada en Google Sheets (${codServicio})`, "success");
+        await ejecutarSincronizacionBidireccional(false);
+      } else {
+        mostrarToast("No se pudo conectar a Google Sheets. Revisa la conexión.", "error");
+        return;
+      }
+
       // 2. REGISTRAR EN EL LOG DE AUDITORÍA EN TIEMPO REAL
       registrarEventoAuditoria("ASIGNAR_RUTA", `Supervisor ${sesionActual.nombre} asignó viaje ${codServicio} (${cliente} -> ${destino}) a ${cnd ? cnd.nombre : idCnd}`, "Servicios");
 
-      // 3. NOTIFICAR EN VIVO A TODAS LAS PANTALLAS (Supervisor y Conductor)
-      notificarCambioRealtime({
-        tipo: "RUTA_ASIGNADA",
-        codServicio: codServicio,
-        idConductor: idCnd,
-        servicio: nuevoServicio
-      });
-
-      // 4. GUARDAR DE INMEDIATO EN GOOGLE SHEETS CON CANAL ROBUSTO
-      if (APPS_SCRIPT_URL) {
-        llamarApiGoogleSheets({
-          action: "supervisor/asignar_ruta",
-          cod_servicio: codServicio,
-          id_empresa: sesionActual.id_empresa,
-          cliente_razon_social: cliente,
-          cliente_ruc: ruc,
-          id_conductor: idCnd,
-          placa_tracto: cnd ? cnd.placa_tracto : "V7X-890",
-          placa_carreta: cnd ? cnd.placa_carreta : "TC8-120",
-          origen: origen,
-          parada_actual: destino,
-          destinos: [{ id: "DST-1", punto_llegada: destino, orden: 1 }],
-          km_inicial: 148500,
-          instrucciones: obs
-        }).then(res => {
-          console.log("Ruta sincronizada con Google Sheets:", res);
-          ejecutarSincronizacionBidireccional(false);
-        }).catch(err => console.warn("Error guardando ruta en Sheets:", err));
-      }
-
       cerrarModal("modal-supervisor-asignar-ruta");
-      mostrarToast(`✅ Ruta asignada con éxito a ${cnd ? cnd.nombre : 'conductor'} (${codServicio})`, "success");
       mostrarSeccionSupervisor('conductores');
     }
 
@@ -4815,7 +4786,7 @@
       }
     }
 
-    function crearUsuarioManualDesdePanel() {
+    async function crearUsuarioManualDesdePanel() {
       const uUser = prompt("Ingresa el nombre de usuario (ej. conductor3):");
       if (!uUser || !uUser.trim()) return;
       const uPass = prompt("Ingresa la contraseña para este usuario:", "123456");
@@ -4834,11 +4805,19 @@
         estado: "ACTIVO"
       };
 
-      DB_LOCAL.usuarios.push(nuevoUsr);
-      guardarBaseDatosLocal();
-      registrarEventoAuditoria("CREAR_USUARIO", `Usuario manual ${uUser} creado desde Panel Maestro`, "Usuarios");
-      renderizarPestanaPanelControl();
-      mostrarToast(`Usuario ${uUser} creado con éxito`, "success");
+      mostrarToast(`Guardando usuario ${uUser} en Google Sheets...`, "info");
+      const res = await llamarApiGoogleSheets({
+        action: "admin/crear_usuario",
+        nuevoUsuario: nuevoUsr
+      });
+
+      if (res && res.status === "OK") {
+        mostrarToast(`✅ Usuario ${uUser} guardado con éxito en Google Sheets`, "success");
+        await ejecutarSincronizacionBidireccional(false);
+        renderizarPestanaPanelControl();
+      } else {
+        mostrarToast("No se pudo conectar a Google Sheets. Revisa la conexión.", "error");
+      }
     }
 
     function exportarBaseDatosAJson() {
