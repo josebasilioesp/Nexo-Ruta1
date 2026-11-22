@@ -389,6 +389,8 @@ function procesarApiGet(params) {
     }
     if (payload.nuevoUsuario) crearUsuarioDirecto(payload.nuevoUsuario);
     if (payload.nuevoConductor) crearConductorDirecto(payload.nuevoConductor);
+    if (!payload.nuevoUsuario && payload.usuario) crearUsuarioDirecto(payload);
+    if (!payload.nuevoConductor && payload.nombre && payload.dni) crearConductorDirecto(payload);
     return jsonResponse({ status: 'OK', mensaje: 'Registro guardado en Google Sheets con éxito' });
   }
 
@@ -755,6 +757,8 @@ function doPost(e) {
     if (action === "supervisor/crear_conductor" || action === "admin/crear_usuario") {
       if (payload.nuevoUsuario) crearUsuarioDirecto(payload.nuevoUsuario);
       if (payload.nuevoConductor) crearConductorDirecto(payload.nuevoConductor);
+      if (!payload.nuevoUsuario && payload.usuario) crearUsuarioDirecto(payload);
+      if (!payload.nuevoConductor && payload.nombre && payload.dni) crearConductorDirecto(payload);
       return jsonResponse({ status: "OK", mensaje: "Registro guardado en Google Sheets con éxito" });
     }
 

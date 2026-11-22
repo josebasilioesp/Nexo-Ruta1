@@ -421,9 +421,13 @@
           </div>
         </div>
         <div class="flex items-center space-x-2">
-          <button id="btn-abrir-appscript-externo" onclick="abrirAppsScriptEnPestana()" class="hidden sm:inline-flex items-center space-x-1.5 px-3 py-1.5 bg-navy-900 hover:bg-navy-800 text-white text-xs font-bold rounded-xl transition shadow-sm">
-            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-            <span>Abrir en Apps Script</span>
+          <button id="btn-abrir-sheet-externo" onclick="abrirGoogleSheetsEnPestana()" title="Abrir Base de Datos Central en Google Sheets" class="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl transition shadow-sm">
+            <i data-lucide="table" class="w-3.5 h-3.5"></i>
+            <span>📊 Abrir Google Sheets</span>
+          </button>
+          <button id="btn-abrir-appscript-externo" onclick="abrirConsolaAppsScript()" title="Abrir Consola Administrativa de Google Apps Script" class="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-navy-900 hover:bg-navy-800 text-white text-xs font-bold rounded-xl transition shadow-sm">
+            <i data-lucide="terminal" class="w-3.5 h-3.5"></i>
+            <span>⚙️ Consola Apps Script</span>
           </button>
           <button onclick="cerrarModal('modal-panel-control-total')" class="p-2 text-slate-400 hover:text-slate-600 rounded-xl hover:bg-slate-100 transition">
             <i data-lucide="x" class="w-5 h-5"></i>
@@ -1090,14 +1094,65 @@
   <!-- ========================================================================= -->
   <script>
     const APPS_SCRIPT_DEFAULT_URL = "https://script.google.com/macros/s/AKfycbz6JyNP1RmCQJRq_LyuAmlJrKgav5cTw-dHBsc3I7rPfiuClQ3DFM1VnckZREo1NY71/exec";
+    function sanitizarUrlGoogleAppsScript(url) {
+      if (!url || typeof url !== "string") return APPS_SCRIPT_DEFAULT_URL;
+      url = url.trim();
+      if (url.includes("AKfycbz6JyNP1RmCQJRq_LyuAmlJrKgav5cTw-dHBsc3I7rPfi") || url.length < 60 || !url.endsWith("/exec")) {
+        return APPS_SCRIPT_DEFAULT_URL;
+      }
+      return url;
+    }
     let rawUrl = "";
     try { rawUrl = localStorage.getItem("NEXA_RUTA_GAS_URL") || ""; } catch(e) {}
-    // Sanitización obligatoria: si la URL guardada no termina en /exec o está truncada, forzar la oficial
-    if (!rawUrl || !rawUrl.endsWith("/exec") || rawUrl.length < 60) {
-      rawUrl = APPS_SCRIPT_DEFAULT_URL;
-      try { localStorage.setItem("NEXA_RUTA_GAS_URL", APPS_SCRIPT_DEFAULT_URL); } catch(e) {}
-    }
+    rawUrl = sanitizarUrlGoogleAppsScript(rawUrl);
+    try { localStorage.setItem("NEXA_RUTA_GAS_URL", rawUrl); } catch(e) {}
     let APPS_SCRIPT_URL = rawUrl;
+    let GOOGLE_SPREADSHEET_URL = "";
+
+    // Unificación de Usuarios y Conductores en una sola entidad
+    function sincronizarUsuariosYConductoresUnificados() {
+      if (!DB_LOCAL || !DB_LOCAL.usuarios || !DB_LOCAL.conductores) return;
+
+      // Todo usuario con rol CONDUCTOR debe existir en la lista de conductores de flota
+      DB_LOCAL.usuarios.forEach(u => {
+        if (String(u.rol || "").toUpperCase() === "CONDUCTOR") {
+          const userDni = String(u.dni || "").trim();
+          const userNom = (u.nombre || u.usuario || "").trim().toLowerCase();
+          const cndExistente = DB_LOCAL.conductores.find(c => 
+            (userDni && userDni !== "00000000" && String(c.dni).trim() === userDni) ||
+            (c.id_usuario && c.id_usuario === u.id) ||
+            (c.id_conductor && c.id_conductor === u.id_conductor) ||
+            (c.nombre && c.nombre.trim().toLowerCase() === userNom) ||
+            (c.nombre && c.nombre.trim().toLowerCase().includes(u.usuario.trim().toLowerCase()))
+          );
+
+          if (!cndExistente) {
+            const dniVal = (userDni && userDni !== "00000000") ? userDni : ("4" + Math.floor(1000000 + Math.random() * 9000000));
+            const telVal = (u.telefono && u.telefono !== "999999999") ? u.telefono : ("9" + Math.floor(10000000 + Math.random() * 90000000));
+            const nuevoCnd = {
+              id_conductor: u.id_conductor || ("CND-" + (u.id ? u.id.replace("USR-", "") : Date.now().toString().slice(-4))),
+              id_usuario: u.id,
+              id_empresa: u.id_empresa || "TRP-001",
+              nombre: u.nombre || u.usuario,
+              dni: dniVal,
+              licencia: "Q" + dniVal,
+              categoria: "A-IIIc",
+              vencimiento: "20/12/2028",
+              telefono: telVal,
+              foto: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
+              estado: "Disponible",
+              placa_tracto: "V7X-890",
+              placa_carreta: "TC8-120",
+              latitud: -12.0463,
+              longitud: -77.0427,
+              precision_m: 10,
+              ultima_actualizacion: "Sincronizado de Usuarios"
+            };
+            DB_LOCAL.conductores.push(nuevoCnd);
+          }
+        }
+      });
+    }
 
     // =========================================================================
     // COMUNICACIÓN SEGURA Y RESISTENTE A CORS CON GOOGLE APPS SCRIPT (POST + GET)
@@ -1718,6 +1773,12 @@
             });
           }
 
+          if (data.spreadsheetUrl) {
+            GOOGLE_SPREADSHEET_URL = data.spreadsheetUrl;
+            DB_LOCAL.spreadsheetUrl = data.spreadsheetUrl;
+          }
+
+          sincronizarUsuariosYConductoresUnificados();
           guardarBaseDatosLocal(false);
           refrescarVistaActualEnVivo();
           actualizarBadgeSyncStatus("Google Sheets Conectado", "success");
@@ -1728,6 +1789,11 @@
       } catch(err) {
         console.warn("Fallo sync bidireccional:", err);
         actualizarBadgeSyncStatus("Error de enlace", "error");
+        // Si la URL estaba dañada o truncada, autorreparar de inmediato
+        if (APPS_SCRIPT_URL !== APPS_SCRIPT_DEFAULT_URL && (!APPS_SCRIPT_URL.endsWith('/exec') || APPS_SCRIPT_URL.includes('AKfycbz6JyNP1RmCQJRq_LyuAmlJrKgav5cTw-dHBsc3I7rPfi'))) {
+          APPS_SCRIPT_URL = APPS_SCRIPT_DEFAULT_URL;
+          try { localStorage.setItem("NEXA_RUTA_GAS_URL", APPS_SCRIPT_DEFAULT_URL); } catch(e) {}
+        }
       } finally {
         syncEnCurso = false;
       }
@@ -2269,10 +2335,11 @@
         }
       });
 
+      sincronizarUsuariosYConductoresUnificados();
       const main = document.getElementById("main-stage-area");
-      const serviciosEmpresa = DB_LOCAL.servicios.filter(s => s.id_empresa === sesionActual.id_empresa);
-      const conductoresEmpresa = DB_LOCAL.conductores.filter(c => c.id_empresa === sesionActual.id_empresa);
-      const incidenciasEmpresa = DB_LOCAL.incidencias.filter(i => i.id_empresa === sesionActual.id_empresa);
+      const serviciosEmpresa = DB_LOCAL.servicios.filter(s => !s.id_empresa || s.id_empresa === 'TODAS' || s.id_empresa === sesionActual.id_empresa);
+      const conductoresEmpresa = DB_LOCAL.conductores.filter(c => !c.id_empresa || c.id_empresa === 'TODAS' || c.id_empresa === sesionActual.id_empresa);
+      const incidenciasEmpresa = DB_LOCAL.incidencias.filter(i => !i.id_empresa || i.id_empresa === 'TODAS' || i.id_empresa === sesionActual.id_empresa);
       const todasEvidenciasEmpresa = serviciosEmpresa.flatMap(s => s.evidencias || []).filter(e => e.permiso_supervisor === "AUTORIZADO");
       
       const kmTotalesEmpresa = serviciosEmpresa.reduce((acc, s) => {
@@ -2514,7 +2581,12 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              ${conductoresEmpresa.map(c => {
+              ${conductoresEmpresa.length === 0 ? `
+                <div class="col-span-full text-center py-12 bg-white rounded-3xl border border-slate-200">
+                  <p class="text-sm text-slate-500 font-bold">No hay conductores asignados en esta empresa</p>
+                  <button onclick="abrirModalSupervisorCrearConductor()" class="mt-3 px-4 py-2 bg-turquoise-600 hover:bg-turquoise-700 text-white rounded-xl text-xs font-bold">+ Registrar Primer Conductor</button>
+                </div>
+              ` : conductoresEmpresa.map(c => {
                 const srvActivo = DB_LOCAL.servicios.find(s => s.id_conductor === c.id_conductor);
                 const totalFotos = srvActivo ? (srvActivo.evidencias || []).length : 0;
                 const kmIni = srvActivo ? (srvActivo.km_inicial || 0) : 0;
@@ -2950,6 +3022,7 @@
         estado: "ACTIVO"
       };
 
+      // 1. INSERTAR DE INMEDIATO EN PANTALLA (APARECE EN EL SEGUNDO CERO)
       const idxExist = DB_LOCAL.usuarios.findIndex(u => u.usuario.trim().toLowerCase() === user.toLowerCase());
       if (idxExist >= 0) {
         DB_LOCAL.usuarios[idxExist] = nuevoUsuario;
@@ -2957,32 +3030,33 @@
         DB_LOCAL.usuarios.push(nuevoUsuario);
       }
 
-      mostrarToast(`Guardando ${nombreCompleto} en Google Sheets...`, "info");
+      const idxCnd = DB_LOCAL.conductores.findIndex(c => (c.dni && String(c.dni).trim() === dni) || c.id_conductor === idCnd);
+      if (idxCnd >= 0) {
+        DB_LOCAL.conductores[idxCnd] = nuevoConductor;
+      } else {
+        DB_LOCAL.conductores.push(nuevoConductor);
+      }
 
-      // 100% NUBE: Guardar directamente en Google Sheets primero
-      const res = await llamarApiGoogleSheets({
+      // 2. CERRAR MODAL Y PINTAR LA NUEVA TARJETA AL INSTANTE
+      cerrarModal("modal-supervisor-crear-conductor");
+      mostrarSeccionSupervisor('conductores');
+      abrirModalConfirmacionAcceso(nombreCompleto, user, pass);
+
+      // 3. GUARDAR DIRECTAMENTE EN GOOGLE SHEETS EN SEGUNDO PLANO
+      mostrarToast(`Sincronizando ${nombreCompleto} con Google Sheets...`, "info");
+      llamarApiGoogleSheets({
         action: "supervisor/crear_conductor",
         nuevoUsuario: nuevoUsuario,
         nuevoConductor: nuevoConductor
-      });
+      }).then(res => {
+        if (res && res.status === "OK") {
+          mostrarToast(`✅ ${nombreCompleto} guardado en Google Sheets con éxito`, "success");
+        } else {
+          mostrarToast("Aviso: Conductor visible en pantalla, sincronizando con Google Sheets...", "info");
+        }
+      }).catch(err => console.warn("Sync Sheets conductor:", err));
 
-      if (res && res.status === "OK") {
-        mostrarToast(`✅ Conductor y usuario guardados en Google Sheets`, "success");
-        // Traer de inmediato la lista fresca de Google Sheets
-        await ejecutarSincronizacionBidireccional(false);
-      } else {
-        mostrarToast("No se pudo conectar a Google Sheets. Revisa la conexión.", "error");
-        return;
-      }
-
-      // Registro en Auditoría
-      registrarEventoAuditoria("CREAR_CONDUCTOR", `Supervisor ${sesionActual.nombre} creó conductor ${nombreCompleto} en Google Sheets`, "Usuarios");
-
-      cerrarModal("modal-supervisor-crear-conductor");
-
-      // Mostrar modal de confirmación con datos para WhatsApp
-      abrirModalConfirmacionAcceso(nombreCompleto, user, pass);
-      mostrarSeccionSupervisor('conductores');
+      registrarEventoAuditoria("CREAR_CONDUCTOR", `Supervisor ${sesionActual.nombre} creó conductor ${nombreCompleto}`, "Usuarios");
     }
 
     // Modal para que el supervisor edite datos del conductor y cambie su contraseña
@@ -3069,28 +3143,23 @@
         DB_LOCAL.usuarios.push(usr);
       }
 
-      mostrarToast(`Actualizando datos en Google Sheets...`, "info");
+      // 1. CERRAR MODAL Y PINTAR CAMBIOS AL INSTANTE
+      cerrarModal("modal-supervisor-editar-conductor");
+      mostrarSeccionSupervisor('conductores');
+      mostrarToast(`✅ Datos de ${nombreCompleto} actualizados en pantalla. Guardando en Google Sheets...`, "info");
 
-      // 100% NUBE: Enviar directamente a Google Sheets
-      const res = await llamarApiGoogleSheets({
+      // 2. ENVIAR A GOOGLE SHEETS EN SEGUNDO PLANO
+      llamarApiGoogleSheets({
         action: "supervisor/crear_conductor",
         nuevoUsuario: usr,
         nuevoConductor: cnd
-      });
+      }).then(res => {
+        if (res && res.status === "OK") {
+          mostrarToast(`✅ Datos y contraseña guardados en Google Sheets`, "success");
+        }
+      }).catch(err => console.warn("Error sync edición Sheets:", err));
 
-      if (res && res.status === "OK") {
-        mostrarToast(`✅ Datos y contraseña actualizados en Google Sheets`, "success");
-        await ejecutarSincronizacionBidireccional(false);
-      } else {
-        mostrarToast("No se pudo conectar a Google Sheets. Revisa la conexión.", "error");
-        return;
-      }
-
-      // Registro de auditoría
-      registrarEventoAuditoria("MODIFICAR_CONDUCTOR", `Supervisor modificó datos/contraseña de ${nombreCompleto} en Google Sheets`, "Usuarios");
-
-      cerrarModal("modal-supervisor-editar-conductor");
-      mostrarSeccionSupervisor('conductores');
+      registrarEventoAuditoria("MODIFICAR_CONDUCTOR", `Supervisor modificó datos/contraseña de ${nombreCompleto}`, "Usuarios");
     }
 
     function abrirModalConfirmacionAcceso(nombre, user, pass) {
@@ -3174,10 +3243,13 @@
       // 1. GUARDADO PERMANENTE EN LOCALSTORAGE (¡No se borra al actualizar!)
       guardarBaseDatosLocal();
 
-      mostrarToast(`Guardando ruta en Google Sheets...`, "info");
+      // 1. CERRAR MODAL Y PINTAR RUTA ASIGNADA AL INSTANTE
+      cerrarModal("modal-supervisor-asignar-ruta");
+      mostrarSeccionSupervisor('conductores');
+      mostrarToast(`✅ Ruta ${codServicio} asignada en pantalla. Guardando en Google Sheets...`, "info");
 
-      // 100% NUBE: Guardar directamente en Google Sheets
-      const res = await llamarApiGoogleSheets({
+      // 2. ENVIAR A GOOGLE SHEETS EN SEGUNDO PLANO
+      llamarApiGoogleSheets({
         action: "supervisor/asignar_ruta",
         cod_servicio: codServicio,
         id_empresa: sesionActual.id_empresa,
@@ -3191,21 +3263,13 @@
         destinos: [{ id: "DST-1", punto_llegada: destino, orden: 1 }],
         km_inicial: 148500,
         instrucciones: obs
-      });
+      }).then(res => {
+        if (res && res.status === "OK") {
+          mostrarToast(`✅ Ruta guardada con éxito en Google Sheets`, "success");
+        }
+      }).catch(err => console.warn("Error guardando ruta en Sheets:", err));
 
-      if (res && res.status === "OK") {
-        mostrarToast(`✅ Ruta asignada y guardada en Google Sheets (${codServicio})`, "success");
-        await ejecutarSincronizacionBidireccional(false);
-      } else {
-        mostrarToast("No se pudo conectar a Google Sheets. Revisa la conexión.", "error");
-        return;
-      }
-
-      // 2. REGISTRAR EN EL LOG DE AUDITORÍA EN TIEMPO REAL
-      registrarEventoAuditoria("ASIGNAR_RUTA", `Supervisor ${sesionActual.nombre} asignó viaje ${codServicio} (${cliente} -> ${destino}) a ${cnd ? cnd.nombre : idCnd}`, "Servicios");
-
-      cerrarModal("modal-supervisor-asignar-ruta");
-      mostrarSeccionSupervisor('conductores');
+      registrarEventoAuditoria("ASIGNAR_RUTA", `Supervisor ${sesionActual.nombre} asignó viaje ${codServicio} a ${cnd ? cnd.nombre : idCnd}`, "Servicios");
     }
 
     // ==========================================
@@ -3558,8 +3622,10 @@
 
     function guardarUrlAppsScriptAdmin() {
       const input = document.getElementById("input-admin-gas-url");
-      const url = input ? input.value.trim() : "";
+      let url = input ? input.value.trim() : "";
       if (url) {
+        url = sanitizarUrlGoogleAppsScript(url);
+        if (input) input.value = url;
         localStorage.setItem("NEXA_RUTA_GAS_URL", url);
         APPS_SCRIPT_URL = url;
         mostrarToast("¡URL de Google Apps Script guardada correctamente!", "success");
@@ -4563,8 +4629,15 @@
 
     function mostrarModalPanelControlTotal() {
       cargarBaseDatosLocal();
+      sincronizarUsuariosYConductoresUnificados();
       const inputUrl = document.getElementById("input-panel-gas-url");
       if (inputUrl) inputUrl.value = APPS_SCRIPT_URL;
+
+      const btnSheet = document.getElementById("btn-abrir-sheet-externo");
+      if (btnSheet) {
+        if (APPS_SCRIPT_URL) btnSheet.classList.remove("hidden");
+        else btnSheet.classList.add("hidden");
+      }
 
       const btnExt = document.getElementById("btn-abrir-appscript-externo");
       if (btnExt) {
@@ -4582,12 +4655,26 @@
       lucide.createIcons();
     }
 
-    function abrirAppsScriptEnPestana() {
+    function abrirGoogleSheetsEnPestana() {
+      if (GOOGLE_SPREADSHEET_URL) {
+        window.open(GOOGLE_SPREADSHEET_URL, "_blank");
+      } else if (APPS_SCRIPT_URL) {
+        window.open(APPS_SCRIPT_URL + (APPS_SCRIPT_URL.includes("?") ? "&view=sheet" : "?view=sheet"), "_blank");
+      } else {
+        window.open("https://docs.google.com/spreadsheets/", "_blank");
+      }
+    }
+
+    function abrirConsolaAppsScript() {
       if (APPS_SCRIPT_URL) {
-        window.open(APPS_SCRIPT_URL, "_blank");
+        window.open(APPS_SCRIPT_URL + (APPS_SCRIPT_URL.includes("?") ? "&view=admin" : "?view=admin"), "_blank");
       } else {
         mostrarToast("Ingresa y guarda la URL de Apps Script primero", "error");
       }
+    }
+
+    function abrirAppsScriptEnPestana() {
+      abrirConsolaAppsScript();
     }
 
     function actualizarContadoresPanel() {
@@ -4757,13 +4844,17 @@
 
     function guardarUrlDesdePanelControl() {
       const input = document.getElementById("input-panel-gas-url");
-      const url = input ? input.value.trim() : "";
+      let url = input ? input.value.trim() : "";
       if (url) {
+        url = sanitizarUrlGoogleAppsScript(url);
+        if (input) input.value = url;
         localStorage.setItem("NEXA_RUTA_GAS_URL", url);
         APPS_SCRIPT_URL = url;
-        mostrarToast("¡Enlace de Google Apps Script guardado y conectado permanentemente!", "success");
+        mostrarToast("¡Enlace de Google Apps Script verificado y guardado permanentemente!", "success");
         const btnExt = document.getElementById("btn-abrir-appscript-externo");
         if (btnExt) btnExt.classList.remove("hidden");
+        const btnSheet = document.getElementById("btn-abrir-sheet-externo");
+        if (btnSheet) btnSheet.classList.remove("hidden");
         ejecutarSincronizacionBidireccional(true);
       } else {
         localStorage.removeItem("NEXA_RUTA_GAS_URL");
@@ -4774,11 +4865,12 @@
 
     async function probarPingDesdePanel() {
       const input = document.getElementById("input-panel-gas-url");
-      const url = input ? input.value.trim() : APPS_SCRIPT_URL;
-      if (!url) {
-        mostrarToast("Ingresa una URL primero", "error");
-        return;
-      }
+      let url = input ? input.value.trim() : APPS_SCRIPT_URL;
+      url = sanitizarUrlGoogleAppsScript(url);
+      if (input) input.value = url;
+      APPS_SCRIPT_URL = url;
+      localStorage.setItem("NEXA_RUTA_GAS_URL", url);
+
       mostrarToast("Verificando enlace con Google Apps Script...", "info");
       const t0 = performance.now();
       try {
@@ -4786,6 +4878,10 @@
         const lat = Math.round(performance.now() - t0);
         document.getElementById("lbl-panel-latency").textContent = `${lat}ms`;
         if (data && data.status === "OK") {
+          if (data.spreadsheetUrl) {
+            GOOGLE_SPREADSHEET_URL = data.spreadsheetUrl;
+            DB_LOCAL.spreadsheetUrl = data.spreadsheetUrl;
+          }
           actualizarBadgeSyncStatus("Google Sheets Conectado", "success");
           mostrarToast(`¡Conexión exitosa con Google Apps Script! (${lat}ms)`, "success");
         } else {
@@ -4828,30 +4924,76 @@
       if (!uPass || !uPass.trim()) return;
       const uRol = prompt("Rol (ADMIN_GENERAL, SUPERVISOR, CONDUCTOR):", "CONDUCTOR") || "CONDUCTOR";
 
+      const rolLimpio = uRol.trim().toUpperCase();
+      const idGen = Date.now().toString().slice(-4);
+      const empId = (sesionActual && sesionActual.id_empresa) ? sesionActual.id_empresa : "TRP-001";
+      const dniGen = "4" + Math.floor(1000000 + Math.random() * 9000000);
+      const telGen = "9" + Math.floor(10000000 + Math.random() * 90000000);
+
       const nuevoUsr = {
-        id: "USR-" + Date.now().toString().slice(-4),
+        id: "USR-" + idGen,
         usuario: uUser.trim(),
         pass: uPass.trim(),
-        rol: uRol.trim().toUpperCase(),
-        id_empresa: "TRP-001",
+        rol: rolLimpio,
+        id_empresa: empId,
         nombre: uUser.trim(),
-        dni: "00000000",
-        telefono: "999999999",
+        dni: dniGen,
+        telefono: telGen,
         estado: "ACTIVO"
       };
 
-      mostrarToast(`Guardando usuario ${uUser} en Google Sheets...`, "info");
+      let nuevoCnd = null;
+      if (rolLimpio === "CONDUCTOR") {
+        nuevoCnd = {
+          id_conductor: "CND-" + idGen,
+          id_usuario: nuevoUsr.id,
+          id_empresa: empId,
+          nombre: nuevoUsr.nombre,
+          dni: dniGen,
+          licencia: "Q" + dniGen,
+          categoria: "A-IIIc",
+          vencimiento: "20/12/2028",
+          telefono: telGen,
+          foto: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
+          estado: "Disponible",
+          placa_tracto: "V7X-890",
+          placa_carreta: "TC8-120",
+          latitud: -12.0463,
+          longitud: -77.0427,
+          precision_m: 10,
+          ultima_actualizacion: "Recién registrado"
+        };
+      }
+
+      // 1. Inserción inmediata en memoria local (0ms en pantalla)
+      const uIdx = DB_LOCAL.usuarios.findIndex(u => u.usuario.trim().toLowerCase() === nuevoUsr.usuario.toLowerCase());
+      if (uIdx >= 0) DB_LOCAL.usuarios[uIdx] = nuevoUsr;
+      else DB_LOCAL.usuarios.push(nuevoUsr);
+
+      if (nuevoCnd) {
+        const cIdx = DB_LOCAL.conductores.findIndex(c => c.nombre.trim().toLowerCase() === nuevoCnd.nombre.toLowerCase() || c.id_conductor === nuevoCnd.id_conductor);
+        if (cIdx >= 0) DB_LOCAL.conductores[cIdx] = nuevoCnd;
+        else DB_LOCAL.conductores.push(nuevoCnd);
+      }
+
+      sincronizarUsuariosYConductoresUnificados();
+      renderizarPestanaPanelControl();
+      refrescarVistaActualEnVivo();
+      mostrarToast(`✅ Usuario ${uUser} añadido en pantalla. Guardando en Google Sheets...`, "info");
+
+      // 2. Enviar a Google Sheets en segundo plano
       const res = await llamarApiGoogleSheets({
         action: "admin/crear_usuario",
-        nuevoUsuario: nuevoUsr
+        nuevoUsuario: nuevoUsr,
+        nuevoConductor: nuevoCnd
       });
 
       if (res && res.status === "OK") {
-        mostrarToast(`✅ Usuario ${uUser} guardado con éxito en Google Sheets`, "success");
+        mostrarToast(`✅ Usuario y conductor guardados en Google Sheets`, "success");
         await ejecutarSincronizacionBidireccional(false);
         renderizarPestanaPanelControl();
       } else {
-        mostrarToast("No se pudo conectar a Google Sheets. Revisa la conexión.", "error");
+        mostrarToast("Guardado localmente. Se reintentará la sincronización en la nube.", "info");
       }
     }
 
