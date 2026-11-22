@@ -167,6 +167,24 @@
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
   </style>
+  <!-- Sesión ultrarrápida: Evita cualquier parpadeo de login al recargar -->
+  <script>
+    (function() {
+      try {
+        var s = localStorage.getItem("NEXA_RUTA_ACTIVE_SESSION");
+        if (s) {
+          var d = JSON.parse(s);
+          if (d && (d.usuario || d.id_usuario)) {
+            document.documentElement.classList.add("nexa-sesion-activa");
+          }
+        }
+      } catch(e) {}
+    })();
+  </script>
+  <style>
+    html.nexa-sesion-activa #screen-login { display: none !important; }
+    html.nexa-sesion-activa #screen-app-container { display: flex !important; }
+  </style>
 </head>
 <body class="h-full bg-slate-50 text-slate-800 antialiased flex flex-col select-none">
 
@@ -205,7 +223,7 @@
         <!-- Acciones del Usuario -->
         <div class="flex items-center space-x-2.5">
           <!-- Indicador de Red Online/Offline -->
-          <div id="badge-red-status" class="flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">
+          <div id="badge-red-status" class="hidden items-center space-x-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800" style="display: none !important;">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
             <span id="txt-red-status">En línea</span>
           </div>
@@ -540,7 +558,7 @@
         </div>
         <div class="flex justify-between items-center py-1">
           <span class="text-slate-500 font-semibold">Contraseña:</span>
-          <span id="lbl-confirm-pass" class="font-mono font-bold text-slate-900 bg-slate-200 px-2 py-0.5 rounded-lg text-sm">cond123</span>
+          <span id="lbl-confirm-pass" class="font-mono font-bold text-slate-900 bg-slate-200 px-2 py-0.5 rounded-lg text-sm">Nexa#Cond2026</span>
         </div>
       </div>
 
@@ -569,7 +587,7 @@
       <form onsubmit="event.preventDefault(); verificarDesbloqueoAdmin();" class="space-y-3">
         <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1">Contraseña de Administrador:</label>
-          <input type="password" id="input-unlock-admin-pass" required placeholder="admin123" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-turquoise-500 focus:outline-none font-medium">
+          <input type="password" id="input-unlock-admin-pass" required placeholder="Nexa#Admin2026" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-turquoise-500 focus:outline-none font-medium">
         </div>
         <div class="flex items-center space-x-2 pt-1">
           <button type="button" onclick="cerrarModal('modal-admin-unlock')" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition">
@@ -866,6 +884,314 @@
           <button type="submit" class="px-4 py-2 bg-turquoise-600 hover:bg-turquoise-700 text-white font-bold rounded-xl shadow-sm">Asignar Ruta</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODALES DE PROGRAMACIÓN DE RUTAS Y SERVICIOS (SUPERVISOR)                   -->
+  <!-- ========================================================================= -->
+
+  <!-- MODAL: CREAR NUEVA PROGRAMACIÓN MANUAL -->
+  <div id="modal-supervisor-crear-programacion" class="fixed inset-0 bg-navy-950/80 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-3">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl border border-slate-200 max-h-[92vh] flex flex-col">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-9 h-9 rounded-2xl bg-turquoise-100 text-turquoise-800 flex items-center justify-center shadow-xs">
+            <i data-lucide="calendar-plus" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-extrabold text-navy-900">Nueva Programación de Servicio y Ruta</h3>
+            <p class="text-[10px] text-slate-500">Paso 1 y 2 del Flujo: Asigna transporte, conductor, auxiliar y publica en la app móvil</p>
+          </div>
+        </div>
+        <button onclick="cerrarModal('modal-supervisor-crear-programacion')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+
+      <form onsubmit="event.preventDefault(); guardarNuevaProgramacionManual();" class="space-y-3 text-xs overflow-y-auto flex-1 pr-1">
+        <!-- Código y Fechas -->
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Cód. Servicio:</label>
+            <input type="text" id="prog-crear-cod" readonly class="w-full p-2 bg-slate-100 border border-slate-200 rounded-xl text-xs font-mono font-bold text-navy-900">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Fecha Programada:</label>
+            <input type="date" id="prog-crear-fecha" required class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Hora Estimada:</label>
+            <input type="time" id="prog-crear-hora" value="08:00" required class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium">
+          </div>
+        </div>
+
+        <!-- Cliente y RUC -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <div class="sm:col-span-2">
+            <label class="block font-bold text-slate-700 mb-1">Cliente / Empresa Solicitante:</label>
+            <input type="text" id="prog-crear-cliente" required placeholder="Ej. Aceros Arequipa S.A." class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">RUC Cliente:</label>
+            <input type="text" id="prog-crear-ruc" maxlength="11" placeholder="20XXXXXXXXX" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono">
+          </div>
+        </div>
+
+        <!-- Origen y Destino -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Origen (Punto de Salida / Carga):</label>
+            <input type="text" id="prog-crear-origen" required placeholder="Ej. Almacén Central Callao" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Destino Principal / Entrega:</label>
+            <input type="text" id="prog-crear-destino" required placeholder="Ej. Planta Toromocho - Morococha" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium">
+          </div>
+        </div>
+
+        <!-- Asignación de Unidades de Transporte -->
+        <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+          <span class="text-[10px] font-extrabold uppercase text-navy-900 tracking-wider block">🚛 1. Asignación de Transporte:</span>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">Tracto (Placa):</label>
+              <select id="prog-crear-tracto" class="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs font-mono font-bold"></select>
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">Carreta (Placa):</label>
+              <select id="prog-crear-carreta" class="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs font-mono font-bold"></select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Asignación de Personal (Conductor y Auxiliar) -->
+        <div class="p-3 bg-turquoise-50/60 rounded-2xl border border-turquoise-200 space-y-2">
+          <span class="text-[10px] font-extrabold uppercase text-turquoise-900 tracking-wider block">👤 2. Asignación de Personal Operativo:</span>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">Conductor de la Flota (Obligatorio):</label>
+              <select id="prog-crear-conductor" required class="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-navy-900"></select>
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">Auxiliar / Copiloto de Ruta:</label>
+              <input type="text" id="prog-crear-auxiliar" placeholder="Ej. Pedro Ramírez (Auxiliar)" class="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs">
+            </div>
+          </div>
+        </div>
+
+        <!-- Odómetro Inicial Estimado e Instrucciones -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Odómetro Base (km):</label>
+            <input type="number" id="prog-crear-km" value="148500" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono">
+          </div>
+          <div class="sm:col-span-2">
+            <label class="block font-semibold text-slate-700 mb-1">Instrucciones Operativas:</label>
+            <input type="text" id="prog-crear-obs" placeholder="Precinto aduanero requerido, escolta en tramos autorizados..." class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+          <button type="button" onclick="cerrarModal('modal-supervisor-crear-programacion')" class="px-3 py-2 text-slate-500 font-semibold text-xs">Cancelar</button>
+          <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-turquoise-600 to-cyan-500 hover:from-turquoise-500 hover:to-cyan-400 text-white font-extrabold text-xs rounded-xl shadow-md flex items-center space-x-1.5 transition">
+            <i data-lucide="send" class="w-4 h-4"></i>
+            <span>Publicar Programación en App Móvil y Sheets</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: MODIFICAR PROGRAMACIÓN EXISTENTE -->
+  <div id="modal-supervisor-modificar-programacion" class="fixed inset-0 bg-navy-950/80 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-3">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl border border-slate-200 max-h-[92vh] flex flex-col">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-9 h-9 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center shadow-xs">
+            <i data-lucide="edit-3" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-extrabold text-navy-900">Modificar Programación de Servicio</h3>
+            <p class="text-[10px] text-slate-500">Reasigna conductor, transporte, fechas o estado operativo en tiempo real</p>
+          </div>
+        </div>
+        <button onclick="cerrarModal('modal-supervisor-modificar-programacion')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+
+      <form onsubmit="event.preventDefault(); guardarModificacionProgramacion();" class="space-y-3 text-xs overflow-y-auto flex-1 pr-1">
+        <input type="hidden" id="prog-edit-cod-hidden">
+
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Cód. Servicio:</label>
+            <span id="prog-edit-cod-badge" class="block p-2 bg-slate-100 border border-slate-200 rounded-xl text-xs font-mono font-bold text-navy-900 text-center">-</span>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Fecha Programada:</label>
+            <input type="date" id="prog-edit-fecha" required class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Hora Estimada:</label>
+            <input type="time" id="prog-edit-hora" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <div class="sm:col-span-2">
+            <label class="block font-bold text-slate-700 mb-1">Cliente / Razón Social:</label>
+            <input type="text" id="prog-edit-cliente" required class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">RUC:</label>
+            <input type="text" id="prog-edit-ruc" maxlength="11" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Origen:</label>
+            <input type="text" id="prog-edit-origen" required class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Destino Actual / Entrega:</label>
+            <input type="text" id="prog-edit-destino" required class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+          </div>
+        </div>
+
+        <!-- Reasignación de Conductor y Auxiliar -->
+        <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+          <span class="text-[10px] font-extrabold uppercase text-navy-900 tracking-wider block">👤 Reasignación de Personal:</span>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">Conductor Asignado:</label>
+              <select id="prog-edit-conductor" required class="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-navy-900"></select>
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">Auxiliar / Copiloto:</label>
+              <input type="text" id="prog-edit-auxiliar" class="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs">
+            </div>
+          </div>
+        </div>
+
+        <!-- Reasignación de Unidades -->
+        <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+          <span class="text-[10px] font-extrabold uppercase text-navy-900 tracking-wider block">🚛 Reasignación de Unidades:</span>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">Tracto (Placa):</label>
+              <select id="prog-edit-tracto" class="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs font-mono font-bold"></select>
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">Carreta (Placa):</label>
+              <select id="prog-edit-carreta" class="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs font-mono font-bold"></select>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Estado Operativo:</label>
+            <select id="prog-edit-estado" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold">
+              <option value="Programado">Programado (Por iniciar)</option>
+              <option value="En camino al punto de carga">En camino al punto de carga</option>
+              <option value="En tránsito al destino">En tránsito al destino</option>
+              <option value="En descarga">En descarga</option>
+              <option value="Finalizado">Finalizado</option>
+              <option value="Cancelado">Cancelado</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Instrucciones Operativas:</label>
+            <input type="text" id="prog-edit-obs" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+          <button type="button" onclick="cerrarModal('modal-supervisor-modificar-programacion')" class="px-3 py-2 text-slate-500 font-semibold text-xs">Cancelar</button>
+          <button type="submit" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-extrabold text-xs rounded-xl shadow-md flex items-center space-x-1.5 transition">
+            <i data-lucide="check" class="w-4 h-4"></i>
+            <span>Guardar Modificaciones en Google Sheets</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: IMPORTAR PROGRAMACIÓN MASIVA DESDE EXCEL -->
+  <div id="modal-supervisor-importar-excel" class="fixed inset-0 bg-navy-950/80 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-3">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl border border-slate-200 max-h-[92vh] flex flex-col">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-9 h-9 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center shadow-xs">
+            <i data-lucide="file-spreadsheet" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-extrabold text-navy-900">Importar Programación Masiva desde Excel</h3>
+            <p class="text-[10px] text-slate-500">Paso 1 del Flujo: Carga las rutas del día o semana directamente desde Excel (.xlsx o .csv)</p>
+          </div>
+        </div>
+        <button onclick="cerrarModal('modal-supervisor-importar-excel')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+
+      <div class="space-y-3.5 text-xs overflow-y-auto flex-1 pr-1">
+        <!-- Banner de Ayuda y Descarga de Plantilla -->
+        <div class="p-3 bg-emerald-50 rounded-2xl border border-emerald-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <strong class="text-emerald-950 text-xs block">¿No tienes el formato oficial de columnas?</strong>
+            <span class="text-[10px] text-emerald-800">Descarga la plantilla con encabezados listos: CLIENTE, FECHA, ORIGEN, DESTINO, TRACTO, CARRETA, CONDUCTOR, AUXILIAR.</span>
+          </div>
+          <button type="button" onclick="descargarPlantillaExcelProgramacion()" class="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl flex items-center space-x-1 shrink-0 transition shadow-2xs">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+            <span>Descargar Plantilla (.xlsx)</span>
+          </button>
+        </div>
+
+        <!-- Zona de Carga / Drag & Drop -->
+        <div class="border-2 border-dashed border-slate-300 hover:border-turquoise-500 rounded-3xl p-6 text-center cursor-pointer transition bg-slate-50/50" onclick="document.getElementById('input-archivo-excel-prog').click()">
+          <input type="file" id="input-archivo-excel-prog" accept=".xlsx,.xls,.csv" onchange="procesarArchivoExcelProgramacion(event)" class="hidden">
+          <div class="w-12 h-12 rounded-2xl bg-slate-200 text-slate-600 mx-auto flex items-center justify-center mb-2">
+            <i data-lucide="upload-cloud" class="w-6 h-6 text-turquoise-600"></i>
+          </div>
+          <strong class="text-xs font-bold text-navy-900 block">Haz clic para elegir tu archivo Excel o arrástralo aquí</strong>
+          <span class="text-[10px] text-slate-400 mt-1 block">Formatos admitidos: .xlsx, .xls, .csv</span>
+        </div>
+
+        <!-- Vista Previa de Filas Detectadas -->
+        <div id="cont-preview-excel-prog" class="hidden space-y-2">
+          <div class="flex items-center justify-between">
+            <strong class="text-xs text-navy-900 font-extrabold flex items-center space-x-1">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>Rutas detectadas en el archivo: <span id="lbl-filas-excel-count" class="text-emerald-600 font-bold">0</span></span>
+            </strong>
+            <span class="text-[10px] text-slate-400">Revisa la tabla antes de publicar</span>
+          </div>
+
+          <div class="max-h-52 overflow-x-auto overflow-y-auto rounded-2xl border border-slate-200">
+            <table class="w-full text-left text-[11px] text-slate-700">
+              <thead class="bg-slate-100 text-slate-500 uppercase text-[9px] font-bold sticky top-0">
+                <tr>
+                  <th class="p-2">#</th>
+                  <th class="p-2">Cliente</th>
+                  <th class="p-2">Origen</th>
+                  <th class="p-2">Destino</th>
+                  <th class="p-2">Tracto/Carreta</th>
+                  <th class="p-2">Conductor</th>
+                  <th class="p-2">Auxiliar</th>
+                  <th class="p-2">Fecha</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-preview-excel-prog" class="divide-y divide-slate-100 bg-white"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+        <button type="button" onclick="cerrarModal('modal-supervisor-importar-excel')" class="px-3 py-2 text-slate-500 font-semibold text-xs">Cancelar</button>
+        <button type="button" id="btn-confirmar-excel-prog" disabled onclick="confirmarImportacionMasivaExcel()" class="px-5 py-2.5 bg-emerald-600 disabled:bg-slate-300 disabled:cursor-not-allowed hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-md flex items-center space-x-1.5 transition">
+          <i data-lucide="check-circle" class="w-4 h-4"></i>
+          <span>Confirmar y Publicar en App Móvil y Sheets</span>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -1235,10 +1561,10 @@
       ],
       usuarios: [
         // Accesos Rápidos
-        { id: "USR-000A", usuario: "admin", pass: "admin123", rol: "ADMIN_GENERAL", id_empresa: "TODAS", nombre: "Carlos Benítez (Admin General)", dni: "40123456", telefono: "998877665", estado: "ACTIVO" },
-        { id: "USR-000B", usuario: "supervisor1", pass: "super123", rol: "SUPERVISOR", id_empresa: "TRP-001", nombre: "Marcos Paredes (Supervisor Andinos)", dni: "41234567", telefono: "987654321", estado: "ACTIVO" },
-        { id: "USR-000C", usuario: "supervisor2", pass: "super123", rol: "SUPERVISOR", id_empresa: "TRP-002", nombre: "Valeria Gómez (Supervisor Centro)", dni: "43456789", telefono: "965432109", estado: "ACTIVO" },
-        { id: "USR-000D", usuario: "conductor1", pass: "cond123", rol: "CONDUCTOR", id_empresa: "TRP-001", id_conductor: "CND-001", nombre: "Juan Carlos Pérez", dni: "42345678", telefono: "976543210", estado: "ACTIVO" },
+        { id: "USR-000A", usuario: "admin", pass: "Nexa#Admin2026", rol: "ADMIN_GENERAL", id_empresa: "TODAS", nombre: "Carlos Benítez (Admin General)", dni: "40123456", telefono: "998877665", estado: "ACTIVO" },
+        { id: "USR-000B", usuario: "supervisor1", pass: "Nexa#Super2026", rol: "SUPERVISOR", id_empresa: "TRP-001", nombre: "Marcos Paredes (Supervisor Andinos)", dni: "41234567", telefono: "987654321", estado: "ACTIVO" },
+        { id: "USR-000C", usuario: "supervisor2", pass: "Nexa#Super2026", rol: "SUPERVISOR", id_empresa: "TRP-002", nombre: "Valeria Gómez (Supervisor Centro)", dni: "43456789", telefono: "965432109", estado: "ACTIVO" },
+        { id: "USR-000D", usuario: "conductor1", pass: "Nexa#Cond2026", rol: "CONDUCTOR", id_empresa: "TRP-001", id_conductor: "CND-001", nombre: "Juan Carlos Pérez", dni: "42345678", telefono: "976543210", estado: "ACTIVO" },
         // Accesos Formales
         { id: "USR-001", usuario: "admin.general", pass: "DemoAdmin!4826", rol: "ADMIN_GENERAL", id_empresa: "TODAS", nombre: "Carlos Benítez", dni: "40123456", telefono: "998877665", estado: "ACTIVO" },
         { id: "USR-002", usuario: "supervisor.andinos", pass: "DemoAndinos!7142", rol: "SUPERVISOR", id_empresa: "TRP-001", nombre: "Marcos Paredes", dni: "41234567", telefono: "987654321", estado: "ACTIVO" },
@@ -1609,7 +1935,8 @@
 
       if (sesionActual.rol === "SUPERVISOR") {
         // 3. Solo refrescar si los datos realmente cambiaron en Google Sheets (evita parpadeos)
-        const firmaActual = `${(DB_LOCAL.conductores || []).length}_${(DB_LOCAL.servicios || []).length}_${(DB_LOCAL.usuarios || []).length}`;
+        const totalEvd = (DB_LOCAL.servicios || []).reduce((acc, s) => acc + (s.evidencias || []).length, 0);
+        const firmaActual = `${(DB_LOCAL.conductores || []).length}_${(DB_LOCAL.servicios || []).length}_${(DB_LOCAL.usuarios || []).length}_${totalEvd}`;
         if (firmaActual !== ultimaFirmaDatosSupervisor) {
           ultimaFirmaDatosSupervisor = firmaActual;
           if (seccionSupervisorActual) {
@@ -1683,6 +2010,31 @@
         }
         if (payload.nuevoConductor && !DB_LOCAL.conductores.some(c => c.id_conductor === payload.nuevoConductor.id_conductor || String(c.dni) === String(payload.nuevoConductor.dni))) {
           DB_LOCAL.conductores.push(payload.nuevoConductor);
+        }
+        if (payload.action === "conductor/subir_evidencia" && payload.cod_servicio) {
+          const srv = DB_LOCAL.servicios.find(s => s.cod_servicio === payload.cod_servicio);
+          if (srv) {
+            srv.evidencias = srv.evidencias || [];
+            if (!srv.evidencias.some(e => e.id_evidencia === payload.id_evidencia)) {
+              srv.evidencias.unshift({
+                id_evidencia: payload.id_evidencia,
+                id_empresa: payload.id_empresa,
+                cod_servicio: payload.cod_servicio,
+                parada: payload.parada,
+                tipo_evidencia: payload.tipo_evidencia,
+                conductor: payload.conductor,
+                tracto: payload.tracto,
+                carreta: payload.carreta,
+                observacion: payload.observacion,
+                fecha_captura: payload.fecha_hora_captura,
+                url_foto: payload.foto_base64,
+                latitud: payload.latitud,
+                longitud: payload.longitud,
+                precision_metros: payload.precision_metros,
+                permiso_supervisor: "AUTORIZADO"
+              });
+            }
+          }
         }
       });
     }
@@ -1804,6 +2156,16 @@
                 if (sCloud.PARADA_ACTUAL) DB_LOCAL.servicios[idx].parada_actual = sCloud.PARADA_ACTUAL;
                 if (sCloud.KM_INICIAL) DB_LOCAL.servicios[idx].km_inicial = sCloud.KM_INICIAL;
                 if (sCloud.KM_FINAL) DB_LOCAL.servicios[idx].km_final = sCloud.KM_FINAL;
+                if (sCloud.ID_CONDUCTOR) DB_LOCAL.servicios[idx].id_conductor = sCloud.ID_CONDUCTOR;
+                if (sCloud.PLACA_TRACTO) DB_LOCAL.servicios[idx].placa_tracto = sCloud.PLACA_TRACTO;
+                if (sCloud.PLACA_CARRETA) DB_LOCAL.servicios[idx].placa_carreta = sCloud.PLACA_CARRETA;
+                if (sCloud.CLIENTE_RAZON_SOCIAL) DB_LOCAL.servicios[idx].cliente = sCloud.CLIENTE_RAZON_SOCIAL;
+                if (sCloud.CLIENTE_RUC) DB_LOCAL.servicios[idx].ruc_cliente = sCloud.CLIENTE_RUC;
+                if (sCloud.ORIGEN) DB_LOCAL.servicios[idx].origen = sCloud.ORIGEN;
+                if (sCloud.FECHA_PROGRAMADA) DB_LOCAL.servicios[idx].fecha_programada = sCloud.FECHA_PROGRAMADA;
+                if (sCloud.HORA_PROGRAMADA) DB_LOCAL.servicios[idx].hora_programada = sCloud.HORA_PROGRAMADA;
+                if (sCloud.INSTRUCCIONES) DB_LOCAL.servicios[idx].instrucciones = sCloud.INSTRUCCIONES;
+                if (sCloud.AUXILIAR) DB_LOCAL.servicios[idx].auxiliar = sCloud.AUXILIAR;
               } else {
                 // Nuevo viaje creado en otra PC y guardado en Google Sheets
                 DB_LOCAL.servicios.push({
@@ -1825,6 +2187,7 @@
                   km_final: sCloud.KM_FINAL || null,
                   fecha_programada: sCloud.FECHA_PROGRAMADA || new Date().toLocaleDateString('es-PE'),
                   hora_programada: sCloud.HORA_PROGRAMADA || "08:00",
+                  auxiliar: sCloud.AUXILIAR || "",
                   instrucciones: sCloud.INSTRUCCIONES || "",
                   evidencias: []
                 });
@@ -1990,11 +2353,11 @@
       );
 
       if (!cuenta) {
-        if ((uUser === "admin" || uUser === "admin.general") && (pass === "admin123" || pass === "DemoAdmin!4826")) {
+        if ((uUser === "admin" || uUser === "admin.general") && (pass === "admin123" || pass === "DemoAdmin!4826" || pass === "Nexa#Admin2026")) {
           cuenta = DB_LOCAL.usuarios.find(u => u.rol === "ADMIN_GENERAL");
-        } else if ((uUser === "supervisor" || uUser === "supervisor1") && (pass === "super123" || pass === "DemoAndinos!7142")) {
+        } else if ((uUser === "supervisor" || uUser === "supervisor1") && (pass === "super123" || pass === "DemoAndinos!7142" || pass === "Nexa#Super2026")) {
           cuenta = DB_LOCAL.usuarios.find(u => u.usuario === "supervisor1" || u.usuario === "supervisor.andinos");
-        } else if ((uUser === "conductor" || uUser === "conductor1") && (pass === "cond123" || pass === "RutaAndinos!3658")) {
+        } else if ((uUser === "conductor" || uUser === "conductor1") && (pass === "cond123" || pass === "RutaAndinos!3658" || pass === "Nexa#Cond2026")) {
           cuenta = DB_LOCAL.usuarios.find(u => u.usuario === "conductor1" || u.usuario === "conductor.andinos");
         }
       }
@@ -2075,6 +2438,9 @@
       sesionActual = null;
       try {
         localStorage.removeItem("NEXA_RUTA_ACTIVE_SESSION");
+        localStorage.removeItem("NEXA_RUTA_LAST_SECTION_SUPERVISOR");
+        localStorage.removeItem("NEXA_RUTA_LAST_SECTION_ADMIN");
+        document.documentElement.classList.remove("nexa-sesion-activa");
       } catch(e) {}
       document.getElementById("screen-app-container").classList.add("hidden");
       document.getElementById("btn-top-logout").classList.add("hidden");
@@ -2360,6 +2726,10 @@
           <i data-lucide="layout-dashboard" class="w-4 h-4 text-turquoise-400"></i>
           <span>Dashboard de Flota</span>
         </button>
+        <button onclick="mostrarSeccionSupervisor('programacion')" id="sup-menu-programacion" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
+          <i data-lucide="calendar-plus" class="w-4 h-4 text-turquoise-400"></i>
+          <span>Programación</span>
+        </button>
         <button onclick="mostrarSeccionSupervisor('conductores')" id="sup-menu-conductores" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
           <i data-lucide="users" class="w-4 h-4"></i>
           <span>Conductores de mi flota</span>
@@ -2378,14 +2748,21 @@
         </button>
       `;
 
-      mostrarSeccionSupervisor('dashboard');
+      let secRestaurar = 'dashboard';
+      try {
+        secRestaurar = localStorage.getItem("NEXA_RUTA_LAST_SECTION_SUPERVISOR") || 'dashboard';
+      } catch(e) {}
+      mostrarSeccionSupervisor(secRestaurar);
       lucide.createIcons();
     }
 
     function mostrarSeccionSupervisor(seccion) {
       seccionSupervisorActual = seccion;
+      try {
+        localStorage.setItem("NEXA_RUTA_LAST_SECTION_SUPERVISOR", seccion);
+      } catch(e) {}
       toggleMenuMobile(false);
-      ['dashboard', 'conductores', 'servicios', 'evidencias', 'incidencias'].forEach(s => {
+      ['dashboard', 'programacion', 'conductores', 'servicios', 'evidencias', 'incidencias'].forEach(s => {
         const btn = document.getElementById(`sup-menu-${s}`);
         if (btn) {
           btn.className = s === seccion 
@@ -2407,7 +2784,9 @@
         return acc + Math.max(0, fin - ini);
       }, 0);
 
-      if (seccion === 'dashboard') {
+      if (seccion === 'programacion') {
+        renderizarPanelProgramacion(main, serviciosEmpresa, conductoresEmpresa);
+      } else if (seccion === 'dashboard') {
         main.innerHTML = `
           <div class="p-6 space-y-6">
             <!-- Encabezado del Dashboard del Supervisor -->
@@ -2775,6 +3154,12 @@
                   <div class="p-3 text-xs">
                     <strong class="text-slate-800 font-semibold block truncate">${e.parada}</strong>
                     <span class="text-[10px] text-slate-400 block">${e.conductor} • ${e.fecha_captura}</span>
+                    ${e.latitud && e.longitud ? `
+                      <a href="https://maps.google.com/?q=${e.latitud},${e.longitud}" target="_blank" class="inline-flex items-center space-x-1 text-[10px] text-turquoise-700 font-bold hover:underline mt-1">
+                        <i data-lucide="map-pin" class="w-3 h-3 text-turquoise-600"></i>
+                        <span>GPS: ${Number(e.latitud).toFixed(4)}, ${Number(e.longitud).toFixed(4)}</span>
+                      </a>
+                    ` : ''}
                   </div>
                 </div>
               `).join('')}
@@ -3018,10 +3403,13 @@
       }
 
       // Limpiar campos previos
-      ["sup-cnd-nombres", "sup-cnd-apellidos", "sup-cnd-dni", "sup-cnd-tel", "sup-cnd-licencia", "sup-cnd-user", "sup-cnd-pass"].forEach(id => {
+      ["sup-cnd-nombres", "sup-cnd-apellidos", "sup-cnd-dni", "sup-cnd-tel", "sup-cnd-licencia", "sup-cnd-user"].forEach(id => {
         const inp = document.getElementById(id);
         if (inp) inp.value = "";
       });
+      // Clave segura robusta por defecto (previene advertencias de contraseñas vulneradas de Google Android)
+      const inpPassCnd = document.getElementById("sup-cnd-pass");
+      if (inpPassCnd) inpPassCnd.value = "Nexa#" + Math.floor(1000 + Math.random() * 9000);
 
       const modal = document.getElementById("modal-supervisor-crear-conductor");
       if (modal) modal.classList.remove("hidden");
@@ -3147,7 +3535,7 @@
       document.getElementById("edit-sup-cnd-cat").value = cnd.categoria || 'A-IIIc';
 
       document.getElementById("edit-sup-cnd-user").value = usr ? usr.usuario : (cnd.dni || 'conductor');
-      document.getElementById("edit-sup-cnd-pass").value = usr ? usr.pass : 'cond123';
+      document.getElementById("edit-sup-cnd-pass").value = usr ? usr.pass : ('Nexa#' + Math.floor(1000 + Math.random() * 9000));
 
       document.getElementById("modal-supervisor-editar-conductor").classList.remove("hidden");
       lucide.createIcons();
@@ -3246,6 +3634,713 @@
         });
       } else {
         mostrarToast("Copia los datos de la pantalla", "info");
+      }
+    }
+
+    // =========================================================================
+    // PANEL MAESTRO DE PROGRAMACIÓN DE SERVICIOS Y RUTAS (SUPERVISOR)
+    // =========================================================================
+    let filtroEstadoProg = 'TODOS';
+    let filtroBusquedaProg = '';
+    let rutasExcelCargadas = [];
+
+    function renderizarPanelProgramacion(main, serviciosEmpresa, conductoresEmpresa) {
+      const servicios = serviciosEmpresa || [];
+      const conductores = conductoresEmpresa || [];
+
+      // Conteo de KPIs
+      const totalProg = servicios.length;
+      const countPendientes = servicios.filter(s => s.estado === 'Programado' || s.estado === 'Asignado').length;
+      const countEnRuta = servicios.filter(s => (s.estado || '').includes('tránsito') || (s.estado || '').includes('camino') || s.estado === 'En ruta').length;
+      const countFinalizados = servicios.filter(s => s.estado === 'Finalizado').length;
+
+      // Filtrado según búsqueda y estado
+      let listaFiltrada = servicios.filter(s => {
+        if (filtroEstadoProg === 'PROGRAMADOS' && (s.estado !== 'Programado' && s.estado !== 'Asignado')) return false;
+        if (filtroEstadoProg === 'EN_RUTA' && !((s.estado || '').includes('tránsito') || (s.estado || '').includes('camino') || s.estado === 'En ruta')) return false;
+        if (filtroEstadoProg === 'FINALIZADOS' && s.estado !== 'Finalizado') return false;
+
+        if (filtroBusquedaProg) {
+          const q = filtroBusquedaProg.toLowerCase();
+          const matchCod = (s.cod_servicio || '').toLowerCase().includes(q);
+          const matchCli = (s.cliente || '').toLowerCase().includes(q);
+          const matchCnd = (s.conductor_nombre || '').toLowerCase().includes(q);
+          const matchAux = (s.auxiliar || '').toLowerCase().includes(q);
+          const matchTracto = (s.placa_tracto || '').toLowerCase().includes(q);
+          const matchDest = (s.parada_actual || '').toLowerCase().includes(q);
+          return matchCod || matchCli || matchCnd || matchAux || matchTracto || matchDest;
+        }
+        return true;
+      });
+
+      main.innerHTML = `
+        <div class="p-4 sm:p-6 space-y-6">
+          <!-- Encabezado con Flujo Informativo -->
+          <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+              <div class="flex items-center space-x-2">
+                <h2 class="text-xl font-black text-navy-900 tracking-tight">Programación de Servicios y Rutas</h2>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-turquoise-100 text-turquoise-800 border border-turquoise-200">
+                  <span class="w-1.5 h-1.5 rounded-full bg-turquoise-600 animate-pulse mr-1"></span>
+                  Paso 1, 2 y 3 del Flujo
+                </span>
+              </div>
+              <p class="text-xs text-slate-500 mt-0.5">${obtenerNombreEmpresa(sesionActual.id_empresa)} • Registro manual o por Excel, asignación de conductor, auxiliar, transporte y publicación móvil</p>
+            </div>
+
+            <!-- Botones de Acción de Programación -->
+            <div class="flex flex-wrap items-center gap-2">
+              <button onclick="abrirModalCrearProgramacion()" class="px-3.5 py-2 bg-gradient-to-r from-turquoise-600 to-cyan-500 hover:from-turquoise-500 hover:to-cyan-400 text-white text-xs font-extrabold rounded-xl flex items-center space-x-1.5 shadow-md transform active:scale-95 transition">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                <span>+ Nueva Programación</span>
+              </button>
+
+              <button onclick="abrirModalImportarExcelProgramacion()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold rounded-xl flex items-center space-x-1.5 shadow-sm transform active:scale-95 transition">
+                <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+                <span>Cargar por Excel</span>
+              </button>
+
+              <button onclick="descargarPlantillaExcelProgramacion()" class="px-3 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl flex items-center space-x-1.5 shadow-2xs transition" title="Descargar plantilla Excel para llenar rutas">
+                <i data-lucide="download" class="w-3.5 h-3.5 text-emerald-600"></i>
+                <span>Plantilla</span>
+              </button>
+
+              <button onclick="exportarExcelSupervisor()" class="px-3 py-2 bg-navy-900 hover:bg-navy-800 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 shadow-2xs transition">
+                <i data-lucide="share" class="w-3.5 h-3.5 text-turquoise-400"></i>
+                <span>Exportar (.xlsx)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Cuadros KPI de Programación -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+            <div class="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
+              <span class="text-slate-400 block font-bold text-[9px] uppercase tracking-wider">1. Programados</span>
+              <strong class="text-xl font-black text-navy-900 block mt-1">${countPendientes}</strong>
+              <span class="text-[10px] text-slate-400 block mt-0.5">Por iniciar viaje</span>
+            </div>
+
+            <div class="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
+              <span class="text-slate-400 block font-bold text-[9px] uppercase tracking-wider">2. En Ruta Activa</span>
+              <strong class="text-xl font-black text-amber-600 block mt-1">${countEnRuta}</strong>
+              <span class="text-[10px] text-slate-400 block mt-0.5">Con GPS y odómetro</span>
+            </div>
+
+            <div class="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
+              <span class="text-slate-400 block font-bold text-[9px] uppercase tracking-wider">3. Finalizados</span>
+              <strong class="text-xl font-black text-emerald-600 block mt-1">${countFinalizados}</strong>
+              <span class="text-[10px] text-slate-400 block mt-0.5">Completados</span>
+            </div>
+
+            <div class="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
+              <span class="text-slate-400 block font-bold text-[9px] uppercase tracking-wider">Total Registrados</span>
+              <strong class="text-xl font-black text-navy-900 block mt-1">${totalProg}</strong>
+              <span class="text-[10px] text-slate-400 block mt-0.5">En Google Sheets</span>
+            </div>
+          </div>
+
+          <!-- Barra de Filtros y Buscador Interactivo -->
+          <div class="bg-white rounded-2xl p-3 border border-slate-200 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <!-- Tabs de Estado -->
+            <div class="flex items-center space-x-1.5 overflow-x-auto text-xs pb-1 sm:pb-0">
+              <button onclick="filtrarProgramacionPorEstado('TODOS')" class="px-3 py-1.5 rounded-xl font-bold transition ${filtroEstadoProg === 'TODOS' ? 'bg-navy-900 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'}">
+                Todos (${totalProg})
+              </button>
+              <button onclick="filtrarProgramacionPorEstado('PROGRAMADOS')" class="px-3 py-1.5 rounded-xl font-bold transition ${filtroEstadoProg === 'PROGRAMADOS' ? 'bg-navy-900 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'}">
+                Programados (${countPendientes})
+              </button>
+              <button onclick="filtrarProgramacionPorEstado('EN_RUTA')" class="px-3 py-1.5 rounded-xl font-bold transition ${filtroEstadoProg === 'EN_RUTA' ? 'bg-navy-900 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'}">
+                En Ruta (${countEnRuta})
+              </button>
+              <button onclick="filtrarProgramacionPorEstado('FINALIZADOS')" class="px-3 py-1.5 rounded-xl font-bold transition ${filtroEstadoProg === 'FINALIZADOS' ? 'bg-navy-900 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'}">
+                Finalizados (${countFinalizados})
+              </button>
+            </div>
+
+            <!-- Buscador -->
+            <div class="relative w-full sm:w-64">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <i data-lucide="search" class="w-3.5 h-3.5"></i>
+              </div>
+              <input type="text" value="${filtroBusquedaProg}" oninput="filtrarProgramacionPorTexto(this.value)" placeholder="Buscar código, cliente, conductor, placa..." class="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-turquoise-500 focus:outline-none">
+            </div>
+          </div>
+
+          <!-- Listado de Programaciones (Tabla en escritorio, Tarjetas en móvil) -->
+          <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+            ${listaFiltrada.length === 0 ? `
+              <div class="text-center py-12 px-4">
+                <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 mx-auto flex items-center justify-center mb-2">
+                  <i data-lucide="calendar-x" class="w-6 h-6"></i>
+                </div>
+                <strong class="text-xs font-bold text-navy-900 block">No hay servicios que coincidan con el filtro</strong>
+                <p class="text-[11px] text-slate-500 mt-1">Crea una nueva programación manual o importa rutas masivas desde un archivo Excel.</p>
+                <button onclick="abrirModalCrearProgramacion()" class="mt-3 px-4 py-2 bg-turquoise-600 text-white text-xs font-bold rounded-xl inline-flex items-center space-x-1.5 shadow-xs">
+                  <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                  <span>Crear Primera Programación</span>
+                </button>
+              </div>
+            ` : `
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs text-slate-700">
+                  <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[9px] tracking-wider">
+                    <tr>
+                      <th class="p-3.5">Código / Fecha</th>
+                      <th class="p-3.5">Cliente</th>
+                      <th class="p-3.5">Ruta (Origen → Destino)</th>
+                      <th class="p-3.5">Unidad (Tracto / Carreta)</th>
+                      <th class="p-3.5">Personal (Conductor + Auxiliar)</th>
+                      <th class="p-3.5">Estado Operativo</th>
+                      <th class="p-3.5 text-right">Modificaciones y Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100">
+                    ${listaFiltrada.map(s => {
+                      const estColor = (s.estado === 'Programado' || s.estado === 'Asignado')
+                        ? 'bg-cyan-50 text-cyan-800 border-cyan-200'
+                        : (s.estado === 'Finalizado'
+                          ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                          : 'bg-amber-50 text-amber-800 border-amber-200');
+
+                      return `
+                        <tr class="hover:bg-slate-50/80 transition">
+                          <!-- Código y Fecha -->
+                          <td class="p-3.5">
+                            <span class="font-mono font-extrabold text-navy-900 text-xs block">${s.cod_servicio}</span>
+                            <span class="text-[10px] text-slate-400 block font-medium">${s.fecha_programada || 'Hoy'} ${s.hora_programada ? '• ' + s.hora_programada : ''}</span>
+                          </td>
+
+                          <!-- Cliente -->
+                          <td class="p-3.5">
+                            <strong class="text-slate-800 font-semibold block truncate max-w-[160px]">${s.cliente}</strong>
+                            <span class="text-[10px] text-slate-400 font-mono block">${s.ruc_cliente ? 'RUC: ' + s.ruc_cliente : 'Sin RUC'}</span>
+                          </td>
+
+                          <!-- Origen y Destino -->
+                          <td class="p-3.5">
+                            <span class="text-[11px] text-slate-600 block truncate max-w-[180px]">De: <strong>${s.origen}</strong></span>
+                            <span class="text-[11px] text-turquoise-800 font-bold block truncate max-w-[180px]">A: <strong>${s.parada_actual}</strong></span>
+                          </td>
+
+                          <!-- Transporte -->
+                          <td class="p-3.5 font-mono text-xs">
+                            <span class="px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200 font-bold text-navy-900 text-[10px] inline-block">${s.placa_tracto}</span>
+                            <span class="text-[10px] text-slate-400 ml-1">/ ${s.placa_carreta}</span>
+                          </td>
+
+                          <!-- Conductor y Auxiliar -->
+                          <td class="p-3.5">
+                            <strong class="text-slate-800 font-bold block text-xs truncate max-w-[160px]">${s.conductor_nombre}</strong>
+                            <span class="text-[10px] text-slate-500 block truncate max-w-[160px]">${s.auxiliar ? 'Aux: ' + s.auxiliar : '<em class="text-slate-400 font-normal">Sin auxiliar</em>'}</span>
+                          </td>
+
+                          <!-- Estado -->
+                          <td class="p-3.5">
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold border inline-block ${estColor}">
+                              ${s.estado}
+                            </span>
+                          </td>
+
+                          <!-- Acciones de Modificación -->
+                          <td class="p-3.5 text-right">
+                            <div class="flex items-center justify-end space-x-1.5">
+                              <button onclick="abrirModalModificarProgramacion('${s.cod_servicio}')" class="px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 text-[11px] font-bold rounded-xl flex items-center space-x-1 transition shadow-2xs" title="Modificar conductor, placas, auxiliar o ruta">
+                                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                                <span>Modificar</span>
+                              </button>
+
+                              <button onclick="abrirSeguimientoMapaConductor('${s.id_conductor}')" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl transition" title="Ver en Mapa y Odómetro">
+                                <i data-lucide="map-pin" class="w-4 h-4 text-turquoise-600"></i>
+                              </button>
+
+                              <button onclick="cancelarOEliminarServicio('${s.cod_servicio}')" class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl transition" title="Cancelar o Eliminar servicio">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      `;
+                    }).join('')}
+                  </tbody>
+                </table>
+              </div>
+            `}
+          </div>
+        </div>
+      `;
+
+      lucide.createIcons();
+    }
+
+    function filtrarProgramacionPorEstado(estado) {
+      filtroEstadoProg = estado;
+      const srvs = DB_LOCAL.servicios.filter(s => !s.id_empresa || s.id_empresa === 'TODAS' || s.id_empresa === sesionActual.id_empresa);
+      const cnds = DB_LOCAL.conductores.filter(c => !c.id_empresa || c.id_empresa === 'TODAS' || c.id_empresa === sesionActual.id_empresa);
+      renderizarPanelProgramacion(document.getElementById("main-stage-area"), srvs, cnds);
+    }
+
+    function filtrarProgramacionPorTexto(texto) {
+      filtroBusquedaProg = texto;
+      const srvs = DB_LOCAL.servicios.filter(s => !s.id_empresa || s.id_empresa === 'TODAS' || s.id_empresa === sesionActual.id_empresa);
+      const cnds = DB_LOCAL.conductores.filter(c => !c.id_empresa || c.id_empresa === 'TODAS' || c.id_empresa === sesionActual.id_empresa);
+      renderizarPanelProgramacion(document.getElementById("main-stage-area"), srvs, cnds);
+    }
+
+    // ABRIR MODAL: CREAR PROGRAMACIÓN MANUAL
+    function abrirModalCrearProgramacion() {
+      const hoy = new Date().toISOString().slice(0, 10);
+      const codSrv = "SRV-" + new Date().getFullYear() + "-" + Math.floor(1000 + Math.random() * 9000);
+
+      document.getElementById("prog-crear-cod").value = codSrv;
+      document.getElementById("prog-crear-fecha").value = hoy;
+      document.getElementById("prog-crear-hora").value = "08:00";
+      document.getElementById("prog-crear-cliente").value = "";
+      document.getElementById("prog-crear-ruc").value = "";
+      document.getElementById("prog-crear-origen").value = "Almacén Central Callao";
+      document.getElementById("prog-crear-destino").value = "";
+      document.getElementById("prog-crear-auxiliar").value = "";
+      document.getElementById("prog-crear-obs").value = "";
+
+      // Llenar selectores con flota y conductores de la empresa activa
+      const cnds = DB_LOCAL.conductores.filter(c => !c.id_empresa || c.id_empresa === 'TODAS' || c.id_empresa === sesionActual.id_empresa);
+      const selCnd = document.getElementById("prog-crear-conductor");
+      if (selCnd) {
+        selCnd.innerHTML = cnds.map(c => `<option value="${c.id_conductor}">${c.nombre} (${c.estado}) - Brevete: ${c.licencia}</option>`).join('');
+      }
+
+      // Tractos y Carretas
+      const selTracto = document.getElementById("prog-crear-tracto");
+      if (selTracto) {
+        const tractosUnicos = Array.from(new Set(cnds.map(c => c.placa_tracto).filter(Boolean)));
+        if (!tractosUnicos.includes("V7X-890")) tractosUnicos.unshift("V7X-890");
+        if (!tractosUnicos.includes("F4C-902")) tractosUnicos.push("F4C-902");
+        if (!tractosUnicos.includes("T3B-891")) tractosUnicos.push("T3B-891");
+        selTracto.innerHTML = tractosUnicos.map(p => `<option value="${p}">${p}</option>`).join('');
+      }
+
+      const selCarreta = document.getElementById("prog-crear-carreta");
+      if (selCarreta) {
+        const carretasUnicas = Array.from(new Set(cnds.map(c => c.placa_carreta).filter(Boolean)));
+        if (!carretasUnicas.includes("TC8-120")) carretasUnicas.unshift("TC8-120");
+        if (!carretasUnicas.includes("TR8-901")) carretasUnicas.push("TR8-901");
+        if (!carretasUnicas.includes("C1M-552")) carretasUnicas.push("C1M-552");
+        selCarreta.innerHTML = carretasUnicas.map(p => `<option value="${p}">${p}</option>`).join('');
+      }
+
+      document.getElementById("modal-supervisor-crear-programacion").classList.remove("hidden");
+      lucide.createIcons();
+    }
+
+    async function guardarNuevaProgramacionManual() {
+      const codServicio = document.getElementById("prog-crear-cod").value;
+      const fecha = document.getElementById("prog-crear-fecha").value;
+      const hora = document.getElementById("prog-crear-hora").value;
+      const cliente = document.getElementById("prog-crear-cliente").value.trim();
+      const ruc = document.getElementById("prog-crear-ruc").value.trim();
+      const origen = document.getElementById("prog-crear-origen").value.trim();
+      const destino = document.getElementById("prog-crear-destino").value.trim();
+      const idCnd = document.getElementById("prog-crear-conductor").value;
+      const aux = document.getElementById("prog-crear-auxiliar").value.trim();
+      const tracto = document.getElementById("prog-crear-tracto").value;
+      const carreta = document.getElementById("prog-crear-carreta").value;
+      const km = Number(document.getElementById("prog-crear-km").value) || 148500;
+      const obs = document.getElementById("prog-crear-obs").value.trim();
+
+      if (!cliente || !origen || !destino || !idCnd) {
+        mostrarToast("Completa los datos obligatorios de la programación", "error");
+        return;
+      }
+
+      const cnd = DB_LOCAL.conductores.find(c => c.id_conductor === idCnd);
+
+      const nuevoSrv = {
+        cod_servicio: codServicio,
+        id_empresa: sesionActual ? sesionActual.id_empresa : 'TRP-001',
+        cliente: cliente,
+        ruc_cliente: ruc,
+        id_conductor: idCnd,
+        conductor_nombre: cnd ? cnd.nombre : "Conductor",
+        conductor_dni: cnd ? cnd.dni : "",
+        conductor_licencia: cnd ? cnd.licencia : "",
+        auxiliar: aux,
+        placa_tracto: tracto,
+        placa_carreta: carreta,
+        origen: origen,
+        cantidad_destinos: 1,
+        parada_actual: destino,
+        paradas: [{ id: "DST-1", orden: 1, nombre: destino, estado: "PENDIENTE" }],
+        estado: "Programado",
+        alerta_retraso: "A TIEMPO",
+        km_inicial: km,
+        km_final: null,
+        fecha_programada: fecha,
+        hora_programada: hora,
+        instrucciones: obs,
+        eventos: [],
+        evidencias: []
+      };
+
+      DB_LOCAL.servicios.unshift(nuevoSrv);
+      guardarBaseDatosLocal();
+
+      // Enviar y encolar a Google Sheets
+      const payloadAsignar = {
+        action: "supervisor/asignar_ruta",
+        cod_servicio: codServicio,
+        id_empresa: nuevoSrv.id_empresa,
+        cliente_razon_social: cliente,
+        cliente_ruc: ruc,
+        id_conductor: idCnd,
+        placa_tracto: tracto,
+        placa_carreta: carreta,
+        origen: origen,
+        parada_actual: destino,
+        destinos: [{ id: "DST-1", punto_llegada: destino, orden: 1 }],
+        estado: "Programado",
+        km_inicial: km,
+        fecha_programada: fecha,
+        hora_programada: hora,
+        instrucciones: obs,
+        auxiliar: aux
+      };
+
+      encolarPendiente(payloadAsignar);
+      enviarPendientesNube().then(n => {
+        if (n > 0) {
+          mostrarToast(`✅ Programación ${codServicio} publicada en Google Sheets`, "success");
+          ejecutarSincronizacionBidireccional(false);
+        }
+      }).catch(err => console.warn("Sync Sheets programacion:", err));
+
+      notificarCambioRealtime({ tipo: "PROGRAMACION_PUBLICADA", cod_servicio: codServicio });
+
+      cerrarModal("modal-supervisor-crear-programacion");
+      mostrarToast(`✅ Programación ${codServicio} publicada. Conductor asignado ya puede verla en su móvil.`, "success");
+      mostrarSeccionSupervisor('programacion');
+    }
+
+    // ABRIR MODAL: MODIFICAR PROGRAMACIÓN EXISTENTE
+    function abrirModalModificarProgramacion(codServicio) {
+      const srv = DB_LOCAL.servicios.find(s => s.cod_servicio === codServicio);
+      if (!srv) return;
+
+      document.getElementById("prog-edit-cod-hidden").value = srv.cod_servicio;
+      document.getElementById("prog-edit-cod-badge").textContent = srv.cod_servicio;
+      document.getElementById("prog-edit-fecha").value = srv.fecha_programada || new Date().toISOString().slice(0, 10);
+      document.getElementById("prog-edit-hora").value = srv.hora_programada || "08:00";
+      document.getElementById("prog-edit-cliente").value = srv.cliente || "";
+      document.getElementById("prog-edit-ruc").value = srv.ruc_cliente || "";
+      document.getElementById("prog-edit-origen").value = srv.origen || "";
+      document.getElementById("prog-edit-destino").value = srv.parada_actual || "";
+      document.getElementById("prog-edit-auxiliar").value = srv.auxiliar || "";
+      document.getElementById("prog-edit-estado").value = srv.estado || "Programado";
+      document.getElementById("prog-edit-obs").value = srv.instrucciones || "";
+
+      // Llenar selectores
+      const cnds = DB_LOCAL.conductores.filter(c => !c.id_empresa || c.id_empresa === 'TODAS' || c.id_empresa === sesionActual.id_empresa);
+      const selCnd = document.getElementById("prog-edit-conductor");
+      if (selCnd) {
+        selCnd.innerHTML = cnds.map(c => `<option value="${c.id_conductor}" ${c.id_conductor === srv.id_conductor ? 'selected' : ''}>${c.nombre} (${c.estado})</option>`).join('');
+      }
+
+      const selTracto = document.getElementById("prog-edit-tracto");
+      if (selTracto) {
+        const tractosUnicos = Array.from(new Set(cnds.map(c => c.placa_tracto).concat([srv.placa_tracto]).filter(Boolean)));
+        selTracto.innerHTML = tractosUnicos.map(p => `<option value="${p}" ${p === srv.placa_tracto ? 'selected' : ''}>${p}</option>`).join('');
+      }
+
+      const selCarreta = document.getElementById("prog-edit-carreta");
+      if (selCarreta) {
+        const carretasUnicas = Array.from(new Set(cnds.map(c => c.placa_carreta).concat([srv.placa_carreta]).filter(Boolean)));
+        selCarreta.innerHTML = carretasUnicas.map(p => `<option value="${p}" ${p === srv.placa_carreta ? 'selected' : ''}>${p}</option>`).join('');
+      }
+
+      document.getElementById("modal-supervisor-modificar-programacion").classList.remove("hidden");
+      lucide.createIcons();
+    }
+
+    async function guardarModificacionProgramacion() {
+      const codServicio = document.getElementById("prog-edit-cod-hidden").value;
+      const srv = DB_LOCAL.servicios.find(s => s.cod_servicio === codServicio);
+      if (!srv) return;
+
+      const fecha = document.getElementById("prog-edit-fecha").value;
+      const hora = document.getElementById("prog-edit-hora").value;
+      const cliente = document.getElementById("prog-edit-cliente").value.trim();
+      const ruc = document.getElementById("prog-edit-ruc").value.trim();
+      const origen = document.getElementById("prog-edit-origen").value.trim();
+      const destino = document.getElementById("prog-edit-destino").value.trim();
+      const idCnd = document.getElementById("prog-edit-conductor").value;
+      const aux = document.getElementById("prog-edit-auxiliar").value.trim();
+      const tracto = document.getElementById("prog-edit-tracto").value;
+      const carreta = document.getElementById("prog-edit-carreta").value;
+      const estado = document.getElementById("prog-edit-estado").value;
+      const obs = document.getElementById("prog-edit-obs").value.trim();
+
+      const cnd = DB_LOCAL.conductores.find(c => c.id_conductor === idCnd);
+
+      // Actualizar objeto en memoria
+      srv.cliente = cliente;
+      srv.ruc_cliente = ruc;
+      srv.fecha_programada = fecha;
+      srv.hora_programada = hora;
+      srv.origen = origen;
+      srv.parada_actual = destino;
+      srv.id_conductor = idCnd;
+      srv.conductor_nombre = cnd ? cnd.nombre : srv.conductor_nombre;
+      srv.auxiliar = aux;
+      srv.placa_tracto = tracto;
+      srv.placa_carreta = carreta;
+      srv.estado = estado;
+      srv.instrucciones = obs;
+
+      guardarBaseDatosLocal();
+
+      // Enviar a Google Sheets
+      const payloadModificar = {
+        action: "supervisor/asignar_ruta",
+        cod_servicio: codServicio,
+        id_empresa: srv.id_empresa,
+        cliente_razon_social: cliente,
+        cliente_ruc: ruc,
+        id_conductor: idCnd,
+        placa_tracto: tracto,
+        placa_carreta: carreta,
+        origen: origen,
+        parada_actual: destino,
+        destinos: [{ id: "DST-1", punto_llegada: destino, orden: 1 }],
+        estado: estado,
+        fecha_programada: fecha,
+        hora_programada: hora,
+        instrucciones: obs,
+        auxiliar: aux
+      };
+
+      encolarPendiente(payloadModificar);
+      enviarPendientesNube().then(() => {
+        mostrarToast(`✅ Modificaciones de ${codServicio} sincronizadas en Sheets`, "success");
+        ejecutarSincronizacionBidireccional(false);
+      });
+
+      notificarCambioRealtime({ tipo: "PROGRAMACION_MODIFICADA", cod_servicio: codServicio });
+
+      cerrarModal("modal-supervisor-modificar-programacion");
+      mostrarToast(`✅ Programación ${codServicio} modificada con éxito`, "success");
+      mostrarSeccionSupervisor('programacion');
+    }
+
+    // ABRIR MODAL: IMPORTAR EXCEL
+    function abrirModalImportarExcelProgramacion() {
+      rutasExcelCargadas = [];
+      const cont = document.getElementById("cont-preview-excel-prog");
+      if (cont) cont.classList.add("hidden");
+      const btn = document.getElementById("btn-confirmar-excel-prog");
+      if (btn) btn.disabled = true;
+      const inp = document.getElementById("input-archivo-excel-prog");
+      if (inp) inp.value = "";
+
+      document.getElementById("modal-supervisor-importar-excel").classList.remove("hidden");
+      lucide.createIcons();
+    }
+
+    function procesarArchivoExcelProgramacion(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      mostrarToast("Procesando archivo Excel...", "info");
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          const jsonRows = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+
+          if (!jsonRows || jsonRows.length === 0) {
+            mostrarToast("El archivo Excel está vacío o no contiene filas con datos", "error");
+            return;
+          }
+
+          // Mapear encabezados flexibles (Español o mayúsculas)
+          rutasExcelCargadas = jsonRows.map((r, i) => {
+            const cliente = r.CLIENTE || r.Cliente || r.cliente || r['RAZON SOCIAL'] || r['Razón Social'] || "Cliente General";
+            const ruc = String(r.RUC || r.Ruc || r.ruc || "");
+            const origen = r.ORIGEN || r.Origen || r.origen || "Almacén Central Callao";
+            const destino = r.DESTINO || r.Destino || r.destino || r['PUNTO DE LLEGADA'] || "Planta Destino";
+            const tracto = String(r.TRACTO || r.Tracto || r.tracto || r.PLACA || "V7X-890").trim().toUpperCase();
+            const carreta = String(r.CARRETA || r.Carreta || r.carreta || "TC8-120").trim().toUpperCase();
+            const conductor = r.CONDUCTOR || r.Conductor || r.conductor || r.CHOFER || "";
+            const auxiliar = r.AUXILIAR || r.Auxiliar || r.auxiliar || "";
+            const fecha = String(r.FECHA || r.Fecha || r.fecha || new Date().toISOString().slice(0, 10));
+
+            return {
+              fila: i + 1,
+              cliente: cliente,
+              ruc: ruc,
+              origen: origen,
+              destino: destino,
+              tracto: tracto,
+              carreta: carreta,
+              conductor: conductor,
+              auxiliar: auxiliar,
+              fecha: fecha
+            };
+          });
+
+          // Renderizar tabla previa
+          const tbody = document.getElementById("tbody-preview-excel-prog");
+          tbody.innerHTML = rutasExcelCargadas.map(r => `
+            <tr class="hover:bg-slate-50">
+              <td class="p-2 font-bold text-slate-400">${r.fila}</td>
+              <td class="p-2 font-bold text-navy-900 truncate max-w-[140px]">${r.cliente}</td>
+              <td class="p-2 text-slate-600 truncate max-w-[120px]">${r.origen}</td>
+              <td class="p-2 font-bold text-turquoise-800 truncate max-w-[120px]">${r.destino}</td>
+              <td class="p-2 font-mono text-[10px]">${r.tracto} / ${r.carreta}</td>
+              <td class="p-2 font-semibold truncate max-w-[120px]">${r.conductor || '<span class="text-amber-600 font-normal">Por asignar</span>'}</td>
+              <td class="p-2 text-slate-500 truncate max-w-[100px]">${r.auxiliar || '-'}</td>
+              <td class="p-2 font-mono text-[10px]">${r.fecha}</td>
+            </tr>
+          `).join('');
+
+          document.getElementById("lbl-filas-excel-count").textContent = rutasExcelCargadas.length;
+          document.getElementById("cont-preview-excel-prog").classList.remove("hidden");
+          document.getElementById("btn-confirmar-excel-prog").disabled = false;
+
+          mostrarToast(`✅ Se detectaron ${rutasExcelCargadas.length} rutas en el archivo Excel`, "success");
+        } catch(errXls) {
+          console.error("Error al leer Excel:", errXls);
+          mostrarToast("No se pudo interpretar el archivo Excel. Verifica el formato.", "error");
+        }
+      };
+
+      reader.readAsArrayBuffer(file);
+    }
+
+    async function confirmarImportacionMasivaExcel() {
+      if (!rutasExcelCargadas || rutasExcelCargadas.length === 0) return;
+
+      const cnds = DB_LOCAL.conductores.filter(c => !c.id_empresa || c.id_empresa === 'TODAS' || c.id_empresa === sesionActual.id_empresa);
+
+      mostrarToast(`Publicando ${rutasExcelCargadas.length} programaciones en Google Sheets...`, "info");
+
+      for (let i = 0; i < rutasExcelCargadas.length; i++) {
+        const r = rutasExcelCargadas[i];
+        const cod = "SRV-" + new Date().getFullYear() + "-" + Math.floor(1000 + Math.random() * 9000);
+
+        // Encontrar conductor por nombre si coincide
+        let cFound = cnds.find(c => r.conductor && c.nombre.toLowerCase().includes(r.conductor.toLowerCase()));
+        if (!cFound) {
+          cFound = cnds[i % cnds.length] || { id_conductor: "CND-001", nombre: r.conductor || "Conductor Asignado" };
+        }
+
+        const srv = {
+          cod_servicio: cod,
+          id_empresa: sesionActual ? sesionActual.id_empresa : 'TRP-001',
+          cliente: r.cliente,
+          ruc_cliente: r.ruc,
+          id_conductor: cFound.id_conductor,
+          conductor_nombre: cFound.nombre,
+          conductor_dni: cFound.dni || "",
+          conductor_licencia: cFound.licencia || "",
+          auxiliar: r.auxiliar,
+          placa_tracto: r.tracto || "V7X-890",
+          placa_carreta: r.carreta || "TC8-120",
+          origen: r.origen,
+          cantidad_destinos: 1,
+          parada_actual: r.destino,
+          paradas: [{ id: "DST-1", orden: 1, nombre: r.destino, estado: "PENDIENTE" }],
+          estado: "Programado",
+          alerta_retraso: "A TIEMPO",
+          km_inicial: 148500,
+          km_final: null,
+          fecha_programada: r.fecha,
+          hora_programada: "08:00",
+          instrucciones: "Cargado masivamente por Excel",
+          eventos: [],
+          evidencias: []
+        };
+
+        DB_LOCAL.servicios.unshift(srv);
+
+        const payloadAsignar = {
+          action: "supervisor/asignar_ruta",
+          cod_servicio: cod,
+          id_empresa: srv.id_empresa,
+          cliente_razon_social: srv.cliente,
+          cliente_ruc: srv.ruc_cliente,
+          id_conductor: srv.id_conductor,
+          placa_tracto: srv.placa_tracto,
+          placa_carreta: srv.placa_carreta,
+          origen: srv.origen,
+          parada_actual: srv.parada_actual,
+          destinos: [{ id: "DST-1", punto_llegada: srv.parada_actual, orden: 1 }],
+          estado: "Programado",
+          km_inicial: 148500,
+          fecha_programada: srv.fecha_programada,
+          hora_programada: "08:00",
+          instrucciones: "Importado desde Excel",
+          auxiliar: srv.auxiliar
+        };
+
+        encolarPendiente(payloadAsignar);
+      }
+
+      guardarBaseDatosLocal();
+      enviarPendientesNube().then(() => {
+        ejecutarSincronizacionBidireccional(false);
+      });
+
+      notificarCambioRealtime({ tipo: "PROGRAMACION_MASIVA_EXCEL", count: rutasExcelCargadas.length });
+
+      cerrarModal("modal-supervisor-importar-excel");
+      mostrarToast(`✅ ${rutasExcelCargadas.length} rutas programadas y publicadas exitosamente desde Excel`, "success");
+      mostrarSeccionSupervisor('programacion');
+    }
+
+    // DESCARGAR PLANTILLA EXCEL
+    function descargarPlantillaExcelProgramacion() {
+      const wb = XLSX.utils.book_new();
+      const headers = [
+        ["CLIENTE", "RUC", "FECHA", "HORA", "ORIGEN", "DESTINO", "TRACTO", "CARRETA", "CONDUCTOR", "AUXILIAR", "OBSERVACIONES"],
+        ["Aceros Arequipa S.A.", "20100138137", new Date().toISOString().slice(0, 10), "07:30", "Almacén Central Callao", "Planta Pisco - Km 240 Panamericana Sur", "V7X-890", "TC8-120", "Juan Carlos Pérez", "Pedro Ramírez", "Mercadería asegurada con fajas"],
+        ["Minera Chinalco Perú S.A.", "20519343734", new Date().toISOString().slice(0, 10), "06:00", "Puerto Callao APM Terminals", "Planta Toromocho - Morococha", "T3B-891", "C1M-552", "Raúl Mendoza Díaz", "Luis Alarcón", "Ingreso con pase minero y EPP"]
+      ];
+
+      const ws = XLSX.utils.aoa_to_sheet(headers);
+      ws['!cols'] = [
+        { wch: 28 }, { wch: 14 }, { wch: 12 }, { wch: 8 }, { wch: 26 }, { wch: 32 }, { wch: 12 }, { wch: 12 }, { wch: 22 }, { wch: 18 }, { wch: 32 }
+      ];
+
+      XLSX.utils.book_append_sheet(wb, ws, "Programacion_Rutas");
+      XLSX.writeFile(wb, "Plantilla_Programacion_NexaRuta.xlsx");
+      mostrarToast("Plantilla oficial descargada (.xlsx)", "success");
+    }
+
+    // CANCELAR O ELIMINAR SERVICIO
+    async function cancelarOEliminarServicio(codServicio) {
+      if (!confirm(`¿Estás seguro de que deseas cancelar/eliminar la programación ${codServicio}?`)) {
+        return;
+      }
+
+      const idx = DB_LOCAL.servicios.findIndex(s => s.cod_servicio === codServicio);
+      if (idx >= 0) {
+        DB_LOCAL.servicios.splice(idx, 1);
+        guardarBaseDatosLocal();
+
+        llamarApiGoogleSheets({
+          action: "supervisor/eliminar_servicio",
+          cod_servicio: codServicio
+        }).then(res => {
+          if (res && res.status === "OK") {
+            mostrarToast(`✅ Servicio ${codServicio} eliminado de Google Sheets`, "success");
+          }
+        }).catch(err => console.warn("Error eliminando servicio en Sheets:", err));
+
+        notificarCambioRealtime({ tipo: "SERVICIO_ELIMINADO", cod_servicio: codServicio });
+        mostrarToast(`Servicio ${codServicio} eliminado`, "info");
+        mostrarSeccionSupervisor('programacion');
       }
     }
 
@@ -3375,12 +4470,19 @@
         </button>
       `;
 
-      mostrarSeccionAdmin('resumen');
+      let secAdminRestaurar = 'resumen';
+      try {
+        secAdminRestaurar = localStorage.getItem("NEXA_RUTA_LAST_SECTION_ADMIN") || 'resumen';
+      } catch(e) {}
+      mostrarSeccionAdmin(secAdminRestaurar);
       lucide.createIcons();
     }
 
     function mostrarSeccionAdmin(seccion) {
       seccionAdminActual = seccion;
+      try {
+        localStorage.setItem("NEXA_RUTA_LAST_SECTION_ADMIN", seccion);
+      } catch(e) {}
       toggleMenuMobile(false);
       ['resumen', 'empresas', 'usuarios', 'conductores', 'historial', 'evidencias', 'conexion'].forEach(s => {
         const btn = document.getElementById(`adm-menu-${s}`);
@@ -4375,7 +5477,10 @@
             fotosSeleccionadas.push({
               id: "FOTO-" + Date.now(),
               base64: canvas.toDataURL("image/jpeg", 0.75),
-              fecha_captura: new Date().toLocaleString("es-PE", { timeZone: "America/Lima" })
+              fecha_captura: new Date().toLocaleString("es-PE", { timeZone: "America/Lima" }),
+              latitud: gpsActual.disponible ? gpsActual.lat : "",
+              longitud: gpsActual.disponible ? gpsActual.lng : "",
+              precision: gpsActual.disponible ? gpsActual.precision : ""
             });
 
             renderizarMiniaturasFotosModal();
@@ -4415,37 +5520,111 @@
         return;
       }
 
+      const btnSubmit = document.getElementById("btn-guardar-evidencia-submit");
+      if (btnSubmit) {
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i><span>Enviando a Google Sheets...</span>';
+        lucide.createIcons();
+      }
+
       const codServicio = document.getElementById("evd-lbl-servicio").textContent;
       const parada = document.getElementById("evd-select-parada").value;
       const tipo = document.getElementById("evd-input-tipo-seleccionado").value;
       const obs = document.getElementById("evd-input-observacion").value.trim();
       const srv = DB_LOCAL.servicios.find(s => s.cod_servicio === codServicio);
 
+      // Si aún no tenemos lectura de GPS, intentar obtener una rápido
+      if (!gpsActual.disponible && "geolocation" in navigator) {
+        try {
+          await new Promise(resolve => {
+            navigator.geolocation.getCurrentPosition(
+              (pos) => {
+                gpsActual = { lat: pos.coords.latitude, lng: pos.coords.longitude, precision: pos.coords.accuracy, disponible: true };
+                resolve();
+              },
+              () => resolve(),
+              { enableHighAccuracy: true, timeout: 3500 }
+            );
+          });
+        } catch(e) {}
+      }
+
       for (let i = 0; i < fotosSeleccionadas.length; i++) {
         const foto = fotosSeleccionadas[i];
         const idEvd = "EVD-" + Date.now() + "-" + (i + 1);
+        const lat = foto.latitud || (gpsActual.disponible ? gpsActual.lat : "");
+        const lng = foto.longitud || (gpsActual.disponible ? gpsActual.lng : "");
+        const prec = foto.precision || (gpsActual.disponible ? gpsActual.precision : "");
 
+        const evidenciaObj = {
+          id_evidencia: idEvd,
+          id_empresa: srv ? srv.id_empresa : (sesionActual ? sesionActual.id_empresa : "TRP-001"),
+          cod_servicio: codServicio,
+          parada: parada,
+          tipo_evidencia: tipo,
+          conductor: srv ? srv.conductor_nombre : (sesionActual ? sesionActual.nombre : "Conductor"),
+          tracto: srv ? srv.placa_tracto : "V7X-890",
+          carreta: srv ? srv.placa_carreta : "TC8-120",
+          observacion: obs,
+          fecha_captura: foto.fecha_captura,
+          url_foto: foto.base64,
+          latitud: lat,
+          longitud: lng,
+          precision_metros: prec,
+          permiso_supervisor: "AUTORIZADO"
+        };
+
+        // 1. Guardar de inmediato en memoria local para visualización instantánea
         if (srv) {
           srv.evidencias = srv.evidencias || [];
-          srv.evidencias.unshift({
-            id_evidencia: idEvd,
-            id_empresa: srv.id_empresa,
-            cod_servicio: codServicio,
-            parada: parada,
-            tipo_evidencia: tipo,
-            conductor: srv.conductor_nombre,
-            tracto: srv.placa_tracto,
-            carreta: srv.placa_carreta,
-            observacion: obs,
-            fecha_captura: foto.fecha_captura,
-            url_foto: foto.base64,
-            permiso_supervisor: "AUTORIZADO"
-          });
+          srv.evidencias.unshift(evidenciaObj);
         }
+
+        // 2. ENVIAR A GOOGLE SHEETS Y GOOGLE DRIVE
+        const payloadEvidencia = {
+          action: "conductor/subir_evidencia",
+          token: sesionActual ? sesionActual.token : "",
+          id_evidencia: idEvd,
+          id_empresa: evidenciaObj.id_empresa,
+          cod_servicio: codServicio,
+          parada: parada,
+          tipo_evidencia: tipo,
+          conductor: evidenciaObj.conductor,
+          tracto: evidenciaObj.tracto,
+          carreta: evidenciaObj.carreta,
+          observacion: obs,
+          foto_base64: foto.base64,
+          fecha_hora_captura: foto.fecha_captura,
+          latitud: lat,
+          longitud: lng,
+          precision_metros: prec
+        };
+
+        // Guardar en cola de pendientes y transmitir
+        encolarPendiente(payloadEvidencia);
+        enviarPendientesNube().then(n => {
+          if (n > 0) {
+            mostrarToast("✅ Foto y ubicación GPS guardadas en Google Sheets", "success");
+            ejecutarSincronizacionBidireccional(false);
+          }
+        }).catch(err => console.warn("Sync Sheets evidencia:", err));
       }
 
+      // 3. Notificar a las pantallas del Supervisor en vivo
+      notificarCambioRealtime({
+        tipo: "EVIDENCIA_SUBIDA",
+        cod_servicio: codServicio,
+        timestamp: Date.now()
+      });
+
       cerrarModal("modal-subir-evidencia");
-      mostrarToast("Evidencia guardada y sincronizada correctamente", "success");
+      if (btnSubmit) {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = '<i data-lucide="upload-cloud" class="w-4 h-4"></i><span>Guardar evidencia</span>';
+        lucide.createIcons();
+      }
+
+      mostrarToast("Foto registrada con GPS y enviada a Google Sheets", "success");
       abrirDetalleServicioConductor(codServicio);
     }
 
@@ -4627,17 +5806,22 @@
     function obtenerLecturaGpsActual() {
       const lblGps = document.getElementById("evd-lbl-gps-status");
       if ("geolocation" in navigator) {
+        if (lblGps) lblGps.innerHTML = '<span class="text-amber-500 animate-pulse font-bold">Solicitando permiso GPS del celular...</span>';
         navigator.geolocation.getCurrentPosition(
           (pos) => {
             gpsActual = { lat: pos.coords.latitude, lng: pos.coords.longitude, precision: pos.coords.accuracy, disponible: true };
-            if (lblGps) lblGps.textContent = `GPS: ${gpsActual.lat.toFixed(4)}, ${gpsActual.lng.toFixed(4)} (±${Math.round(gpsActual.precision)}m)`;
+            if (lblGps) lblGps.innerHTML = `<span class="text-emerald-700 font-bold">📍 GPS: ${gpsActual.lat.toFixed(4)}, ${gpsActual.lng.toFixed(4)} (±${Math.round(gpsActual.precision)}m)</span>`;
           },
-          () => {
+          (err) => {
             gpsActual.disponible = false;
-            if (lblGps) lblGps.textContent = "GPS apagado (Se guardará sin coordenadas)";
+            let msg = "GPS apagado (Se guardará sin coordenadas)";
+            if (err.code === 1) msg = "⚠️ Permiso GPS denegado en tu navegador";
+            if (lblGps) lblGps.innerHTML = `<span class="text-rose-600 font-semibold">${msg}</span>`;
           },
-          { enableHighAccuracy: true, timeout: 6000 }
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
         );
+      } else {
+        if (lblGps) lblGps.textContent = "Tu dispositivo no soporta GPS";
       }
     }
 
@@ -4681,7 +5865,7 @@
 
     function verificarDesbloqueoAdmin() {
       const pass = document.getElementById("input-unlock-admin-pass").value.trim();
-      if (pass === "admin123" || pass === "DemoAdmin!4826" || pass === "admin") {
+      if (pass === "admin123" || pass === "DemoAdmin!4826" || pass === "admin" || pass === "Nexa#Admin2026") {
         cerrarModal("modal-admin-unlock");
         mostrarModalPanelControlTotal();
       } else {
