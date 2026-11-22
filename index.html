@@ -378,7 +378,15 @@
               <i data-lucide="map-pin" class="w-4 h-4 text-turquoise-600"></i>
               <span>Ubicación Satelital y Recorrido en Tiempo Real</span>
             </span>
-            <div class="flex items-center space-x-2">
+            <div class="flex items-center space-x-1.5 flex-wrap gap-y-1">
+              <a id="btn-abrir-comaps" href="#" target="_blank" title="Abrir en CoMaps (Navegación 100% Offline sin internet)" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[10px] font-bold inline-flex items-center space-x-1 shadow-2xs transition">
+                <i data-lucide="compass" class="w-3 h-3"></i>
+                <span>CoMaps (Offline)</span>
+              </a>
+              <a id="btn-abrir-gmaps" href="#" target="_blank" title="Abrir en Google Maps" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[10px] font-bold inline-flex items-center space-x-1 border border-slate-200 transition">
+                <i data-lucide="map-pin" class="w-3 h-3"></i>
+                <span>Google Maps</span>
+              </a>
               <div class="inline-flex rounded-lg border border-slate-200 p-0.5 bg-slate-50 text-[10px]">
                 <button type="button" onclick="cambiarCapaMapa('calles')" id="btn-mapa-calles" class="px-2 py-0.5 rounded-md font-bold bg-navy-900 text-white shadow-2xs">Calles</button>
                 <button type="button" onclick="cambiarCapaMapa('satelite')" id="btn-mapa-satelite" class="px-2 py-0.5 rounded-md text-slate-600 hover:text-slate-900">Satélite</button>
@@ -1182,9 +1190,64 @@
     }
 
     // ==========================================
+    // SEGUIMIENTO GPS EN TIEMPO REAL DEL CONDUCTOR
+    // ==========================================
+    let gpsWatchId = null;
+
+    function solicitarPermisoGpsTiempoReal() {
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            gpsActual = {
+              lat: pos.coords.latitude,
+              lng: pos.coords.longitude,
+              precision: pos.coords.accuracy,
+              velocidad: pos.coords.speed,
+              disponible: true
+            };
+            mostrarToast(`GPS satelital activo (±${Math.round(pos.coords.accuracy)}m)`, "success");
+            iniciarSeguimientoContinuoGps();
+          },
+          (err) => {
+            console.warn("GPS no autorizado o apagado:", err);
+            mostrarToast("Para registrar tus viajes, activa el GPS / Ubicación en tu teléfono", "warning");
+          },
+          { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+        );
+      }
+    }
+
+    function iniciarSeguimientoContinuoGps() {
+      if (gpsWatchId !== null || !('geolocation' in navigator)) return;
+      gpsWatchId = navigator.geolocation.watchPosition(
+        (pos) => {
+          gpsActual = {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+            precision: pos.coords.accuracy,
+            velocidad: pos.coords.speed,
+            disponible: true
+          };
+          if (sesionActual && sesionActual.rol === "CONDUCTOR") {
+            const cnd = DB_LOCAL.conductores.find(c => c.id_conductor === sesionActual.id_conductor);
+            if (cnd) {
+              cnd.latitud = pos.coords.latitude;
+              cnd.longitud = pos.coords.longitude;
+              cnd.precision_m = pos.coords.accuracy;
+              cnd.ultima_actualizacion = "Ahora mismo";
+            }
+          }
+        },
+        (err) => console.warn("GPS Watch:", err),
+        { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
+      );
+    }
+
+    // ==========================================
     // PORTAL DEL CONDUCTOR (NEXA RUTA MÓVIL)
     // ==========================================
     function abrirPortalConductor() {
+      solicitarPermisoGpsTiempoReal();
       document.getElementById("sidebar-navy").classList.add("hidden");
       const main = document.getElementById("main-stage-area");
       
@@ -1295,6 +1358,18 @@
                 </button>
               </div>
             ` : ''}
+          </div>
+
+          <!-- NAVEGACIÓN GPS EN RUTA: CO-MAPS OFFLINE Y GOOGLE MAPS -->
+          <div class="flex items-center space-x-2">
+            <a href="https://omaps.app/search?query=${encodeURIComponent(srv.parada_actual || 'Destino')}" target="_blank" class="flex-1 py-3 px-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-2xl text-xs font-bold flex items-center justify-center space-x-2 shadow-sm transition">
+              <i data-lucide="compass" class="w-4 h-4"></i>
+              <span>Navegar en CoMaps (Offline)</span>
+            </a>
+            <a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(srv.parada_actual || '')}" target="_blank" class="py-3 px-3.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-2xl text-xs font-bold flex items-center justify-center space-x-1.5 shadow-sm transition">
+              <i data-lucide="map-pin" class="w-4 h-4"></i>
+              <span>Google Maps</span>
+            </a>
           </div>
 
           <!-- BOTÓN CENTRAL DE EVIDENCIA -->
@@ -1908,6 +1983,17 @@
       }
 
       document.getElementById("modal-seguimiento-mapa").classList.remove("hidden");
+      
+      // Enlace para CoMaps / Organic Maps y Google Maps
+      const btnCoMaps = document.getElementById("btn-abrir-comaps");
+      if (btnCoMaps) {
+        btnCoMaps.href = `https://omaps.app/${lat},${lng}/${encodeURIComponent(c.nombre + ' ' + c.placa_tracto)}?z=16`;
+      }
+      const btnGMaps = document.getElementById("btn-abrir-gmaps");
+      if (btnGMaps) {
+        btnGMaps.href = `https://www.google.com/maps?q=${lat},${lng}`;
+      }
+
       lucide.createIcons();
 
       // Inicializar mapa interactivo Leaflet
@@ -3328,15 +3414,12 @@
     document.addEventListener("DOMContentLoaded", () => {
       lucide.createIcons();
 
-      // Limpiar service workers antiguos
-      if ('caches' in window) {
-        caches.keys().then(names => {
-          for (let name of names) caches.delete(name);
-        });
-      }
+      // Registro de Service Worker para PWA y PWABuilder
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(regs => {
-          for (let reg of regs) reg.unregister();
+        navigator.serviceWorker.register('./sw.js').then(reg => {
+          console.log('Nexa Ruta PWA activo en scope:', reg.scope);
+        }).catch(err => {
+          console.warn('Aviso SW:', err);
         });
       }
 
