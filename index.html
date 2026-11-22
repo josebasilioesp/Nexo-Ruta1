@@ -75,8 +75,11 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-14 text-xs">
         
-        <!-- Logo Oficial Nexa Ruta -->
-        <div class="flex items-center space-x-3">
+        <!-- Logo Oficial Nexa Ruta y Botón Menú Móvil -->
+        <div class="flex items-center space-x-2 sm:space-x-3">
+          <button id="btn-mobile-menu-toggle" onclick="toggleMenuMobile()" type="button" class="hidden p-1.5 text-slate-300 hover:text-white hover:bg-navy-800 rounded-xl transition md:hidden focus:outline-none" title="Abrir Menú">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
           <svg class="h-8 sm:h-9 w-auto shrink-0" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path fill="#00eddb" d="M156.61,249.79c-5.87,0-10.62-4.76-10.62-10.63v-82.51c0-20.29,11.64-37.71,30.38-45.48,18.75-7.76,39.3-3.67,53.65,10.67l70.65,70.65c4.14,4.15,4.14,10.88,0,15.03-4.15,4.14-10.88,4.14-15.03,0l-70.65-70.65c-9.74-9.75-22.14-9.53-30.48-6.07-8.35,3.46-17.28,12.07-17.28,25.85v82.51C167.23,245.03,162.48,249.79,156.61,249.79Z"/>
             <path fill="#00eddb" d="M156.61,290.7c-15.73,0-28.53-12.79-28.53-28.53s12.8-28.52,28.53-28.52,28.53,12.79,28.53,28.52S172.34,290.7,156.61,290.7ZM156.61,251.35c-5.97,0-10.82,4.86-10.82,10.82s4.85,10.83,10.82,10.83,10.82-4.86,10.82-10.83S162.58,251.35,156.61,251.35Z"/>
@@ -208,14 +211,17 @@
   <!-- ========================================================================= -->
   <!-- 2. CONTENEDOR PRINCIPAL AUTENTICADO                                       -->
   <!-- ========================================================================= -->
-  <div id="screen-app-container" class="hidden flex-1 flex flex-col md:flex-row overflow-hidden bg-slate-50">
+  <div id="screen-app-container" class="hidden flex-1 flex flex-col md:flex-row overflow-hidden bg-slate-50 relative">
     
-    <!-- BARRA LATERAL AZUL NOCHE -->
-    <aside id="sidebar-navy" class="w-full md:w-64 bg-navy-900 text-slate-300 flex flex-col shrink-0 border-r border-navy-800">
+    <!-- TELÓN DE FONDO (BACKDROP) PARA MENÚ MÓVIL DESPLEGABLE -->
+    <div id="sidebar-backdrop" onclick="toggleMenuMobile(false)" class="fixed inset-0 bg-navy-950/75 backdrop-blur-2xs z-40 hidden md:hidden transition-opacity"></div>
+
+    <!-- BARRA LATERAL AZUL NOCHE (DESPLEGABLE / DRAWER EN MÓVIL, FIJA EN COMPUTADORA) -->
+    <aside id="sidebar-navy" class="fixed inset-y-0 left-0 z-50 w-72 bg-navy-900 text-slate-300 flex flex-col shrink-0 border-r border-navy-800 transform -translate-x-full transition-transform duration-300 md:static md:translate-x-0 md:w-64 md:z-auto shadow-2xl md:shadow-none">
       
-      <!-- Encabezado Sidebar con Logo Nexa Ruta -->
-      <div class="p-4 border-b border-navy-800">
-        <div class="flex items-center space-x-3">
+      <!-- Encabezado Sidebar con Logo Nexa Ruta y Botón Cerrar en Móvil -->
+      <div class="p-4 border-b border-navy-800 flex items-center justify-between">
+        <div class="flex items-center space-x-3 overflow-hidden">
           <svg class="h-8 w-auto shrink-0" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path fill="#00eddb" d="M156.61,249.79c-5.87,0-10.62-4.76-10.62-10.63v-82.51c0-20.29,11.64-37.71,30.38-45.48,18.75-7.76,39.3-3.67,53.65,10.67l70.65,70.65c4.14,4.15,4.14,10.88,0,15.03-4.15,4.14-10.88,4.14-15.03,0l-70.65-70.65c-9.74-9.75-22.14-9.53-30.48-6.07-8.35,3.46-17.28,12.07-17.28,25.85v82.51C167.23,245.03,162.48,249.79,156.61,249.79Z"/>
             <path fill="#00eddb" d="M156.61,290.7c-15.73,0-28.53-12.79-28.53-28.53s12.8-28.52,28.53-28.52,28.53,12.79,28.53,28.52S172.34,290.7,156.61,290.7ZM156.61,251.35c-5.97,0-10.82,4.86-10.82,10.82s4.85,10.83,10.82,10.83,10.82-4.86,10.82-10.83S162.58,251.35,156.61,251.35Z"/>
@@ -235,6 +241,9 @@
             <span class="text-[10px] text-turquoise-400 block font-semibold truncate" id="sidebar-user-role-label">PORTAL DE CONTROL</span>
           </div>
         </div>
+        <button type="button" onclick="toggleMenuMobile(false)" class="p-1.5 text-slate-400 hover:text-white rounded-xl md:hidden focus:outline-none" title="Cerrar Menú">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
       </div>
 
       <!-- Empresa Activa en Pantalla -->
@@ -1157,8 +1166,12 @@
       }
     }
 
-    function establecerSesion(usuario, token) {
+    function establecerSesion(usuario, token, mostrarBienvenida = true) {
       sesionActual = { ...usuario, token: token };
+      try {
+        localStorage.setItem("NEXA_RUTA_ACTIVE_SESSION", JSON.stringify({ usuario, token }));
+      } catch(e) {}
+
       document.getElementById("screen-login").classList.add("hidden");
       document.getElementById("screen-app-container").classList.remove("hidden");
       document.getElementById("btn-top-logout").classList.remove("hidden");
@@ -1175,14 +1188,49 @@
       } else if (usuario.rol === "CONDUCTOR") {
         abrirPortalConductor();
       }
+
+      // Mostrar botón de menú hamburguesa en móvil para Supervisor y Admin
+      const btnMenuMobile = document.getElementById("btn-mobile-menu-toggle");
+      if (btnMenuMobile) {
+        if (usuario.rol === "CONDUCTOR") {
+          btnMenuMobile.classList.add("hidden");
+        } else {
+          btnMenuMobile.classList.remove("hidden");
+        }
+      }
+
       lucide.createIcons();
-      mostrarToast(`Bienvenido a Nexa Ruta, ${usuario.nombre}`, "success");
+      if (mostrarBienvenida) {
+        mostrarToast(`Bienvenido a Nexa Ruta, ${usuario.nombre}`, "success");
+      }
+    }
+
+    function toggleMenuMobile(forzar) {
+      const sidebar = document.getElementById("sidebar-navy");
+      const backdrop = document.getElementById("sidebar-backdrop");
+      if (!sidebar || !backdrop) return;
+      const estaAbierto = !sidebar.classList.contains("-translate-x-full");
+      const abrir = forzar !== undefined ? forzar : !estaAbierto;
+      if (abrir) {
+        sidebar.classList.remove("-translate-x-full");
+        backdrop.classList.remove("hidden");
+      } else {
+        sidebar.classList.add("-translate-x-full");
+        backdrop.classList.add("hidden");
+      }
+      lucide.createIcons();
     }
 
     function cerrarSesionCompleta() {
       sesionActual = null;
+      try {
+        localStorage.removeItem("NEXA_RUTA_ACTIVE_SESSION");
+      } catch(e) {}
       document.getElementById("screen-app-container").classList.add("hidden");
       document.getElementById("btn-top-logout").classList.add("hidden");
+      const btnMenuMobile = document.getElementById("btn-mobile-menu-toggle");
+      if (btnMenuMobile) btnMenuMobile.classList.add("hidden");
+      toggleMenuMobile(false);
       document.getElementById("screen-login").classList.remove("hidden");
       document.getElementById("input-login-pass").value = "";
       mostrarToast("Sesión finalizada", "info");
@@ -1461,6 +1509,7 @@
     }
 
     function mostrarSeccionSupervisor(seccion) {
+      toggleMenuMobile(false);
       ['dashboard', 'conductores', 'servicios', 'evidencias', 'incidencias'].forEach(s => {
         const btn = document.getElementById(`sup-menu-${s}`);
         if (btn) {
@@ -1555,7 +1604,8 @@
                 </button>
               </div>
 
-              <div class="overflow-x-auto">
+              <!-- TABLA DETALLADA PARA PANTALLAS GRANDES (COMPUTADORA / TABLET) -->
+              <div class="hidden md:block overflow-x-auto">
                 <table class="w-full text-left text-xs text-slate-700">
                   <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[9px]">
                     <tr>
@@ -1615,6 +1665,55 @@
                     }).join('')}
                   </tbody>
                 </table>
+              </div>
+
+              <!-- TARJETAS RESPONSIVAS PARA MÓVIL (100% ADAPTADO SIN CORTES) -->
+              <div class="block md:hidden space-y-3">
+                ${serviciosEmpresa.map(s => {
+                  const kmIni = s.km_inicial || 0;
+                  const kmFin = s.km_final || (s.km_actual || kmIni);
+                  const kmRec = Math.max(0, kmFin - kmIni);
+                  const cnd = DB_LOCAL.conductores.find(c => c.id_conductor === s.id_conductor) || {};
+                  return `
+                    <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 shadow-2xs space-y-2.5">
+                      <div class="flex items-center justify-between">
+                        <div>
+                          <span class="font-mono font-extrabold text-navy-900 text-xs">${s.cod_servicio}</span>
+                          <span class="block text-[10px] text-slate-500">${s.cliente}</span>
+                        </div>
+                        <span class="px-2 py-0.5 rounded-full text-[9px] font-bold ${s.estado === 'Finalizado' ? 'bg-emerald-100 text-emerald-800' : (s.estado === 'En ruta' || s.estado === 'En tránsito al destino' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700')}">
+                          ${s.estado}
+                        </span>
+                      </div>
+
+                      <div class="flex items-center space-x-2.5 pt-1">
+                        <img src="${cnd.foto || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80'}" class="w-10 h-10 rounded-xl object-cover border border-slate-200 shrink-0">
+                        <div class="truncate">
+                          <strong class="text-slate-800 text-xs block truncate">${s.conductor_nombre}</strong>
+                          <span class="text-[10px] text-slate-500 font-mono block">DNI: ${s.conductor_dni || cnd.dni || '-'}</span>
+                          <span class="text-[10px] text-turquoise-800 font-mono font-bold block">${s.placa_tracto} / ${s.placa_carreta}</span>
+                        </div>
+                      </div>
+
+                      <div class="p-2.5 bg-white rounded-xl border border-slate-100 text-[11px] space-y-1">
+                        <div class="flex items-center justify-between text-slate-600">
+                          <span class="text-[10px] text-slate-400">Ruta:</span>
+                          <span class="font-semibold text-slate-800 truncate max-w-[200px]">${s.origen} ➔ ${s.parada_actual}</span>
+                        </div>
+                        <div class="flex items-center justify-between text-slate-600 font-mono text-[10px] pt-1 border-t border-slate-100">
+                          <span>Km Ini: <strong>${kmIni ? kmIni.toLocaleString() : '-'}</strong></span>
+                          <span class="text-emerald-700 font-bold">+${kmRec.toLocaleString()} km</span>
+                          <span>Km Act: <strong class="text-navy-900">${kmFin ? kmFin.toLocaleString() : '-'}</strong></span>
+                        </div>
+                      </div>
+
+                      <button onclick="abrirSeguimientoMapaConductor('${s.id_conductor}')" class="w-full py-2.5 bg-turquoise-600 hover:bg-turquoise-700 text-white font-bold rounded-xl text-xs flex items-center justify-center space-x-1.5 shadow-2xs transition">
+                        <i data-lucide="map" class="w-4 h-4"></i>
+                        <span>Ver mapa en vivo y fotos</span>
+                      </button>
+                    </div>
+                  `;
+                }).join('')}
               </div>
             </div>
 
@@ -1837,22 +1936,21 @@
         mapaLeafletInstancia = null;
       }
 
-      // Capa Calles CARTO Voyager (Alta nitidez, sin bloqueos 403)
-      capaMapaCalles = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      // Capa Calles de Alta Definición con Nombres de Calles en Perú (Esri World Street Map)
+      capaMapaCalles = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
         maxZoom: 19,
-        subdomains: 'abcd',
-        attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+        attribution: 'Calles &copy; Esri, HERE, Garmin, OpenStreetMap'
       });
 
       // Capa Satélite Esri World Imagery
       capaMapaSatelite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         maxZoom: 19,
-        attribution: 'Tiles &copy; Esri'
+        attribution: 'Satélite &copy; Esri'
       });
 
       mapaLeafletInstancia = L.map(contMapa, {
         center: [lat, lng],
-        zoom: 12,
+        zoom: 16,
         layers: [capaMapaCalles]
       });
 
@@ -2167,6 +2265,7 @@
     }
 
     function mostrarSeccionAdmin(seccion) {
+      toggleMenuMobile(false);
       ['resumen', 'empresas', 'usuarios', 'conductores', 'historial', 'evidencias', 'conexion'].forEach(s => {
         const btn = document.getElementById(`adm-menu-${s}`);
         if (btn) {
@@ -3421,6 +3520,20 @@
         }).catch(err => {
           console.warn('Aviso SW:', err);
         });
+      }
+
+      // Restaurar sesión activa automáticamente si el usuario ya había iniciado sesión
+      try {
+        const sesionGuardada = localStorage.getItem("NEXA_RUTA_ACTIVE_SESSION");
+        if (sesionGuardada) {
+          const datos = JSON.parse(sesionGuardada);
+          if (datos && datos.usuario) {
+            establecerSesion(datos.usuario, datos.token || ("TOKEN_" + Date.now()), false);
+            return;
+          }
+        }
+      } catch(e) {
+        console.warn("Error restaurando sesión:", e);
       }
 
       document.getElementById("screen-app-container").classList.add("hidden");
