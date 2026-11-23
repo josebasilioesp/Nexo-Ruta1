@@ -299,7 +299,7 @@
             <span id="lbl-theme-text" class="text-[10px] font-bold hidden sm:inline text-slate-300">Noche</span>
           </button>
 
-          <button id="btn-top-panel-maestro" onclick="abrirPanelControlTotalWeb()" class="flex items-center space-x-1.5 px-3 py-1.5 bg-gradient-to-r from-turquoise-600 to-cyan-500 hover:from-turquoise-500 hover:to-cyan-400 text-white rounded-xl text-xs font-extrabold shadow-md transition transform active:scale-95" title="Panel de Control Total y Conexión Apps Script">
+          <button id="btn-top-panel-maestro" onclick="abrirPanelControlTotalWeb()" class="hidden items-center space-x-1.5 px-3 py-1.5 bg-gradient-to-r from-turquoise-600 to-cyan-500 hover:from-turquoise-500 hover:to-cyan-400 text-white rounded-xl text-xs font-extrabold shadow-md transition transform active:scale-95 cursor-pointer" title="Panel de Control Total y Conexión Apps Script">
             <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
             <span>Panel</span>
           </button>
@@ -399,51 +399,7 @@
           <i data-lucide="arrow-right" class="w-4 h-4 stroke-[2]"></i>
         </button>
 
-        <!-- Accesos Rápidos de Prueba (1-Clic) para Probar Todos los Roles sin escribir -->
-        <div class="pt-3 border-t border-slate-200/80">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Acceso Rápido por Rol (1-Clic):</span>
-            <span class="text-[9px] text-turquoise-700 font-bold bg-turquoise-50 px-2 py-0.5 rounded-full">Sin escribir</span>
-          </div>
-          <div class="grid grid-cols-3 gap-1.5 text-[10px]">
-            <button type="button" onclick="cargarAccesoDemo('admin', 'admin123')" class="px-2 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-900 border border-amber-300 font-bold flex items-center justify-center space-x-1 transition cursor-pointer" title="Ingresar como Administrador General">
-              <i data-lucide="crown" class="w-3 h-3 text-amber-600"></i>
-              <span>Admin Gral</span>
-            </button>
-            <button type="button" onclick="cargarAccesoDemo('gerencia1', 'ger123')" class="px-2 py-1.5 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 text-blue-900 border border-blue-300 font-bold flex items-center justify-center space-x-1 transition cursor-pointer" title="Ingresar como Gerencia">
-              <i data-lucide="line-chart" class="w-3 h-3 text-blue-600"></i>
-              <span>Gerencia</span>
-            </button>
-            <button type="button" onclick="cargarAccesoDemo('programador1', 'prog123')" class="px-2 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-900 border border-emerald-300 font-bold flex items-center justify-center space-x-1 transition cursor-pointer" title="Ingresar como Programador">
-              <i data-lucide="calendar" class="w-3 h-3 text-emerald-600"></i>
-              <span>Programador</span>
-            </button>
-            <button type="button" onclick="cargarAccesoDemo('administrativo1', 'admin123')" class="px-2 py-1.5 rounded-xl bg-teal-500/10 hover:bg-teal-500/20 text-teal-900 border border-teal-300 font-bold flex items-center justify-center space-x-1 transition cursor-pointer" title="Ingresar como Administrativo">
-              <i data-lucide="briefcase" class="w-3 h-3 text-teal-600"></i>
-              <span>Admin</span>
-            </button>
-            <button type="button" onclick="cargarAccesoDemo('seguimiento1', 'seg123')" class="px-2 py-1.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-900 border border-indigo-300 font-bold flex items-center justify-center space-x-1 transition cursor-pointer" title="Ingresar como Seguimiento">
-              <i data-lucide="navigation" class="w-3 h-3 text-indigo-600"></i>
-              <span>Seguimiento</span>
-            </button>
-            <button type="button" onclick="cargarAccesoDemo('invitado1', 'cli123')" class="px-2 py-1.5 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-900 border border-purple-300 font-bold flex items-center justify-center space-x-1 transition cursor-pointer" title="Ingresar como Cliente Invitado">
-              <i data-lucide="building" class="w-3 h-3 text-purple-600"></i>
-              <span>Invitado</span>
-            </button>
-            <button type="button" onclick="cargarAccesoDemo('conductor1', '123456')" class="col-span-3 px-2 py-1.5 rounded-xl bg-slate-900 text-turquoise-400 border border-slate-700 font-bold flex items-center justify-center space-x-1.5 transition cursor-pointer shadow-xs hover:bg-slate-800" title="Ingresar a la App Móvil del Conductor">
-              <i data-lucide="truck" class="w-3.5 h-3.5 text-turquoise-400"></i>
-              <span>🚛 Conductor / App Móvil (1-Clic)</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="pt-2 text-center">
-          <button type="button" onclick="abrirPanelControlTotalWeb()" class="text-[11px] text-slate-500 hover:text-turquoise-700 font-semibold inline-flex items-center space-x-1.5 py-1 px-2.5 rounded-lg hover:bg-slate-100 transition">
-            <i data-lucide="settings-2" class="w-3.5 h-3.5 text-turquoise-600"></i>
-            <span>Panel de Control Total y Apps Script</span>
-          </button>
-        </div>
-      </form>
+        </form>
 
     </div>
   </section>
@@ -3134,6 +3090,18 @@
       document.getElementById("btn-top-logout").classList.remove("hidden");
       document.getElementById("btn-top-logout").classList.add("flex");
 
+      // Control de visibilidad exclusivo de botón Panel: SÓLO visible para Administrador General
+      const btnPanelMaestro = document.getElementById("btn-top-panel-maestro");
+      if (btnPanelMaestro) {
+        if (usuario.rol === "ADMIN_GENERAL" || usuario.usuario === "admin") {
+          btnPanelMaestro.classList.remove("hidden");
+          btnPanelMaestro.classList.add("flex");
+        } else {
+          btnPanelMaestro.classList.add("hidden");
+          btnPanelMaestro.classList.remove("flex");
+        }
+      }
+
       document.getElementById("lbl-logged-user-name").textContent = usuario.nombre || usuario.usuario;
       document.getElementById("lbl-logged-user-sub").textContent = usuario.rol;
       document.getElementById("lbl-avatar-initials").textContent = (usuario.nombre || usuario.usuario).substring(0, 2).toUpperCase();
@@ -3188,6 +3156,11 @@
         localStorage.removeItem("NEXA_RUTA_LAST_SECTION_ADMIN");
         document.documentElement.classList.remove("nexa-sesion-activa");
       } catch(e) {}
+      const btnPanelMaestro = document.getElementById("btn-top-panel-maestro");
+      if (btnPanelMaestro) {
+        btnPanelMaestro.classList.add("hidden");
+        btnPanelMaestro.classList.remove("flex");
+      }
       document.getElementById("screen-app-container").classList.add("hidden");
       document.getElementById("btn-top-logout").classList.add("hidden");
       const btnMenuMobile = document.getElementById("btn-mobile-menu-toggle");
@@ -8066,29 +8039,15 @@
     
     // =========================================================================
     // GESTIÓN INTEGRAL DE USUARIOS, ROLES Y IMPORTACIÓN EXCEL
+    // Optimizado para rendimiento ultra-rápido (0 ms / 60 FPS) sin congelamientos
     // =========================================================================
 
     let filtroRolUsuariosActual = 'TODOS';
     let busquedaTextoUsuariosActual = '';
     let usuariosParaImportarExcel = [];
 
-    function renderizarVistaUsuariosCompleta(container, esAdmin = true) {
-      if (!container) return;
-      sincronizarUsuariosYConductoresUnificados();
-
-      // Contadores por rol
-      const total = (DB_LOCAL.usuarios || []).length;
-      const countAdmin = (DB_LOCAL.usuarios || []).filter(u => u.rol === 'ADMIN_GENERAL').length;
-      const countAdminis = (DB_LOCAL.usuarios || []).filter(u => u.rol === 'ADMINISTRATIVO').length;
-      const countProg = (DB_LOCAL.usuarios || []).filter(u => u.rol === 'PROGRAMADOR').length;
-      const countSeg = (DB_LOCAL.usuarios || []).filter(u => u.rol === 'SEGUIMIENTO' || u.rol === 'OPERACIONES').length;
-      const countGer = (DB_LOCAL.usuarios || []).filter(u => u.rol === 'GERENCIA').length;
-      const countMant = (DB_LOCAL.usuarios || []).filter(u => u.rol === 'MANTENIMIENTO').length;
-      const countCond = (DB_LOCAL.usuarios || []).filter(u => u.rol === 'CONDUCTOR').length;
-      const countInv = (DB_LOCAL.usuarios || []).filter(u => u.rol === 'INVITADO' || u.rol === 'CLIENTE').length;
-
-      // Filtrado
-      let usuariosFiltrados = (DB_LOCAL.usuarios || []).filter(u => {
+    function obtenerUsuariosFiltradosMemoria() {
+      return (DB_LOCAL.usuarios || []).filter(u => {
         if (filtroEmpresaUsuariosSeleccionada !== 'TODAS') {
           if (u.id_empresa !== filtroEmpresaUsuariosSeleccionada && u.id_empresa !== 'TODAS') return false;
         }
@@ -8107,6 +8066,103 @@
         }
         return true;
       });
+    }
+
+    function generarFilasUsuariosHtml(listaUsuarios) {
+      if (!listaUsuarios || listaUsuarios.length === 0) {
+        return `
+          <tr>
+            <td colspan="8" class="p-8 text-center text-slate-400">
+              <i data-lucide="user-x" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
+              <p class="font-bold text-slate-600">No se encontraron usuarios</p>
+              <p class="text-[11px]">Prueba con otro término de búsqueda o limpia los filtros</p>
+            </td>
+          </tr>
+        `;
+      }
+
+      return listaUsuarios.map(u => {
+        const infoRol = ROLES_SISTEMA[u.rol] || { nombre: u.rol, badgeColor: 'bg-slate-100 text-slate-800' };
+        const esConductor = u.rol === 'CONDUCTOR';
+        const cFicha = esConductor ? (DB_LOCAL.conductores || []).find(c => c.dni === u.dni || c.id_usuario === u.id || (u.id_conductor && c.id_conductor === u.id_conductor)) : null;
+
+        return `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="p-3 font-mono font-bold text-navy-900">${u.usuario}</td>
+            <td class="p-3">
+              <strong class="text-slate-900 block font-semibold">${u.nombre || u.usuario}</strong>
+              ${cFicha && cFicha.placa_tracto ? `<span class="text-[10px] font-mono text-turquoise-700">Placas: ${cFicha.placa_tracto} / ${cFicha.placa_carreta || '-'}</span>` : ''}
+            </td>
+            <td class="p-3">
+              <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold border ${infoRol.badgeColor}">
+                ${infoRol.nombre || u.rol}
+              </span>
+            </td>
+            <td class="p-3">
+              <span class="font-medium text-slate-700 block">${obtenerNombreEmpresa(u.id_empresa)}</span>
+              <span class="font-mono text-[10px] text-slate-400">${u.id_empresa}</span>
+            </td>
+            <td class="p-3 font-mono text-[11px]">
+              <div>DNI: ${u.dni || '-'}</div>
+              <div class="text-slate-400 text-[10px]">Cel: ${u.telefono || '-'}</div>
+            </td>
+            <td class="p-3 font-mono">
+              <div class="inline-flex items-center space-x-1.5 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                <span id="pass-mask-${u.id}" class="text-[11px] text-slate-600 font-bold">••••••••</span>
+                <span id="pass-text-${u.id}" class="text-[11px] text-turquoise-700 font-bold hidden">${u.pass || 'Nexa#2026!'}</span>
+                <button onclick="toggleVerPasswordFila('${u.id}')" class="text-slate-400 hover:text-slate-700 p-0.5 cursor-pointer" title="Ver / Ocultar">
+                  <i data-lucide="eye" class="w-3 h-3"></i>
+                </button>
+                <button onclick="copiarAlPortapapeles('${u.pass || 'Nexa#2026!'}', 'Contraseña copiada')" class="text-slate-400 hover:text-turquoise-600 p-0.5 cursor-pointer" title="Copiar contraseña">
+                  <i data-lucide="copy" class="w-3 h-3"></i>
+                </button>
+              </div>
+            </td>
+            <td class="p-3">
+              <span class="px-2 py-0.5 rounded text-[9px] font-bold ${u.estado === 'ACTIVO' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'}">
+                ${u.estado || 'ACTIVO'}
+              </span>
+            </td>
+            <td class="p-3 text-right space-x-1">
+              <!-- Editar Usuario -->
+              <button onclick="abrirModalUsuarioAvanzado('${u.usuario}')" class="p-1.5 text-navy-800 hover:text-turquoise-700 hover:bg-slate-100 rounded-lg transition cursor-pointer" title="Editar datos y rol del usuario">
+                <i data-lucide="edit-3" class="w-3.5 h-3.5 text-navy-900"></i>
+              </button>
+
+              <!-- Cambiar Contraseña Rápido -->
+              <button onclick="cambiarPasswordUsuarioRapido('${u.usuario}')" class="p-1.5 text-amber-600 hover:text-amber-800 hover:bg-amber-50 rounded-lg transition cursor-pointer" title="Cambiar contraseña de este usuario">
+                <i data-lucide="key" class="w-3.5 h-3.5 text-amber-500"></i>
+              </button>
+
+              <!-- Activar / Suspender Usuario -->
+              <button onclick="alternarEstadoUsuarioAdmin('${u.usuario}')" class="p-1.5 ${u.estado === 'ACTIVO' ? 'text-slate-400 hover:text-amber-600 hover:bg-amber-50' : 'text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50'} rounded-lg transition cursor-pointer" title="${u.estado === 'ACTIVO' ? 'Suspender acceso a este usuario' : 'Reactivar acceso a este usuario'}">
+                <i data-lucide="${u.estado === 'ACTIVO' ? 'user-x' : 'user-check'}" class="w-3.5 h-3.5"></i>
+              </button>
+
+              <!-- Eliminar Usuario -->
+              <button onclick="eliminarUsuarioAdmin('${u.usuario}')" class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition cursor-pointer" title="Eliminar usuario del sistema">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5 text-rose-600"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderizarVistaUsuariosCompleta(container, esAdmin = true) {
+      if (!container) return;
+
+      // Contadores por rol
+      const total = (DB_LOCAL.usuarios || []).length;
+      const countAdmin = (DB_LOCAL.usuarios || []).filter(u => u.rol === 'ADMIN_GENERAL').length;
+      const countAdminis = (DB_LOCAL.usuarios || []).filter(u => u.rol === 'ADMINISTRATIVO').length;
+      const countProg = (DB_LOCAL.usuarios || []).filter(u => u.rol === 'PROGRAMADOR').length;
+      const countSeg = (DB_LOCAL.usuarios || []).filter(u => u.rol === 'SEGUIMIENTO' || u.rol === 'OPERACIONES').length;
+      const countGer = (DB_LOCAL.usuarios || []).filter(u => u.rol === 'GERENCIA').length;
+      const countCond = (DB_LOCAL.usuarios || []).filter(u => u.rol === 'CONDUCTOR').length;
+      const countInv = (DB_LOCAL.usuarios || []).filter(u => u.rol === 'INVITADO' || u.rol === 'CLIENTE').length;
+
+      const usuariosFiltrados = obtenerUsuariosFiltradosMemoria();
 
       container.innerHTML = `
         <div class="space-y-5">
@@ -8115,57 +8171,57 @@
             <div>
               <h2 class="text-lg font-black text-navy-900 tracking-tight flex items-center space-x-2">
                 <span>Gestión de Usuarios y Roles de Transporte</span>
-                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-turquoise-100 text-turquoise-800">${total} Registrados</span>
+                <span id="badge-total-usuarios" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-turquoise-100 text-turquoise-800">${total} Registrados</span>
               </h2>
               <p class="text-xs text-slate-500 mt-0.5">Control de credenciales, matriz de permisos y carga masiva mediante plantilla Excel</p>
             </div>
             <div class="flex items-center flex-wrap gap-2">
-              <button onclick="descargarPlantillaUsuariosExcel()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl flex items-center space-x-1.5 shadow-sm transition">
+              <button onclick="descargarPlantillaUsuariosExcel()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl flex items-center space-x-1.5 shadow-sm transition cursor-pointer">
                 <i data-lucide="download" class="w-3.5 h-3.5"></i>
                 <span>Plantilla Excel</span>
               </button>
-              <button onclick="abrirModalImportarUsuariosExcel()" class="px-3 py-2 bg-navy-800 hover:bg-navy-900 text-white font-bold text-xs rounded-xl flex items-center space-x-1.5 shadow-sm transition">
+              <button onclick="abrirModalImportarUsuariosExcel()" class="px-3 py-2 bg-navy-800 hover:bg-navy-900 text-white font-bold text-xs rounded-xl flex items-center space-x-1.5 shadow-sm transition cursor-pointer">
                 <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 text-turquoise-400"></i>
                 <span>Cargar Excel Masivo</span>
               </button>
-              <button onclick="abrirModalUsuarioAvanzado()" class="px-3 py-2 bg-turquoise-600 hover:bg-turquoise-500 text-white font-bold text-xs rounded-xl flex items-center space-x-1.5 shadow-sm transition">
+              <button onclick="abrirModalUsuarioAvanzado()" class="px-3 py-2 bg-turquoise-600 hover:bg-turquoise-500 text-white font-bold text-xs rounded-xl flex items-center space-x-1.5 shadow-sm transition cursor-pointer">
                 <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
                 <span>+ Nuevo Usuario</span>
               </button>
             </div>
           </div>
 
-          <!-- Tarjetas Resumen por Rol -->
-          <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 text-xs">
-            <button onclick="cambiarFiltroRolUsuarios('TODOS')" class="p-2.5 rounded-xl border text-left transition ${filtroRolUsuariosActual === 'TODOS' ? 'border-turquoise-500 bg-turquoise-50/50 ring-2 ring-turquoise-500/20' : 'border-slate-200 bg-white hover:border-slate-300'}">
+          <!-- Tarjetas Resumen por Rol con respuesta táctil instantánea -->
+          <div id="box-roles-cards-container" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 text-xs">
+            <button id="btn-filtro-rol-TODOS" onclick="cambiarFiltroRolUsuarios('TODOS')" class="p-2.5 rounded-xl border text-left transition cursor-pointer ${filtroRolUsuariosActual === 'TODOS' ? 'border-turquoise-500 bg-turquoise-50/50 ring-2 ring-turquoise-500/20 text-navy-900' : 'border-slate-200 bg-white hover:border-slate-300'}">
               <span class="text-[10px] block font-bold text-slate-400 uppercase">Todos</span>
               <span class="text-base font-black text-navy-900">${total}</span>
             </button>
-            <button onclick="cambiarFiltroRolUsuarios('ADMIN_GENERAL')" class="p-2.5 rounded-xl border text-left transition ${filtroRolUsuariosActual === 'ADMIN_GENERAL' ? 'border-purple-500 bg-purple-50 ring-2 ring-purple-500/20' : 'border-slate-200 bg-white hover:border-slate-300'}">
+            <button id="btn-filtro-rol-ADMIN_GENERAL" onclick="cambiarFiltroRolUsuarios('ADMIN_GENERAL')" class="p-2.5 rounded-xl border text-left transition cursor-pointer ${filtroRolUsuariosActual === 'ADMIN_GENERAL' ? 'border-purple-500 bg-purple-50 ring-2 ring-purple-500/20 text-purple-900' : 'border-slate-200 bg-white hover:border-slate-300'}">
               <span class="text-[10px] block font-bold text-purple-600 uppercase">Admin</span>
               <span class="text-base font-black text-purple-900">${countAdmin}</span>
             </button>
-            <button onclick="cambiarFiltroRolUsuarios('ADMINISTRATIVO')" class="p-2.5 rounded-xl border text-left transition ${filtroRolUsuariosActual === 'ADMINISTRATIVO' ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500/20' : 'border-slate-200 bg-white hover:border-slate-300'}">
+            <button id="btn-filtro-rol-ADMINISTRATIVO" onclick="cambiarFiltroRolUsuarios('ADMINISTRATIVO')" class="p-2.5 rounded-xl border text-left transition cursor-pointer ${filtroRolUsuariosActual === 'ADMINISTRATIVO' ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500/20 text-blue-900' : 'border-slate-200 bg-white hover:border-slate-300'}">
               <span class="text-[10px] block font-bold text-blue-600 uppercase">Administrativo</span>
               <span class="text-base font-black text-blue-900">${countAdminis}</span>
             </button>
-            <button onclick="cambiarFiltroRolUsuarios('PROGRAMADOR')" class="p-2.5 rounded-xl border text-left transition ${filtroRolUsuariosActual === 'PROGRAMADOR' ? 'border-teal-500 bg-teal-50 ring-2 ring-teal-500/20' : 'border-slate-200 bg-white hover:border-slate-300'}">
+            <button id="btn-filtro-rol-PROGRAMADOR" onclick="cambiarFiltroRolUsuarios('PROGRAMADOR')" class="p-2.5 rounded-xl border text-left transition cursor-pointer ${filtroRolUsuariosActual === 'PROGRAMADOR' ? 'border-teal-500 bg-teal-50 ring-2 ring-teal-500/20 text-teal-900' : 'border-slate-200 bg-white hover:border-slate-300'}">
               <span class="text-[10px] block font-bold text-teal-600 uppercase">Programación</span>
               <span class="text-base font-black text-teal-900">${countProg}</span>
             </button>
-            <button onclick="cambiarFiltroRolUsuarios('SEGUIMIENTO')" class="p-2.5 rounded-xl border text-left transition ${filtroRolUsuariosActual === 'SEGUIMIENTO' ? 'border-amber-500 bg-amber-50 ring-2 ring-amber-500/20' : 'border-slate-200 bg-white hover:border-slate-300'}">
+            <button id="btn-filtro-rol-SEGUIMIENTO" onclick="cambiarFiltroRolUsuarios('SEGUIMIENTO')" class="p-2.5 rounded-xl border text-left transition cursor-pointer ${filtroRolUsuariosActual === 'SEGUIMIENTO' ? 'border-amber-500 bg-amber-50 ring-2 ring-amber-500/20 text-amber-900' : 'border-slate-200 bg-white hover:border-slate-300'}">
               <span class="text-[10px] block font-bold text-amber-600 uppercase">Seguimiento</span>
               <span class="text-base font-black text-amber-900">${countSeg}</span>
             </button>
-            <button onclick="cambiarFiltroRolUsuarios('GERENCIA')" class="p-2.5 rounded-xl border text-left transition ${filtroRolUsuariosActual === 'GERENCIA' ? 'border-indigo-500 bg-indigo-50 ring-2 ring-indigo-500/20' : 'border-slate-200 bg-white hover:border-slate-300'}">
+            <button id="btn-filtro-rol-GERENCIA" onclick="cambiarFiltroRolUsuarios('GERENCIA')" class="p-2.5 rounded-xl border text-left transition cursor-pointer ${filtroRolUsuariosActual === 'GERENCIA' ? 'border-indigo-500 bg-indigo-50 ring-2 ring-indigo-500/20 text-indigo-900' : 'border-slate-200 bg-white hover:border-slate-300'}">
               <span class="text-[10px] block font-bold text-indigo-600 uppercase">Gerencia</span>
               <span class="text-base font-black text-indigo-900">${countGer}</span>
             </button>
-            <button onclick="cambiarFiltroRolUsuarios('CONDUCTOR')" class="p-2.5 rounded-xl border text-left transition ${filtroRolUsuariosActual === 'CONDUCTOR' ? 'border-emerald-500 bg-emerald-50 ring-2 ring-emerald-500/20' : 'border-slate-200 bg-white hover:border-slate-300'}">
+            <button id="btn-filtro-rol-CONDUCTOR" onclick="cambiarFiltroRolUsuarios('CONDUCTOR')" class="p-2.5 rounded-xl border text-left transition cursor-pointer ${filtroRolUsuariosActual === 'CONDUCTOR' ? 'border-emerald-500 bg-emerald-50 ring-2 ring-emerald-500/20 text-emerald-900' : 'border-slate-200 bg-white hover:border-slate-300'}">
               <span class="text-[10px] block font-bold text-emerald-600 uppercase">Conductores</span>
               <span class="text-base font-black text-emerald-900">${countCond}</span>
             </button>
-            <button onclick="cambiarFiltroRolUsuarios('INVITADO')" class="p-2.5 rounded-xl border text-left transition ${filtroRolUsuariosActual === 'INVITADO' ? 'border-cyan-500 bg-cyan-50 ring-2 ring-cyan-500/20' : 'border-slate-200 bg-white hover:border-slate-300'}">
+            <button id="btn-filtro-rol-INVITADO" onclick="cambiarFiltroRolUsuarios('INVITADO')" class="p-2.5 rounded-xl border text-left transition cursor-pointer ${filtroRolUsuariosActual === 'INVITADO' ? 'border-cyan-500 bg-cyan-50 ring-2 ring-cyan-500/20 text-cyan-900' : 'border-slate-200 bg-white hover:border-slate-300'}">
               <span class="text-[10px] block font-bold text-cyan-600 uppercase">Invitados</span>
               <span class="text-base font-black text-cyan-900">${countInv}</span>
             </button>
@@ -8179,7 +8235,7 @@
                 <input type="text" id="input-buscar-usuario-filtro" value="${busquedaTextoUsuariosActual}" oninput="filtrarUsuariosTexto(this.value)" placeholder="Buscar por usuario, nombre o DNI..." class="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-turquoise-500 outline-none">
               </div>
               <div class="sm:w-64">
-                <select id="filtro-empresa-selector-usr" onchange="cambiarFiltroEmpresaUsuarios(this.value)" class="w-full py-1.5 px-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl font-bold text-navy-900 focus:ring-2 focus:ring-turquoise-500 outline-none">
+                <select id="filtro-empresa-selector-usr" onchange="cambiarFiltroEmpresaUsuarios(this.value)" class="w-full py-1.5 px-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl font-bold text-navy-900 focus:ring-2 focus:ring-turquoise-500 outline-none cursor-pointer">
                   <option value="TODAS" ${filtroEmpresaUsuariosSeleccionada === 'TODAS' ? 'selected' : ''}>🏢 Todas las Empresas</option>
                   ${(DB_LOCAL.empresas || []).map(emp => `
                     <option value="${emp.id}" ${filtroEmpresaUsuariosSeleccionada === emp.id ? 'selected' : ''}>${emp.razonSocial} (${emp.id})</option>
@@ -8188,8 +8244,8 @@
               </div>
             </div>
             <div class="flex items-center space-x-2 text-xs w-full sm:w-auto justify-end">
-              <span class="text-slate-500 text-[11px]">${usuariosFiltrados.length} resultado(s)</span>
-              <button onclick="ejecutarSincronizacionBidireccional(true)" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-semibold flex items-center space-x-1" title="Sincronizar con Google Sheets">
+              <span id="lbl-usuarios-resultado-count" class="text-slate-500 text-[11px] font-semibold">${usuariosFiltrados.length} resultado(s)</span>
+              <button onclick="ejecutarSincronizacionBidireccional(true)" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-semibold flex items-center space-x-1 cursor-pointer" title="Sincronizar con Google Sheets">
                 <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-turquoise-600"></i>
                 <span class="hidden sm:inline">Sincronizar Sheets</span>
               </button>
@@ -8212,82 +8268,8 @@
                     <th class="p-3 text-right">Acciones</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100 bg-white">
-                  ${usuariosFiltrados.length === 0 ? `
-                    <tr>
-                      <td colspan="8" class="p-8 text-center text-slate-400">
-                        <i data-lucide="user-x" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
-                        <p class="font-bold text-slate-600">No se encontraron usuarios</p>
-                        <p class="text-[11px]">Prueba con otro término de búsqueda o limpia los filtros</p>
-                      </td>
-                    </tr>
-                  ` : usuariosFiltrados.map(u => {
-                    const infoRol = ROLES_SISTEMA[u.rol] || { nombre: u.rol, badgeColor: 'bg-slate-100 text-slate-800' };
-                    const esConductor = u.rol === 'CONDUCTOR';
-                    const cFicha = esConductor ? (DB_LOCAL.conductores || []).find(c => c.dni === u.dni || c.id_usuario === u.id || (u.id_conductor && c.id_conductor === u.id_conductor)) : null;
-
-                    return `
-                      <tr class="hover:bg-slate-50 transition">
-                        <td class="p-3 font-mono font-bold text-navy-900">${u.usuario}</td>
-                        <td class="p-3">
-                          <strong class="text-slate-900 block font-semibold">${u.nombre || u.usuario}</strong>
-                          ${cFicha && cFicha.placa_tracto ? `<span class="text-[10px] font-mono text-turquoise-700">Placas: ${cFicha.placa_tracto} / ${cFicha.placa_carreta || '-'}</span>` : ''}
-                        </td>
-                        <td class="p-3">
-                          <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold border ${infoRol.badgeColor}">
-                            ${infoRol.nombre || u.rol}
-                          </span>
-                        </td>
-                        <td class="p-3">
-                          <span class="font-medium text-slate-700 block">${obtenerNombreEmpresa(u.id_empresa)}</span>
-                          <span class="font-mono text-[10px] text-slate-400">${u.id_empresa}</span>
-                        </td>
-                        <td class="p-3 font-mono text-[11px]">
-                          <div>DNI: ${u.dni || '-'}</div>
-                          <div class="text-slate-400 text-[10px]">Cel: ${u.telefono || '-'}</div>
-                        </td>
-                        <td class="p-3 font-mono">
-                          <div class="inline-flex items-center space-x-1.5 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
-                            <span id="pass-mask-${u.id}" class="text-[11px] text-slate-600 font-bold">••••••••</span>
-                            <span id="pass-text-${u.id}" class="text-[11px] text-turquoise-700 font-bold hidden">${u.pass || 'Nexa#2026!'}</span>
-                            <button onclick="toggleVerPasswordFila('${u.id}')" class="text-slate-400 hover:text-slate-700 p-0.5" title="Ver / Ocultar">
-                              <i data-lucide="eye" class="w-3 h-3"></i>
-                            </button>
-                            <button onclick="copiarAlPortapapeles('${u.pass || 'Nexa#2026!'}', 'Contraseña copiada')" class="text-slate-400 hover:text-turquoise-600 p-0.5" title="Copiar contraseña">
-                              <i data-lucide="copy" class="w-3 h-3"></i>
-                            </button>
-                          </div>
-                        </td>
-                        <td class="p-3">
-                          <span class="px-2 py-0.5 rounded text-[9px] font-bold ${u.estado === 'ACTIVO' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'}">
-                            ${u.estado || 'ACTIVO'}
-                          </span>
-                        </td>
-                        <td class="p-3 text-right space-x-1">
-                          
-                          <!-- Editar Usuario -->
-                          <button onclick="abrirModalUsuarioAvanzado('${u.usuario}')" class="p-1.5 text-navy-800 hover:text-turquoise-700 hover:bg-slate-100 rounded-lg transition cursor-pointer" title="Editar datos y rol del usuario">
-                            <i data-lucide="edit-3" class="w-3.5 h-3.5 text-navy-900"></i>
-                          </button>
-
-                          <!-- Cambiar Contraseña Rápido -->
-                          <button onclick="cambiarPasswordUsuarioRapido('${u.usuario}')" class="p-1.5 text-amber-600 hover:text-amber-800 hover:bg-amber-50 rounded-lg transition cursor-pointer" title="Cambiar contraseña de este usuario">
-                            <i data-lucide="key" class="w-3.5 h-3.5 text-amber-500"></i>
-                          </button>
-
-                          <!-- Activar / Suspender Usuario -->
-                          <button onclick="alternarEstadoUsuarioAdmin('${u.usuario}')" class="p-1.5 ${u.estado === 'ACTIVO' ? 'text-slate-400 hover:text-amber-600 hover:bg-amber-50' : 'text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50'} rounded-lg transition cursor-pointer" title="${u.estado === 'ACTIVO' ? 'Suspender acceso a este usuario' : 'Reactivar acceso a este usuario'}">
-                            <i data-lucide="${u.estado === 'ACTIVO' ? 'user-x' : 'user-check'}" class="w-3.5 h-3.5"></i>
-                          </button>
-
-                          <!-- Eliminar Usuario -->
-                          <button onclick="eliminarUsuarioAdmin('${u.usuario}')" class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition cursor-pointer" title="Eliminar usuario del sistema">
-                            <i data-lucide="trash-2" class="w-3.5 h-3.5 text-rose-600"></i>
-                          </button>
-                        </td>
-                      </tr>
-                    `;
-                  }).join('')}
+                <tbody id="tabla-usuarios-tbody" class="divide-y divide-slate-100 bg-white">
+                  ${generarFilasUsuariosHtml(usuariosFiltrados)}
                 </tbody>
               </table>
             </div>
@@ -8295,22 +8277,74 @@
         </div>
       `;
 
-      lucide.createIcons();
+      if (window.lucide) {
+        lucide.createIcons({ root: container });
+      }
     }
 
-    
     function cambiarFiltroEmpresaUsuarios(idEmpresa) {
       filtroEmpresaUsuariosSeleccionada = idEmpresa;
+      const tbody = document.getElementById("tabla-usuarios-tbody");
+      if (tbody) {
+        const filtrados = obtenerUsuariosFiltradosMemoria();
+        tbody.innerHTML = generarFilasUsuariosHtml(filtrados);
+        const lblCount = document.getElementById("lbl-usuarios-resultado-count");
+        if (lblCount) lblCount.textContent = filtrados.length + " resultado(s)";
+        if (window.lucide) lucide.createIcons({ root: tbody });
+        return;
+      }
       refrescarVistaUsuariosActual();
     }
 
     function cambiarFiltroRolUsuarios(rol) {
       filtroRolUsuariosActual = rol;
+      const tbody = document.getElementById("tabla-usuarios-tbody");
+      if (tbody) {
+        // ACTUALIZACIÓN INSTANTÁNEA (0 ms) - SIN RECONSTRUIR EL DOM NI RE-ESCANEAR TODO EL DOCUMENTO
+        const rolesList = ['TODOS', 'ADMIN_GENERAL', 'ADMINISTRATIVO', 'PROGRAMADOR', 'SEGUIMIENTO', 'GERENCIA', 'CONDUCTOR', 'INVITADO'];
+        const estilosRol = {
+          TODOS: { activo: 'border-turquoise-500 bg-turquoise-50/50 ring-2 ring-turquoise-500/20 text-navy-900', normal: 'border-slate-200 bg-white hover:border-slate-300' },
+          ADMIN_GENERAL: { activo: 'border-purple-500 bg-purple-50 ring-2 ring-purple-500/20 text-purple-900', normal: 'border-slate-200 bg-white hover:border-slate-300' },
+          ADMINISTRATIVO: { activo: 'border-blue-500 bg-blue-50 ring-2 ring-blue-500/20 text-blue-900', normal: 'border-slate-200 bg-white hover:border-slate-300' },
+          PROGRAMADOR: { activo: 'border-teal-500 bg-teal-50 ring-2 ring-teal-500/20 text-teal-900', normal: 'border-slate-200 bg-white hover:border-slate-300' },
+          SEGUIMIENTO: { activo: 'border-amber-500 bg-amber-50 ring-2 ring-amber-500/20 text-amber-900', normal: 'border-slate-200 bg-white hover:border-slate-300' },
+          GERENCIA: { activo: 'border-indigo-500 bg-indigo-50 ring-2 ring-indigo-500/20 text-indigo-900', normal: 'border-slate-200 bg-white hover:border-slate-300' },
+          CONDUCTOR: { activo: 'border-emerald-500 bg-emerald-50 ring-2 ring-emerald-500/20 text-emerald-900', normal: 'border-slate-200 bg-white hover:border-slate-300' },
+          INVITADO: { activo: 'border-cyan-500 bg-cyan-50 ring-2 ring-cyan-500/20 text-cyan-900', normal: 'border-slate-200 bg-white hover:border-slate-300' }
+        };
+
+        rolesList.forEach(r => {
+          const btn = document.getElementById('btn-filtro-rol-' + r);
+          if (btn) {
+            btn.className = 'p-2.5 rounded-xl border text-left transition cursor-pointer ' + (r === rol ? estilosRol[r].activo : estilosRol[r].normal);
+          }
+        });
+
+        const filtrados = obtenerUsuariosFiltradosMemoria();
+        tbody.innerHTML = generarFilasUsuariosHtml(filtrados);
+        const lblCount = document.getElementById("lbl-usuarios-resultado-count");
+        if (lblCount) lblCount.textContent = filtrados.length + " resultado(s)";
+        if (window.lucide) {
+          lucide.createIcons({ root: tbody });
+        }
+        return;
+      }
       refrescarVistaUsuariosActual();
     }
 
     function filtrarUsuariosTexto(txt) {
       busquedaTextoUsuariosActual = txt;
+      const tbody = document.getElementById("tabla-usuarios-tbody");
+      if (tbody) {
+        const filtrados = obtenerUsuariosFiltradosMemoria();
+        tbody.innerHTML = generarFilasUsuariosHtml(filtrados);
+        const lblCount = document.getElementById("lbl-usuarios-resultado-count");
+        if (lblCount) lblCount.textContent = filtrados.length + " resultado(s)";
+        if (window.lucide) {
+          lucide.createIcons({ root: tbody });
+        }
+        return;
+      }
       refrescarVistaUsuariosActual();
     }
 
