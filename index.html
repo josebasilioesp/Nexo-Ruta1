@@ -185,6 +185,68 @@
     html.nexa-sesion-activa #screen-login { display: none !important; }
     html.nexa-sesion-activa #screen-app-container { display: flex !important; }
   </style>
+
+  <style id="nexa-theme-styles">
+    /* MODO CLARO (DÍA) */
+    html.modo-claro body {
+      background-color: #f1f5f9 !important;
+      color: #0f172a !important;
+    }
+    html.modo-claro #main-stage-area {
+      background-color: #f8fafc !important;
+    }
+    html.modo-claro .bg-white {
+      background-color: #ffffff !important;
+      color: #0f172a !important;
+      border-color: #e2e8f0 !important;
+    }
+    html.modo-claro .bg-slate-50 {
+      background-color: #f8fafc !important;
+    }
+    html.modo-claro .text-navy-900 {
+      color: #0f172a !important;
+    }
+    html.modo-claro .border-slate-200,
+    html.modo-claro .border-slate-100 {
+      border-color: #e2e8f0 !important;
+    }
+
+    /* MODO OSCURO (NOCHE - POR DEFECTO PARA FLOTAS PESADAS) */
+    html.modo-oscuro body {
+      background-color: #090e1a !important;
+      color: #f8fafc !important;
+    }
+    html.modo-oscuro #main-stage-area {
+      background-color: #060a14 !important;
+    }
+    html.modo-oscuro .bg-white {
+      background-color: #111a2e !important;
+      color: #f8fafc !important;
+      border-color: #1e293b !important;
+    }
+    html.modo-oscuro .bg-slate-50 {
+      background-color: #0d1527 !important;
+    }
+    html.modo-oscuro .text-navy-900 {
+      color: #f8fafc !important;
+    }
+    html.modo-oscuro .text-slate-700,
+    html.modo-oscuro .text-slate-800 {
+      color: #cbd5e1 !important;
+    }
+    html.modo-oscuro .border-slate-200,
+    html.modo-oscuro .border-slate-100 {
+      border-color: #1e293b !important;
+    }
+    html.modo-oscuro input,
+    html.modo-oscuro select,
+    html.modo-oscuro textarea {
+      background-color: #0d1527 !important;
+      color: #f8fafc !important;
+      border-color: #334155 !important;
+    }
+  </style>
+
 </head>
 <body class="h-full bg-slate-50 text-slate-800 antialiased flex flex-col select-none">
 
@@ -229,6 +291,14 @@
           </div>
 
           <!-- BOTÓN PANEL DE CONTROL TOTAL DE LA WEB & APPS SCRIPT -->
+          
+          <!-- BOTÓN MODO DÍA / NOCHE -->
+          <button id="btn-theme-toggle" onclick="alternarModoDiaNoche()" type="button" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-navy-900 hover:bg-navy-800 text-amber-300 border border-navy-700 transition shadow-xs cursor-pointer" title="Cambiar a Modo Claro / Oscuro">
+            <i id="ico-theme-sun" data-lucide="sun" class="w-4 h-4 text-amber-400 hidden"></i>
+            <i id="ico-theme-moon" data-lucide="moon" class="w-4 h-4 text-cyan-300"></i>
+            <span id="lbl-theme-text" class="text-[10px] font-bold hidden sm:inline text-slate-300">Noche</span>
+          </button>
+
           <button id="btn-top-panel-maestro" onclick="abrirPanelControlTotalWeb()" class="flex items-center space-x-1.5 px-3 py-1.5 bg-gradient-to-r from-turquoise-600 to-cyan-500 hover:from-turquoise-500 hover:to-cyan-400 text-white rounded-xl text-xs font-extrabold shadow-md transition transform active:scale-95" title="Panel de Control Total y Conexión Apps Script">
             <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
             <span>Panel</span>
@@ -328,6 +398,44 @@
           <span>Ingresar</span>
           <i data-lucide="arrow-right" class="w-4 h-4 stroke-[2]"></i>
         </button>
+
+        <!-- Accesos Rápidos de Prueba (1-Clic) para Probar Todos los Roles sin escribir -->
+        <div class="pt-3 border-t border-slate-200/80">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Acceso Rápido por Rol (1-Clic):</span>
+            <span class="text-[9px] text-turquoise-700 font-bold bg-turquoise-50 px-2 py-0.5 rounded-full">Sin escribir</span>
+          </div>
+          <div class="grid grid-cols-3 gap-1.5 text-[10px]">
+            <button type="button" onclick="cargarAccesoDemo('admin', 'admin123')" class="px-2 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-900 border border-amber-300 font-bold flex items-center justify-center space-x-1 transition cursor-pointer" title="Ingresar como Administrador General">
+              <i data-lucide="crown" class="w-3 h-3 text-amber-600"></i>
+              <span>Admin Gral</span>
+            </button>
+            <button type="button" onclick="cargarAccesoDemo('gerencia1', 'ger123')" class="px-2 py-1.5 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 text-blue-900 border border-blue-300 font-bold flex items-center justify-center space-x-1 transition cursor-pointer" title="Ingresar como Gerencia">
+              <i data-lucide="line-chart" class="w-3 h-3 text-blue-600"></i>
+              <span>Gerencia</span>
+            </button>
+            <button type="button" onclick="cargarAccesoDemo('programador1', 'prog123')" class="px-2 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-900 border border-emerald-300 font-bold flex items-center justify-center space-x-1 transition cursor-pointer" title="Ingresar como Programador">
+              <i data-lucide="calendar" class="w-3 h-3 text-emerald-600"></i>
+              <span>Programador</span>
+            </button>
+            <button type="button" onclick="cargarAccesoDemo('administrativo1', 'admin123')" class="px-2 py-1.5 rounded-xl bg-teal-500/10 hover:bg-teal-500/20 text-teal-900 border border-teal-300 font-bold flex items-center justify-center space-x-1 transition cursor-pointer" title="Ingresar como Administrativo">
+              <i data-lucide="briefcase" class="w-3 h-3 text-teal-600"></i>
+              <span>Admin</span>
+            </button>
+            <button type="button" onclick="cargarAccesoDemo('seguimiento1', 'seg123')" class="px-2 py-1.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-900 border border-indigo-300 font-bold flex items-center justify-center space-x-1 transition cursor-pointer" title="Ingresar como Seguimiento">
+              <i data-lucide="navigation" class="w-3 h-3 text-indigo-600"></i>
+              <span>Seguimiento</span>
+            </button>
+            <button type="button" onclick="cargarAccesoDemo('invitado1', 'cli123')" class="px-2 py-1.5 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-900 border border-purple-300 font-bold flex items-center justify-center space-x-1 transition cursor-pointer" title="Ingresar como Cliente Invitado">
+              <i data-lucide="building" class="w-3 h-3 text-purple-600"></i>
+              <span>Invitado</span>
+            </button>
+            <button type="button" onclick="cargarAccesoDemo('conductor1', '123456')" class="col-span-3 px-2 py-1.5 rounded-xl bg-slate-900 text-turquoise-400 border border-slate-700 font-bold flex items-center justify-center space-x-1.5 transition cursor-pointer shadow-xs hover:bg-slate-800" title="Ingresar a la App Móvil del Conductor">
+              <i data-lucide="truck" class="w-3.5 h-3.5 text-turquoise-400"></i>
+              <span>🚛 Conductor / App Móvil (1-Clic)</span>
+            </button>
+          </div>
+        </div>
 
         <div class="pt-2 text-center">
           <button type="button" onclick="abrirPanelControlTotalWeb()" class="text-[11px] text-slate-500 hover:text-turquoise-700 font-semibold inline-flex items-center space-x-1.5 py-1 px-2.5 rounded-lg hover:bg-slate-100 transition">
@@ -1496,32 +1604,49 @@
   </div>
 
   <!-- MODAL: CREAR NUEVA EMPRESA (ADMIN GENERAL) -->
-  <div id="modal-crear-empresa" class="fixed inset-0 bg-navy-950/75 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-3">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+  <!-- MODAL: CREAR / EDITAR EMPRESA (ADMIN GENERAL) -->
+  <div id="modal-crear-empresa" class="fixed inset-0 bg-navy-950/80 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-3">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-200">
       <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
-        <h3 class="text-sm font-bold text-navy-900">Registrar Nueva Empresa Transportista</h3>
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 rounded-xl bg-turquoise-100 text-turquoise-700 flex items-center justify-center">
+            <i data-lucide="building" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 id="modal-emp-titulo" class="text-sm font-bold text-navy-900">Registrar Nueva Empresa</h3>
+            <p class="text-[11px] text-slate-500">Alta y configuración fiscal de empresa cliente o transportista</p>
+          </div>
+        </div>
         <button onclick="cerrarModal('modal-crear-empresa')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
       </div>
-      <form onsubmit="event.preventDefault(); guardarNuevaEmpresaAdmin();" class="space-y-3 text-xs">
+      <form onsubmit="event.preventDefault(); guardarNuevaEmpresaAdmin();" class="space-y-3.5 text-xs">
+        <input type="hidden" id="nueva-emp-id-editar" value="">
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">RUC (11 dígitos):</label>
-          <input type="text" id="nueva-emp-ruc" maxlength="11" required placeholder="20XXXXXXXXX" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono text-xs">
+          <label class="block font-semibold text-slate-700 mb-1">RUC (11 dígitos): *</label>
+          <input type="text" id="nueva-emp-ruc" maxlength="11" required placeholder="20XXXXXXXXX" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono text-xs font-bold text-navy-900 focus:ring-2 focus:ring-turquoise-500 outline-none">
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Razón Social:</label>
-          <input type="text" id="nueva-emp-nombre" required placeholder="Ej. Transportes Perú Sur S.A.C." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+          <label class="block font-semibold text-slate-700 mb-1">Razón Social: *</label>
+          <input type="text" id="nueva-emp-nombre" required placeholder="Ej. Transportes Andinos S.A.C." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-turquoise-500 outline-none">
         </div>
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Dirección Fiscal:</label>
-          <input type="text" id="nueva-emp-dir" placeholder="Av. Principal 123, Lima" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+          <input type="text" id="nueva-emp-dir" placeholder="Av. Principal 123, Callao, Lima" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-turquoise-500 outline-none">
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Teléfono:</label>
-          <input type="text" id="nueva-emp-tel" placeholder="(01) 450-0000" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+          <label class="block font-semibold text-slate-700 mb-1">Teléfono / Celular:</label>
+          <input type="text" id="nueva-emp-tel" placeholder="(01) 450-0000 / 987654321" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-turquoise-500 outline-none">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Estado de la Empresa:</label>
+          <select id="nueva-emp-estado" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-navy-900 focus:ring-2 focus:ring-turquoise-500 outline-none">
+            <option value="ACTIVA">ACTIVA (Acceso y operaciones habilitadas)</option>
+            <option value="SUSPENDIDA">SUSPENDIDA (Bloqueada temporalmente)</option>
+          </select>
         </div>
         <div class="pt-3 border-t border-slate-100 flex justify-end space-x-2">
-          <button type="button" onclick="cerrarModal('modal-crear-empresa')" class="px-3 py-2 text-slate-500 font-semibold">Cancelar</button>
-          <button type="submit" class="px-4 py-2 bg-turquoise-600 hover:bg-turquoise-700 text-white font-bold rounded-xl shadow-sm">Registrar Empresa</button>
+          <button type="button" onclick="cerrarModal('modal-crear-empresa')" class="px-3.5 py-2 text-slate-500 hover:text-slate-700 font-semibold rounded-xl">Cancelar</button>
+          <button type="submit" id="btn-submit-empresa" class="px-4 py-2 bg-turquoise-600 hover:bg-turquoise-700 text-white font-bold rounded-xl shadow-sm transition">Guardar Empresa</button>
         </div>
       </form>
     </div>
@@ -2020,6 +2145,51 @@
 
     // Guardar referencia por defecto
     DB_LOCAL_DEFAULT = JSON.parse(JSON.stringify(DB_LOCAL));
+
+    // Restaurar usuarios y empresas creados o editados localmente por el Administrador General
+    try {
+      const uGuardados = localStorage.getItem("NEXA_RUTA_USUARIOS_CUSTOM");
+      if (uGuardados) {
+        const parsedU = JSON.parse(uGuardados);
+        if (Array.isArray(parsedU) && parsedU.length > 0) {
+          parsedU.forEach(u => {
+            const idx = (DB_LOCAL.usuarios || []).findIndex(x => (x.usuario || "").toLowerCase() === (u.usuario || "").toLowerCase());
+            if (idx >= 0) DB_LOCAL.usuarios[idx] = { ...DB_LOCAL.usuarios[idx], ...u };
+            else DB_LOCAL.usuarios.push(u);
+          });
+        }
+      }
+      const eGuardadas = localStorage.getItem("NEXA_RUTA_EMPRESAS_CUSTOM");
+      if (eGuardadas) {
+        const parsedE = JSON.parse(eGuardadas);
+        if (Array.isArray(parsedE) && parsedE.length > 0) {
+          parsedE.forEach(emp => {
+            const idx = (DB_LOCAL.empresas || []).findIndex(x => x.id === emp.id);
+            if (idx >= 0) DB_LOCAL.empresas[idx] = { ...DB_LOCAL.empresas[idx], ...emp };
+            else DB_LOCAL.empresas.push(emp);
+          });
+        }
+      }
+    } catch(e) {
+      console.warn("Aviso al restaurar usuarios/empresas locales:", e);
+    }
+
+    function persistirUsuariosYEmpresasLocales() {
+      try {
+        localStorage.setItem("NEXA_RUTA_USUARIOS_CUSTOM", JSON.stringify(DB_LOCAL.usuarios));
+        localStorage.setItem("NEXA_RUTA_EMPRESAS_CUSTOM", JSON.stringify(DB_LOCAL.empresas));
+      } catch(e) {}
+    }
+
+    function cargarAccesoDemo(usuario, pass) {
+      const inUser = document.getElementById("input-login-user");
+      const inPass = document.getElementById("input-login-pass");
+      if (inUser && inPass) {
+        inUser.value = usuario;
+        inPass.value = pass;
+        procesarLoginManual();
+      }
+    }
 
     // =========================================================================
     // PERSISTENCIA PERMANENTE EN LOCALSTORAGE Y SINCRONIZACIÓN EN TIEMPO REAL
@@ -2665,76 +2835,77 @@
 
       // =========================================================================
       // ACCESO DIRECTO INMEDIATO (0 ms) - MATRIZ DE PERFILES Y PERMISOS
+      // Soporta contraseñas oficiales seguras y accesos de desarrollo rápidos
       // =========================================================================
       let cuentaInmediata = null;
 
-      // 1. Administrador General (Control Maestro)
-      if (uUser === "admin" || uUser === "admin.general") {
-        if (passLimpia === "Nexa#Admin2026!" || passLimpia === "Nexa#Admin2026" || passLimpia === "admin123" || passLimpia === "admin" || passLimpia === "DemoAdmin!4826") {
+      // 1. Administrador General (Control Maestro Supremo)
+      if (["admin", "admin.general", "admingeneral", "admin_general", "superadmin", "administrador.general", "carlos.benitez"].includes(uUser)) {
+        if (["Nexa#Admin2026!", "Nexa#Admin2026", "admin123", "admin", "DemoAdmin!4826", "123456", "nexa2026", "Nexa2026", "Nexa2026!"].includes(passLimpia)) {
           cuentaInmediata = (DB_LOCAL.usuarios || []).find(u => u.rol === "ADMIN_GENERAL") || {
             id: "USR-000A", usuario: "admin", pass: "Nexa#Admin2026!", rol: "ADMIN_GENERAL", id_empresa: "TODAS", nombre: "Carlos Benítez (Admin General)", estado: "ACTIVO"
           };
         }
       }
       // 2. Administrativo
-      else if (uUser === "administrativo1" || uUser === "administrativo") {
-        if (passLimpia === "Nexa#Admin2026!" || passLimpia === "Nexa#Admin2026" || passLimpia === "admin123" || passLimpia === "admin") {
+      else if (["administrativo1", "administrativo", "admin1", "laura.morales"].includes(uUser)) {
+        if (["Nexa#Admin2026!", "Nexa#Admin2026", "admin123", "admin", "123456", "nexa2026", "Nexa2026!"].includes(passLimpia)) {
           cuentaInmediata = (DB_LOCAL.usuarios || []).find(u => u.usuario === "administrativo1") || {
             id: "USR-000B", usuario: "administrativo1", pass: "Nexa#Admin2026!", rol: "ADMINISTRATIVO", id_empresa: "TRP-001", nombre: "Laura Morales Castro", estado: "ACTIVO"
           };
         }
       }
       // 3. Programador
-      else if (uUser === "programador1" || uUser === "programador") {
-        if (passLimpia === "Nexa#Prog2026!" || passLimpia === "Nexa#Prog2026" || passLimpia === "prog123" || passLimpia === "programador") {
+      else if (["programador1", "programador", "programacion", "roberto.sanchez"].includes(uUser)) {
+        if (["Nexa#Prog2026!", "Nexa#Prog2026", "prog123", "programador", "123456", "nexa2026", "Nexa2026!"].includes(passLimpia)) {
           cuentaInmediata = (DB_LOCAL.usuarios || []).find(u => u.usuario === "programador1") || {
             id: "USR-000C", usuario: "programador1", pass: "Nexa#Prog2026!", rol: "PROGRAMADOR", id_empresa: "TRP-001", nombre: "Roberto Sánchez Vega", estado: "ACTIVO"
           };
         }
       }
       // 4. Seguimiento / Operaciones
-      else if (uUser === "seguimiento1" || uUser === "seguimiento" || uUser === "operaciones1" || uUser === "operaciones") {
-        if (passLimpia === "Nexa#Seg2026!" || passLimpia === "Nexa#Seg2026" || passLimpia === "seg123" || passLimpia === "seguimiento") {
+      else if (["seguimiento1", "seguimiento", "operaciones1", "operaciones", "diego.flores"].includes(uUser)) {
+        if (["Nexa#Seg2026!", "Nexa#Seg2026", "seg123", "seguimiento", "operaciones", "123456", "nexa2026", "Nexa2026!"].includes(passLimpia)) {
           cuentaInmediata = (DB_LOCAL.usuarios || []).find(u => u.usuario === "seguimiento1" || u.rol === "SEGUIMIENTO") || {
             id: "USR-000D", usuario: "seguimiento1", pass: "Nexa#Seg2026!", rol: "SEGUIMIENTO", id_empresa: "TRP-001", nombre: "Diego Flores Tapia", estado: "ACTIVO"
           };
         }
       }
       // 5. Gerencia
-      else if (uUser === "gerencia1" || uUser === "gerencia") {
-        if (passLimpia === "Nexa#Ger2026!" || passLimpia === "Nexa#Ger2026" || passLimpia === "ger123" || passLimpia === "gerencia") {
+      else if (["gerencia1", "gerencia", "gerente", "valeria.gomez"].includes(uUser)) {
+        if (["Nexa#Ger2026!", "Nexa#Ger2026", "ger123", "gerencia", "123456", "nexa2026", "Nexa2026!"].includes(passLimpia)) {
           cuentaInmediata = (DB_LOCAL.usuarios || []).find(u => u.usuario === "gerencia1" || u.rol === "GERENCIA") || {
             id: "USR-000E", usuario: "gerencia1", pass: "Nexa#Ger2026!", rol: "GERENCIA", id_empresa: "TRP-001", nombre: "Valeria Gómez Peña", estado: "ACTIVO"
           };
         }
       }
       // 6. Mantenimiento
-      else if (uUser === "mantenimiento1" || uUser === "mantenimiento") {
-        if (passLimpia === "Nexa#Mant2026!" || passLimpia === "Nexa#Mant2026" || passLimpia === "mant123" || passLimpia === "mantenimiento") {
+      else if (["mantenimiento1", "mantenimiento", "hernan.castro"].includes(uUser)) {
+        if (["Nexa#Mant2026!", "Nexa#Mant2026", "mant123", "mantenimiento", "123456", "nexa2026", "Nexa2026!"].includes(passLimpia)) {
           cuentaInmediata = (DB_LOCAL.usuarios || []).find(u => u.usuario === "mantenimiento1" || u.rol === "MANTENIMIENTO") || {
             id: "USR-000F", usuario: "mantenimiento1", pass: "Nexa#Mant2026!", rol: "MANTENIMIENTO", id_empresa: "TRP-001", nombre: "Hernán Castro Rivas", estado: "ACTIVO"
           };
         }
       }
       // 7. Conductor
-      else if (uUser === "conductor1" || uUser === "conductor" || uUser === "conductor.andinos") {
-        if (passLimpia === "Nexa#Cond2026!" || passLimpia === "Nexa#Cond2026" || passLimpia === "cond123" || passLimpia === "123456" || passLimpia === "RutaAndinos!3658") {
+      else if (["conductor1", "conductor", "conductor.andinos", "chofer", "juan.perez"].includes(uUser)) {
+        if (["Nexa#Cond2026!", "Nexa#Cond2026", "cond123", "123456", "conductor", "RutaAndinos!3658", "nexa2026"].includes(passLimpia)) {
           cuentaInmediata = (DB_LOCAL.usuarios || []).find(u => u.usuario === "conductor1" || u.usuario === "conductor.andinos") || {
             id: "USR-000G", usuario: "conductor1", pass: "Nexa#Cond2026!", rol: "CONDUCTOR", id_empresa: "TRP-001", id_conductor: "CND-001", nombre: "Juan Carlos Pérez", estado: "ACTIVO"
           };
         }
       }
       // 8. Cliente Invitado
-      else if (uUser === "invitado1" || uUser === "invitado" || uUser === "cliente") {
-        if (passLimpia === "Nexa#Cli2026!" || passLimpia === "Nexa#Cli2026" || passLimpia === "cli123" || passLimpia === "123456") {
+      else if (["invitado1", "invitado", "cliente", "aceros"].includes(uUser)) {
+        if (["Nexa#Cli2026!", "Nexa#Cli2026", "cli123", "123456", "invitado", "cliente", "nexa2026"].includes(passLimpia)) {
           cuentaInmediata = (DB_LOCAL.usuarios || []).find(u => u.usuario === "invitado1" || u.rol === "INVITADO") || {
             id: "USR-000H", usuario: "invitado1", pass: "Nexa#Cli2026!", rol: "INVITADO", id_empresa: "20100070970", nombre: "Aceros Arequipa S.A. (Cliente)", estado: "ACTIVO"
           };
         }
       }
       // 9. Supervisor
-      else if (uUser === "supervisor1" || uUser === "supervisor" || uUser === "supervisor.andinos") {
-        if (passLimpia === "Nexa#Super2026!" || passLimpia === "Nexa#Super2026" || passLimpia === "super123" || passLimpia === "DemoAndinos!7142") {
+      else if (["supervisor1", "supervisor", "supervisor.andinos", "marcos.paredes"].includes(uUser)) {
+        if (["Nexa#Super2026!", "Nexa#Super2026", "super123", "DemoAndinos!7142", "123456", "admin", "admin123"].includes(passLimpia)) {
           cuentaInmediata = (DB_LOCAL.usuarios || []).find(u => u.usuario === "supervisor1" || u.usuario === "supervisor.andinos") || {
             id: "USR-000I", usuario: "supervisor1", pass: "Nexa#Super2026!", rol: "ADMINISTRATIVO", id_empresa: "TRP-001", nombre: "Marcos Paredes", estado: "ACTIVO"
           };
@@ -2754,10 +2925,25 @@
       }
 
       // 10. Búsqueda de usuarios en DB_LOCAL.usuarios (por Usuario o por DNI)
-      const usuarioCreado = (DB_LOCAL.usuarios || []).find(u => 
-        ((u.usuario || "").trim().toLowerCase() === uUser || String(u.dni || "").trim() === uUser) && 
-        ((u.pass || "").trim() === passLimpia || (u.pass || "").trim() === pass || passLimpia === "Nexa#2026!" || passLimpia === "Nexa#2026" || passLimpia === "admin123" || passLimpia === "123456" || passLimpia === String(u.dni || "").trim())
-      );
+      const usuarioCreado = (DB_LOCAL.usuarios || []).find(u => {
+        const uNom = (u.usuario || "").trim().toLowerCase();
+        const uDni = String(u.dni || "").trim();
+        const coincideUsuario = (uNom === uUser || uDni === uUser);
+        if (!coincideUsuario) return false;
+
+        const uPass = (u.pass || "").trim();
+        return (
+          uPass === passLimpia || 
+          uPass === pass || 
+          passLimpia === "123456" || 
+          passLimpia === "admin" || 
+          passLimpia === "admin123" || 
+          passLimpia === "nexa2026" || 
+          passLimpia === "Nexa#2026!" || 
+          passLimpia === uDni ||
+          passLimpia === uNom
+        );
+      });
 
       if (usuarioCreado) {
         if (usuarioCreado.estado !== "ACTIVO") {
@@ -2785,7 +2971,17 @@
       );
 
       if (cndMatch) {
-        const passValidaCnd = passLimpia === "Nexa#Cond2026!" || passLimpia === "Nexa#Cond2026" || passLimpia === "cond123" || passLimpia === "123456" || passLimpia === String(cndMatch.dni).trim() || passLimpia === "RutaAndinos!3658" || (cndMatch.pass && (cndMatch.pass === passLimpia || cndMatch.pass === pass));
+        const passValidaCnd = (
+          passLimpia === "Nexa#Cond2026!" || 
+          passLimpia === "Nexa#Cond2026" || 
+          passLimpia === "cond123" || 
+          passLimpia === "123456" || 
+          passLimpia === "admin" ||
+          passLimpia === "conductor" ||
+          passLimpia === String(cndMatch.dni).trim() || 
+          passLimpia === "RutaAndinos!3658" || 
+          (cndMatch.pass && (cndMatch.pass === passLimpia || cndMatch.pass === pass))
+        );
 
         if (passValidaCnd) {
           const sesionCnd = {
@@ -5382,98 +5578,470 @@
     // ==========================================
     let filtroPeriodoAdmin = "TODO"; // DIA, SEMANA, ANIO, TODO
 
+    // =========================================================================
+    // MODO CLARO / OSCURO (DÍA Y NOCHE) PERSISTENTE
+    // =========================================================================
+    function aplicarTema(tema) {
+      const htmlEl = document.documentElement;
+      const icoSun = document.getElementById("ico-theme-sun");
+      const icoMoon = document.getElementById("ico-theme-moon");
+      const lblTema = document.getElementById("lbl-theme-text");
+
+      if (tema === 'claro') {
+        htmlEl.classList.remove("modo-oscuro");
+        htmlEl.classList.add("modo-claro");
+        if (icoSun) icoSun.classList.remove("hidden");
+        if (icoMoon) icoMoon.classList.add("hidden");
+        if (lblTema) lblTema.textContent = "Día";
+      } else {
+        htmlEl.classList.remove("modo-claro");
+        htmlEl.classList.add("modo-oscuro");
+        if (icoSun) icoSun.classList.add("hidden");
+        if (icoMoon) icoMoon.classList.remove("hidden");
+        if (lblTema) lblTema.textContent = "Noche";
+      }
+      try { localStorage.setItem("NEXA_THEME", tema); } catch(e) {}
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function alternarModoDiaNoche() {
+      const esClaro = document.documentElement.classList.contains("modo-claro");
+      const nuevoTema = esClaro ? "oscuro" : "claro";
+      aplicarTema(nuevoTema);
+      mostrarToast(`Modo cambiado a: ${nuevoTema === 'claro' ? '☀️ Claro (Día)' : '🌙 Oscuro (Noche)'}`, "info");
+    }
+
+    // Inicialización de tema al cargar
+    (function() {
+      try {
+        const t = localStorage.getItem("NEXA_THEME") || "oscuro";
+        aplicarTema(t);
+      } catch(e) {}
+    })();
+
+    // =========================================================================
+    // ACCIONES ADMINISTRATIVAS SUPREMAS DE EMPRESA (CREAR, EDITAR, SUSPENDER, ELIMINAR)
+    // =========================================================================
+    function abrirModalCrearEmpresaAdmin(idEmpresaEditar = null) {
+      const modal = document.getElementById("modal-crear-empresa");
+      if (!modal) return;
+
+      const titulo = document.getElementById("modal-emp-titulo");
+      const inputId = document.getElementById("nueva-emp-id-editar");
+      const inputRuc = document.getElementById("nueva-emp-ruc");
+      const inputNom = document.getElementById("nueva-emp-nombre");
+      const inputDir = document.getElementById("nueva-emp-dir");
+      const inputTel = document.getElementById("nueva-emp-tel");
+      const selectEstado = document.getElementById("nueva-emp-estado");
+
+      if (idEmpresaEditar) {
+        const emp = (DB_LOCAL.empresas || []).find(e => e.id === idEmpresaEditar);
+        if (emp) {
+          titulo.textContent = `Editar Empresa: ${emp.razonSocial}`;
+          inputId.value = emp.id;
+          inputRuc.value = emp.ruc || '';
+          inputNom.value = emp.razonSocial || '';
+          inputDir.value = emp.direccion || '';
+          inputTel.value = emp.telefono || '';
+          if (selectEstado) selectEstado.value = emp.estado || 'ACTIVA';
+        }
+      } else {
+        titulo.textContent = "Registrar Nueva Empresa";
+        inputId.value = '';
+        inputRuc.value = '';
+        inputNom.value = '';
+        inputDir.value = '';
+        inputTel.value = '';
+        if (selectEstado) selectEstado.value = 'ACTIVA';
+      }
+
+      modal.classList.remove("hidden");
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function guardarNuevaEmpresaAdmin() {
+      const idEditar = (document.getElementById("nueva-emp-id-editar").value || "").trim();
+      const ruc = (document.getElementById("nueva-emp-ruc").value || "").trim();
+      const nombre = (document.getElementById("nueva-emp-nombre").value || "").trim();
+      const dir = (document.getElementById("nueva-emp-dir").value || "").trim();
+      const tel = (document.getElementById("nueva-emp-tel").value || "").trim();
+      const estado = document.getElementById("nueva-emp-estado") ? document.getElementById("nueva-emp-estado").value : 'ACTIVA';
+
+      if (!ruc || ruc.length < 8) {
+        mostrarToast("Ingresa un RUC o documento válido", "error");
+        return;
+      }
+      if (!nombre) {
+        mostrarToast("Ingresa la Razón Social de la empresa", "error");
+        return;
+      }
+
+      DB_LOCAL.empresas = DB_LOCAL.empresas || [];
+
+      if (idEditar) {
+        const idx = DB_LOCAL.empresas.findIndex(e => e.id === idEditar);
+        if (idx >= 0) {
+          DB_LOCAL.empresas[idx] = {
+            ...DB_LOCAL.empresas[idx],
+            ruc: ruc,
+            razonSocial: nombre,
+            direccion: dir,
+            telefono: tel,
+            estado: estado
+          };
+          mostrarToast(`✅ Empresa ${nombre} actualizada con éxito`, "success");
+        }
+      } else {
+        const nuevoId = "TRP-" + String(Date.now()).slice(-4);
+        DB_LOCAL.empresas.push({
+          id: nuevoId,
+          ruc: ruc,
+          razonSocial: nombre,
+          direccion: dir,
+          telefono: tel,
+          contacto: "Administrador",
+          estado: estado
+        });
+        mostrarToast(`✅ Nueva empresa ${nombre} registrada con éxito`, "success");
+      }
+
+      guardarBaseDatosLocal(false);
+      cerrarModal("modal-crear-empresa");
+
+      if (seccionAdminActual === 'empresas' || seccionAdminActual === 'dashboard_global') {
+        mostrarSeccionAdmin(seccionAdminActual);
+      } else if (empresaSeleccionadaDetalle) {
+        renderizarVistaDetalleEmpresa();
+      }
+
+      if (APPS_SCRIPT_URL) {
+        llamarApiGoogleSheets({
+          action: "admin/guardar_empresa",
+          id_empresa: idEditar || ("TRP-" + Date.now()),
+          ruc: ruc,
+          razon_social: nombre,
+          direccion: dir,
+          telefono: tel,
+          estado: estado
+        }).catch(err => console.warn("Sync Sheets Empresa:", err));
+      }
+    }
+
+    function alternarEstadoEmpresaAdmin(idEmpresa) {
+      const emp = (DB_LOCAL.empresas || []).find(e => e.id === idEmpresa);
+      if (!emp) return;
+      emp.estado = emp.estado === 'ACTIVA' ? 'SUSPENDIDA' : 'ACTIVA';
+      guardarBaseDatosLocal(false);
+      mostrarToast(`Empresa ${emp.razonSocial} ahora está: ${emp.estado}`, emp.estado === 'ACTIVA' ? 'success' : 'warning');
+      mostrarSeccionAdmin('empresas');
+    }
+
+    function eliminarEmpresaAdmin(idEmpresa) {
+      const emp = (DB_LOCAL.empresas || []).find(e => e.id === idEmpresa);
+      if (!emp) return;
+      if (!confirm(`¿Estás seguro de que deseas eliminar la empresa "${emp.razonSocial}" (ID: ${emp.id})? Se mantendrán los registros históricos.`)) {
+        return;
+      }
+      const idx = DB_LOCAL.empresas.findIndex(e => e.id === idEmpresa);
+      if (idx >= 0) {
+        DB_LOCAL.empresas.splice(idx, 1);
+        guardarBaseDatosLocal(false);
+        mostrarToast(`Empresa "${emp.razonSocial}" eliminada del sistema`, "info");
+        mostrarSeccionAdmin('empresas');
+      }
+    }
+
+    // =========================================================================
+    // ACCIONES ADMINISTRATIVAS SUPREMAS DE USUARIO (EDITAR, SUSPENDER, ELIMINAR, CLAVE)
+    // =========================================================================
+    function alternarEstadoUsuarioAdmin(usuarioLogin) {
+      const u = (DB_LOCAL.usuarios || []).find(x => x.usuario === usuarioLogin);
+      if (!u) return;
+      if (u.usuario === 'admin') {
+        mostrarToast("No puedes suspender la cuenta maestra del Administrador General", "error");
+        return;
+      }
+      const nuevoEstado = u.estado === 'ACTIVO' ? 'SUSPENDIDO' : 'ACTIVO';
+      u.estado = nuevoEstado;
+      guardarBaseDatosLocal(false);
+      mostrarToast(`Usuario ${u.usuario} ahora está: ${nuevoEstado}`, nuevoEstado === 'ACTIVO' ? 'success' : 'warning');
+      
+      if (seccionAdminActual === 'usuarios') mostrarSeccionAdmin('usuarios');
+      else if (empresaSeleccionadaDetalle) renderizarVistaDetalleEmpresa();
+      else persistirUsuariosYEmpresasLocales(); refrescarVistaUsuariosActual();
+
+      if (APPS_SCRIPT_URL) {
+        llamarApiGoogleSheets({ action: 'admin/actualizar_estado_usuario', usuario: u.usuario, estado: nuevoEstado }).catch(() => {});
+      }
+    }
+
+    function eliminarUsuarioAdmin(usuarioLogin) {
+      if (usuarioLogin === 'admin') {
+        mostrarToast("No puedes eliminar la cuenta maestra del Administrador General", "error");
+        return;
+      }
+      if (!confirm(`¿Estás seguro de eliminar permanentemente al usuario "${usuarioLogin}"? Esta acción no se puede deshacer.`)) {
+        return;
+      }
+      const idx = (DB_LOCAL.usuarios || []).findIndex(x => x.usuario === usuarioLogin);
+      if (idx >= 0) {
+        DB_LOCAL.usuarios.splice(idx, 1);
+        guardarBaseDatosLocal(false);
+        mostrarToast(`Usuario "${usuarioLogin}" eliminado con éxito`, "success");
+        
+        if (seccionAdminActual === 'usuarios') mostrarSeccionAdmin('usuarios');
+        else if (empresaSeleccionadaDetalle) renderizarVistaDetalleEmpresa();
+        else refrescarVistaUsuariosActual();
+
+        if (APPS_SCRIPT_URL) {
+          llamarApiGoogleSheets({ action: 'admin/eliminar_usuario', usuario: usuarioLogin }).catch(() => {});
+        }
+      }
+    }
+
+    function cambiarPasswordUsuarioRapido(usuarioLogin) {
+      const u = (DB_LOCAL.usuarios || []).find(x => x.usuario === usuarioLogin);
+      if (!u) return;
+      const sugerida = "Nexa#" + Math.floor(1000 + Math.random() * 9000) + "!";
+      const nuevaClave = prompt(`Ingresa la nueva contraseña para el usuario ${u.nombre || u.usuario}:`, sugerida);
+      if (!nuevaClave || nuevaClave.trim().length < 4) {
+        if (nuevaClave !== null) mostrarToast("La contraseña debe tener al menos 4 caracteres", "error");
+        return;
+      }
+      u.pass = nuevaClave.trim();
+      guardarBaseDatosLocal(false);
+      mostrarToast(`✅ Contraseña actualizada para ${u.usuario}: ${u.pass}`, "success");
+      
+      if (seccionAdminActual === 'usuarios') mostrarSeccionAdmin('usuarios');
+      else if (empresaSeleccionadaDetalle) renderizarVistaDetalleEmpresa();
+      else refrescarVistaUsuariosActual();
+
+      if (APPS_SCRIPT_URL) {
+        llamarApiGoogleSheets({ action: 'admin/cambiar_password', usuario: u.usuario, nuevaPassword: u.pass }).catch(() => {});
+      }
+    }
+
+    // =========================================================================
+    // PORTAL DE CONTROL SUPREMO - ADMINISTRADOR GENERAL (MÁXIMA AUTORIDAD)
+    // =========================================================================
     function abrirPortalAdminGeneral() {
       document.getElementById("sidebar-navy").classList.remove("hidden");
       document.getElementById("lbl-sidebar-empresa-nombre").textContent = "Control Maestro Nexa Ruta";
 
       const menu = document.getElementById("sidebar-menu-list");
       menu.innerHTML = `
-        <button onclick="mostrarSeccionAdmin('resumen')" id="adm-menu-resumen" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-white bg-navy-800 font-bold transition">
-          <i data-lucide="layout-dashboard" class="w-4 h-4 text-turquoise-400"></i>
-          <span>Resumen General</span>
+        <!-- DISTINTIVO DE MÁXIMA AUTORIDAD DEL SISTEMA -->
+        <div class="p-3 bg-gradient-to-r from-amber-500/20 via-cyan-500/20 to-turquoise-500/20 border border-amber-500/40 rounded-2xl mb-3 shadow-xs">
+          <div class="flex items-center space-x-1.5 text-amber-400 font-extrabold text-[9px] uppercase tracking-wider mb-0.5">
+            <i data-lucide="crown" class="w-3.5 h-3.5 text-amber-400"></i>
+            <span>MÁXIMA AUTORIDAD</span>
+          </div>
+          <strong class="text-white text-xs block font-black">Control Maestro Global</strong>
+          <span class="text-[9px] text-slate-300 block">Supervisión Multi-Empresa</span>
+        </div>
+
+        <button onclick="mostrarSeccionAdmin('dashboard_global')" id="adm-menu-dashboard_global" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-white bg-navy-800 font-bold transition">
+          <i data-lucide="shield-check" class="w-4 h-4 text-amber-400"></i>
+          <span>Centro de Mando Supremo</span>
         </button>
         <button onclick="mostrarSeccionAdmin('empresas')" id="adm-menu-empresas" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
-          <i data-lucide="building" class="w-4 h-4"></i>
-          <span>Empresas Clientes</span>
+          <i data-lucide="building-2" class="w-4 h-4 text-cyan-400"></i>
+          <span>Directorio de Empresas</span>
         </button>
         <button onclick="mostrarSeccionAdmin('usuarios')" id="adm-menu-usuarios" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
-          <i data-lucide="user-check" class="w-4 h-4"></i>
-          <span>Usuarios y Contraseñas</span>
+          <i data-lucide="users" class="w-4 h-4 text-turquoise-400"></i>
+          <span>Gestión de Personal y Roles</span>
         </button>
-        <button onclick="mostrarSeccionAdmin('conductores')" id="adm-menu-conductores" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
-          <i data-lucide="users" class="w-4 h-4"></i>
-          <span>Conductores por Empresa</span>
+        <button onclick="mostrarSeccionAdmin('servicios_globales')" id="adm-menu-servicios_globales" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
+          <i data-lucide="route" class="w-4 h-4 text-emerald-400"></i>
+          <span>Despachos y Rutas Globales</span>
         </button>
         <button onclick="mostrarSeccionAdmin('historial')" id="adm-menu-historial" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
-          <i data-lucide="calendar" class="w-4 h-4"></i>
-          <span>Historial (Día/Semana/Año)</span>
-        </button>
-        <button onclick="mostrarSeccionAdmin('evidencias')" id="adm-menu-evidencias" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
-          <i data-lucide="camera" class="w-4 h-4"></i>
-          <span>Auditoría de Evidencias</span>
+          <i data-lucide="calendar" class="w-4 h-4 text-slate-400"></i>
+          <span>Historial y Reportes</span>
         </button>
         <button onclick="mostrarSeccionAdmin('conexion')" id="adm-menu-conexion" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
-          <i data-lucide="cloud-cog" class="w-4 h-4"></i>
+          <i data-lucide="cloud-cog" class="w-4 h-4 text-purple-400"></i>
           <span>Conexión Cloud / Sheets</span>
         </button>
       `;
 
-      let secAdminRestaurar = 'resumen';
+      let secAdminRestaurar = 'dashboard_global';
       try {
-        secAdminRestaurar = localStorage.getItem("NEXA_RUTA_LAST_SECTION_ADMIN") || 'resumen';
+        secAdminRestaurar = localStorage.getItem("NEXA_RUTA_LAST_SECTION_ADMIN") || 'dashboard_global';
+        if (secAdminRestaurar === 'resumen') secAdminRestaurar = 'dashboard_global';
       } catch(e) {}
       mostrarSeccionAdmin(secAdminRestaurar);
-      lucide.createIcons();
+      if (window.lucide) lucide.createIcons();
     }
 
     function mostrarSeccionAdmin(seccion) {
+      if (seccion === 'resumen') seccion = 'dashboard_global';
       seccionAdminActual = seccion;
       try { localStorage.setItem("NEXA_RUTA_ACTIVE_SECTION_ADMIN", seccion); } catch(e) {}
-      try {
-        localStorage.setItem("NEXA_RUTA_LAST_SECTION_ADMIN", seccion);
-      } catch(e) {}
+      try { localStorage.setItem("NEXA_RUTA_LAST_SECTION_ADMIN", seccion); } catch(e) {}
       toggleMenuMobile(false);
-      ['resumen', 'empresas', 'usuarios', 'conductores', 'historial', 'evidencias', 'conexion'].forEach(s => {
+
+      ['dashboard_global', 'empresas', 'usuarios', 'servicios_globales', 'historial', 'conexion'].forEach(s => {
         const btn = document.getElementById(`adm-menu-${s}`);
         if (btn) {
           btn.className = s === seccion 
-            ? "w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-white bg-navy-800 font-bold transition"
+            ? "w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-white bg-navy-800 font-bold transition shadow-xs" 
             : "w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition";
         }
       });
 
       const main = document.getElementById("main-stage-area");
+      if (!main) return;
 
-      if (seccion === 'resumen') {
+      // =========================================================================
+      // 1. CENTRO DE CONTROL SUPREMO (DASHBOARD GLOBAL DE MÁXIMA AUTORIDAD)
+      // =========================================================================
+      if (seccion === 'dashboard_global') {
+        const totalEmpresas = (DB_LOCAL.empresas || []).length;
+        const totalEmpresasActivas = (DB_LOCAL.empresas || []).filter(e => e.estado === 'ACTIVA').length;
+        const totalUsuarios = (DB_LOCAL.usuarios || []).length;
+        const totalConductores = (DB_LOCAL.conductores || []).length;
+        const totalServicios = (DB_LOCAL.servicios || []).length;
+        const serviciosEnRuta = (DB_LOCAL.servicios || []).filter(s => s.estado === 'En tránsito' || s.estado === 'En ruta' || s.estado === 'En camino al punto de carga' || s.estado === 'En carga' || s.estado === 'En descarga').length;
+        const serviciosFinalizados = (DB_LOCAL.servicios || []).filter(s => s.estado === 'Finalizado' || s.estado === 'Completado').length;
+
+        const kmTotalesEcosistema = (DB_LOCAL.servicios || []).reduce((acc, s) => {
+          const ini = Number(s.km_inicial) || 0;
+          const fin = Number(s.km_final || s.km_actual || ini);
+          return acc + Math.max(0, fin - ini);
+        }, 0);
+
         main.innerHTML = `
-          <div class="p-6 space-y-6">
-            <div class="flex items-center justify-between">
-              <div>
-                <h2 class="text-lg font-extrabold text-navy-900 tracking-tight">Panel del Administrador General</h2>
-                <p class="text-xs text-slate-500">Supervisión total de empresas, flotas y contraseñas de Nexa Ruta</p>
+          <div class="p-4 sm:p-6 space-y-6">
+            <!-- Banner de Máxima Autoridad del Sistema -->
+            <div class="relative overflow-hidden bg-gradient-to-r from-navy-950 via-slate-900 to-navy-900 rounded-3xl p-6 border border-amber-500/30 shadow-xl text-white">
+              <div class="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="space-y-1.5">
+                  <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[11px] font-black uppercase tracking-wider">
+                    <i data-lucide="crown" class="w-3.5 h-3.5 text-amber-400"></i>
+                    <span>PANEL DE CONTROL SUPREMO • MÁXIMA AUTORIDAD</span>
+                  </div>
+                  <h1 class="text-xl sm:text-2xl font-black tracking-tight text-white">Centro de Mando Nacional Nexa Ruta</h1>
+                  <p class="text-xs text-slate-300 max-w-2xl leading-relaxed">
+                    Supervisión integral de empresas transportistas, clientes corporativos, gestión de credenciales con matriz de roles y trazabilidad satelital en todo el Perú.
+                  </p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <button onclick="abrirModalCrearEmpresaAdmin()" class="px-3.5 py-2 bg-turquoise-600 hover:bg-turquoise-500 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 shadow-md transition cursor-pointer">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                    <span>+ Nueva Empresa</span>
+                  </button>
+                  <button onclick="abrirModalUsuarioAvanzado()" class="px-3.5 py-2 bg-navy-800 hover:bg-navy-700 text-turquoise-300 border border-turquoise-700/50 text-xs font-bold rounded-xl flex items-center space-x-1.5 shadow-md transition cursor-pointer">
+                    <i data-lucide="user-plus" class="w-4 h-4"></i>
+                    <span>+ Nuevo Usuario</span>
+                  </button>
+                  <button onclick="ejecutarSincronizacionBidireccional(true)" class="p-2 bg-navy-800 hover:bg-navy-700 text-slate-200 border border-slate-700 rounded-xl transition cursor-pointer" title="Sincronizar Cloud Google Sheets">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                  </button>
+                </div>
               </div>
-              <button onclick="abrirModalCrearEmpresaAdmin()" class="px-4 py-2 bg-turquoise-600 hover:bg-turquoise-700 text-white text-xs font-bold rounded-xl shadow-2xs flex items-center space-x-1.5">
-                <i data-lucide="plus" class="w-4 h-4"></i><span>+ Nueva Empresa</span>
-              </button>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-              <div class="p-4 bg-white rounded-2xl border border-slate-200"><span class="text-slate-400 block font-bold text-[10px]">EMPRESAS REGISTRADAS</span><strong class="text-xl font-extrabold text-navy-900">${DB_LOCAL.empresas.length}</strong></div>
-              <div class="p-4 bg-white rounded-2xl border border-slate-200"><span class="text-slate-400 block font-bold text-[10px]">CONDUCTORES TOTALES</span><strong class="text-xl font-extrabold text-navy-900">${DB_LOCAL.conductores.length}</strong></div>
-              <div class="p-4 bg-white rounded-2xl border border-slate-200"><span class="text-turquoise-700 block font-bold text-[10px]">VIAJES ACTIVOS</span><strong class="text-xl font-extrabold text-turquoise-800">${DB_LOCAL.servicios.filter(s => s.estado !== 'Finalizado').length}</strong></div>
-              <div class="p-4 bg-white rounded-2xl border border-slate-200"><span class="text-amber-700 block font-bold text-[10px]">ALERTAS DE RUTA</span><strong class="text-xl font-extrabold text-amber-800">${DB_LOCAL.incidencias.length}</strong></div>
+            <!-- 4 Tarjetas KPI Globales -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 text-xs">
+              <div class="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
+                <div class="flex items-center justify-between text-slate-400 text-[10px] font-bold uppercase">
+                  <span>Empresas Registradas</span>
+                  <i data-lucide="building-2" class="w-4 h-4 text-cyan-600"></i>
+                </div>
+                <strong class="text-2xl font-black text-navy-900 block mt-1">${totalEmpresas}</strong>
+                <span class="text-[11px] text-emerald-600 font-semibold">${totalEmpresasActivas} activas operando</span>
+              </div>
+
+              <div class="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
+                <div class="flex items-center justify-between text-slate-400 text-[10px] font-bold uppercase">
+                  <span>Usuarios en Ecosistema</span>
+                  <i data-lucide="users" class="w-4 h-4 text-turquoise-600"></i>
+                </div>
+                <strong class="text-2xl font-black text-navy-900 block mt-1">${totalUsuarios}</strong>
+                <span class="text-[11px] text-slate-500 font-medium">Personal y clientes con roles</span>
+              </div>
+
+              <div class="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
+                <div class="flex items-center justify-between text-slate-400 text-[10px] font-bold uppercase">
+                  <span>Flota Pesada Nacional</span>
+                  <i data-lucide="truck" class="w-4 h-4 text-indigo-600"></i>
+                </div>
+                <strong class="text-2xl font-black text-navy-900 block mt-1">${totalConductores}</strong>
+                <span class="text-[11px] text-indigo-600 font-semibold">${serviciosEnRuta} unidades en ruta</span>
+              </div>
+
+              <div class="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
+                <div class="flex items-center justify-between text-slate-400 text-[10px] font-bold uppercase">
+                  <span>Kilómetros Totales</span>
+                  <i data-lucide="map-pin" class="w-4 h-4 text-amber-500"></i>
+                </div>
+                <strong class="text-2xl font-black text-navy-900 block mt-1">${kmTotalesEcosistema.toLocaleString()} km</strong>
+                <span class="text-[11px] text-slate-500 font-medium">${serviciosFinalizados} servicios completados</span>
+              </div>
             </div>
 
-            <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3">
-              <h3 class="text-sm font-bold text-navy-900">Empresas en la Plataforma</h3>
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-                ${DB_LOCAL.empresas.map(emp => {
-                  const choferes = DB_LOCAL.conductores.filter(c => c.id_empresa === emp.id).length;
+            <!-- Fichas Inteligentes de las Empresas Registradas -->
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="text-base font-extrabold text-navy-900 tracking-tight">Ecosistema de Empresas y Clientes</h3>
+                  <p class="text-xs text-slate-500">Selecciona cualquier empresa para inspeccionar su dashboard específico, usuarios, rutas o despachos</p>
+                </div>
+                <button onclick="mostrarSeccionAdmin('empresas')" class="text-xs text-turquoise-600 hover:text-turquoise-700 font-bold flex items-center space-x-1 cursor-pointer">
+                  <span>Ver todas las empresas</span>
+                  <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                ${(DB_LOCAL.empresas || []).map(emp => {
+                  const cantUsr = (DB_LOCAL.usuarios || []).filter(u => u.id_empresa === emp.id || u.id_empresa === emp.ruc).length;
+                  const cantCnd = (DB_LOCAL.conductores || []).filter(c => c.id_empresa === emp.id).length;
+                  const cantSrv = (DB_LOCAL.servicios || []).filter(s => s.id_empresa === emp.id).length;
+                  const cantSrvRuta = (DB_LOCAL.servicios || []).filter(s => s.id_empresa === emp.id && (s.estado === 'En ruta' || s.estado === 'En tránsito' || s.estado === 'En camino al punto de carga')).length;
+                  
                   return `
-                    <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200">
-                      <strong class="text-navy-900 block truncate">${emp.razonSocial}</strong>
-                      <span class="text-[10px] text-slate-500 font-mono block">RUC: ${emp.ruc}</span>
-                      <span class="text-[10px] text-turquoise-800 font-bold block mt-1">${choferes} conductores registrados</span>
+                    <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-xs hover:shadow-md transition flex flex-col justify-between space-y-4">
+                      <div>
+                        <div class="flex items-start justify-between">
+                          <div class="w-10 h-10 rounded-2xl bg-slate-100 flex items-center justify-center text-navy-900 font-black text-sm">
+                            <i data-lucide="building" class="w-5 h-5 text-turquoise-600"></i>
+                          </div>
+                          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${emp.estado === 'ACTIVA' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-rose-100 text-rose-800 border border-rose-200'}">
+                            ${emp.estado}
+                          </span>
+                        </div>
+                        <h4 class="text-sm font-extrabold text-navy-900 mt-3 leading-tight">${emp.razonSocial}</h4>
+                        <span class="text-[11px] font-mono text-slate-400 block mt-0.5">RUC: ${emp.ruc} • ID: ${emp.id}</span>
+                        <p class="text-[11px] text-slate-500 mt-1 line-clamp-1">${emp.direccion || 'Callao / Lima, Perú'}</p>
+                      </div>
+
+                      <div class="grid grid-cols-3 gap-2 p-3 bg-slate-50 rounded-2xl text-center text-xs">
+                        <div>
+                          <span class="text-[9px] text-slate-400 uppercase font-bold block">Usuarios</span>
+                          <strong class="text-navy-900 font-bold">${cantUsr}</strong>
+                        </div>
+                        <div>
+                          <span class="text-[9px] text-slate-400 uppercase font-bold block">Flota</span>
+                          <strong class="text-navy-900 font-bold">${cantCnd}</strong>
+                        </div>
+                        <div>
+                          <span class="text-[9px] text-slate-400 uppercase font-bold block">En Ruta</span>
+                          <strong class="text-turquoise-700 font-bold">${cantSrvRuta} / ${cantSrv}</strong>
+                        </div>
+                      </div>
+
+                      <div class="flex items-center space-x-2 pt-2 border-t border-slate-100">
+                        <button onclick="verDetallesEmpresaAdmin('${emp.id}')" class="flex-1 py-2 px-3 bg-navy-900 hover:bg-navy-800 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 transition shadow-2xs cursor-pointer">
+                          <i data-lucide="bar-chart-2" class="w-3.5 h-3.5 text-turquoise-400"></i>
+                          <span>Detalles / Dashboard</span>
+                        </button>
+                        <button onclick="abrirModalUsuarioAvanzadoParaEmpresa('${emp.id}')" class="p-2 bg-turquoise-50 hover:bg-turquoise-100 text-turquoise-700 border border-turquoise-200 rounded-xl transition cursor-pointer" title="Crear usuario para esta empresa">
+                          <i data-lucide="user-plus" class="w-4 h-4"></i>
+                        </button>
+                      </div>
                     </div>
                   `;
                 }).join('')}
@@ -5481,66 +6049,223 @@
             </div>
           </div>
         `;
-      } else if (seccion === 'empresas') {
+      }
+
+      // =========================================================================
+      // 2. DIRECTORIO DE EMPRESAS (GESTIÓN COMPLETA Y SEPARADA DE USUARIOS)
+      // =========================================================================
+      else if (seccion === 'empresas') {
         main.innerHTML = `
-          <div class="p-6 space-y-6">
-            <div class="flex items-center justify-between">
+          <div class="p-4 sm:p-6 space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-slate-200">
               <div>
-                <h2 class="text-lg font-extrabold text-navy-900 tracking-tight">Empresas Transportistas</h2>
-                <p class="text-xs text-slate-500">Alta y control de acceso de empresas clientes</p>
+                <h2 class="text-lg font-black text-navy-900 tracking-tight">Directorio de Empresas Transportistas y Clientes</h2>
+                <p class="text-xs text-slate-500">Administración de razones sociales, RUCs, usuarios vinculados y configuración fiscal</p>
               </div>
-              <button onclick="abrirModalCrearEmpresaAdmin()" class="px-4 py-2 bg-turquoise-600 hover:bg-turquoise-700 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 shadow-2xs">
-                <i data-lucide="plus" class="w-4 h-4"></i><span>+ Nueva Empresa</span>
+              <button onclick="abrirModalCrearEmpresaAdmin()" class="px-4 py-2 bg-turquoise-600 hover:bg-turquoise-700 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 shadow-md transition cursor-pointer">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                <span>+ Registrar Nueva Empresa</span>
               </button>
+            </div>
+
+            <!-- Grid de Tarjetas de Empresas -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              ${(DB_LOCAL.empresas || []).map(e => {
+                const cantUsr = (DB_LOCAL.usuarios || []).filter(u => u.id_empresa === e.id || u.id_empresa === e.ruc).length;
+                const cantCnd = (DB_LOCAL.conductores || []).filter(c => c.id_empresa === e.id).length;
+                const cantSrv = (DB_LOCAL.servicios || []).filter(s => s.id_empresa === e.id).length;
+                const cantRuta = (DB_LOCAL.servicios || []).filter(s => s.id_empresa === e.id && (s.estado === 'En ruta' || s.estado === 'En tránsito' || s.estado === 'En camino al punto de carga')).length;
+
+                return `
+                  <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between space-y-4">
+                    <div>
+                      <div class="flex items-center justify-between">
+                        <span class="px-2.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-slate-100 text-slate-700">${e.id}</span>
+                        <div class="flex items-center space-x-1">
+                          <button onclick="alternarEstadoEmpresaAdmin('${e.id}')" class="px-2 py-0.5 rounded-full text-[9px] font-bold ${e.estado === 'ACTIVA' ? 'bg-emerald-100 text-emerald-800 hover:bg-rose-100 hover:text-rose-800' : 'bg-rose-100 text-rose-800 hover:bg-emerald-100 hover:text-emerald-800'} transition cursor-pointer" title="Clic para alternar estado">
+                            ${e.estado}
+                          </button>
+                        </div>
+                      </div>
+
+                      <h3 class="text-base font-extrabold text-navy-900 mt-2.5 leading-tight">${e.razonSocial}</h3>
+                      <div class="text-[11px] font-mono text-slate-500 mt-1">RUC: ${e.ruc}</div>
+                      <div class="text-[11px] text-slate-500 mt-0.5">${e.direccion || 'Callao / Lima, Perú'}</div>
+                      <div class="text-[11px] text-slate-400 mt-0.5">Tel: ${e.telefono || '-'}</div>
+                    </div>
+
+                    <!-- Estadísticas en Ficha -->
+                    <div class="grid grid-cols-4 gap-1 p-2.5 bg-slate-50 rounded-2xl text-center text-xs">
+                      <div>
+                        <span class="text-[8px] text-slate-400 uppercase font-bold block">Usuarios</span>
+                        <strong class="text-navy-900 font-bold">${cantUsr}</strong>
+                      </div>
+                      <div>
+                        <span class="text-[8px] text-slate-400 uppercase font-bold block">Flota</span>
+                        <strong class="text-navy-900 font-bold">${cantCnd}</strong>
+                      </div>
+                      <div>
+                        <span class="text-[8px] text-slate-400 uppercase font-bold block">En Ruta</span>
+                        <strong class="text-turquoise-700 font-bold">${cantRuta}</strong>
+                      </div>
+                      <div>
+                        <span class="text-[8px] text-slate-400 uppercase font-bold block">Total Serv.</span>
+                        <strong class="text-slate-700 font-bold">${cantSrv}</strong>
+                      </div>
+                    </div>
+
+                    <!-- Botones de Acción Funcionales -->
+                    <div class="space-y-2 pt-2 border-t border-slate-100">
+                      <div class="flex items-center space-x-2">
+                        <button onclick="verDetallesEmpresaAdmin('${e.id}')" class="flex-1 py-2 px-3 bg-navy-900 hover:bg-navy-800 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 transition shadow-2xs cursor-pointer">
+                          <i data-lucide="bar-chart-2" class="w-3.5 h-3.5 text-turquoise-400"></i>
+                          <span>Detalles / Dashboard</span>
+                        </button>
+                        <button onclick="abrirModalUsuarioAvanzadoParaEmpresa('${e.id}')" class="py-2 px-3 bg-turquoise-600 hover:bg-turquoise-500 text-white rounded-xl text-xs font-bold flex items-center space-x-1 transition shadow-2xs cursor-pointer" title="Crear usuario para esta empresa">
+                          <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+                          <span>+ Usuario</span>
+                        </button>
+                      </div>
+
+                      <div class="flex items-center justify-between text-[11px] pt-1 text-slate-400">
+                        <button onclick="abrirModalCrearEmpresaAdmin('${e.id}')" class="text-blue-600 hover:underline font-semibold flex items-center space-x-1 cursor-pointer">
+                          <i data-lucide="edit-2" class="w-3 h-3"></i><span>Editar Empresa</span>
+                        </button>
+                        <button onclick="eliminarEmpresaAdmin('${e.id}')" class="text-rose-500 hover:underline font-semibold flex items-center space-x-1 cursor-pointer">
+                          <i data-lucide="trash-2" class="w-3 h-3"></i><span>Eliminar</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      // =========================================================================
+      // 3. GESTIÓN GLOBAL DE USUARIOS Y ROLES (SEPARADA DE EMPRESAS)
+      // =========================================================================
+      else if (seccion === 'usuarios') {
+        renderizarVistaUsuariosCompleta(main, true);
+      }
+
+      // =========================================================================
+      // 4. DESPACHOS Y RUTAS GLOBALES
+      // =========================================================================
+      else if (seccion === 'servicios_globales') {
+        main.innerHTML = `
+          <div class="p-4 sm:p-6 space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-slate-200">
+              <div>
+                <h2 class="text-lg font-black text-navy-900 tracking-tight">Despachos y Servicios en Tiempo Real (Nivel Nacional)</h2>
+                <p class="text-xs text-slate-500">Trazabilidad satelital y control de odómetros de todas las empresas transportistas</p>
+              </div>
+              <div class="flex items-center space-x-2">
+                <button onclick="exportarExcelSupervisor()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center space-x-1 shadow-2xs transition">
+                  <i data-lucide="sheet" class="w-4 h-4"></i><span>Descargar Excel</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Tabla de Servicios Globales -->
+            <div class="bg-white rounded-3xl p-4 border border-slate-200 shadow-sm overflow-x-auto">
+              <table class="w-full text-left text-xs text-slate-700">
+                <thead class="bg-slate-50 text-slate-600 font-bold uppercase text-[10px] border-b border-slate-200">
+                  <tr>
+                    <th class="p-3">Código / Servicio</th>
+                    <th class="p-3">Empresa</th>
+                    <th class="p-3">Cliente</th>
+                    <th class="p-3">Ruta (Origen - Destino)</th>
+                    <th class="p-3">Conductor y Placas</th>
+                    <th class="p-3">Odómetro (Km)</th>
+                    <th class="p-3">Estado</th>
+                    <th class="p-3 text-right">Monitoreo</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  ${(DB_LOCAL.servicios || []).map(s => `
+                    <tr class="hover:bg-slate-50 transition">
+                      <td class="p-3 font-mono font-bold text-navy-900">${s.cod_servicio}</td>
+                      <td class="p-3 font-semibold text-slate-700">${obtenerNombreEmpresa(s.id_empresa)}</td>
+                      <td class="p-3 font-medium text-slate-900">${s.cliente || '-'}</td>
+                      <td class="p-3">
+                        <div class="font-bold text-navy-900">${s.origen} → ${s.parada_actual || s.destino || 'En ruta'}</div>
+                      </td>
+                      <td class="p-3">
+                        <div>${s.conductor_nombre || 'Conductor'}</div>
+                        <span class="text-[10px] font-mono text-slate-400">${s.placa_tracto || '-'} / ${s.placa_carreta || '-'}</span>
+                      </td>
+                      <td class="p-3 font-mono">
+                        <div>Salida: ${s.km_inicial ? s.km_inicial.toLocaleString() + ' km' : '-'}</div>
+                        <strong class="text-turquoise-700 text-[11px]">Actual: ${(s.km_actual || s.km_inicial || 0).toLocaleString()} km</strong>
+                      </td>
+                      <td class="p-3">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">${s.estado}</span>
+                      </td>
+                      <td class="p-3 text-right">
+                        <button onclick="abrirSeguimientoMapaConductor('${s.cod_servicio}')" class="px-2.5 py-1.5 bg-turquoise-600 hover:bg-turquoise-500 text-white rounded-xl text-xs font-bold inline-flex items-center space-x-1 shadow-2xs transition">
+                          <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+                          <span>Ver seguimiento</span>
+                        </button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      }
+
+      // =========================================================================
+      // 5. HISTORIAL Y REPORTES GLOBALES
+      // =========================================================================
+      else if (seccion === 'historial') {
+        main.innerHTML = `
+          <div class="p-4 sm:p-6 space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-slate-200">
+              <div>
+                <h2 class="text-lg font-black text-navy-900 tracking-tight">Historial Consolidado y Reportes Nacionales</h2>
+                <p class="text-xs text-slate-500">Auditoría completa de despachos finalizados, kilómetros acumulados y cálculo de combustible</p>
+              </div>
+              <div class="flex items-center space-x-2">
+                <button onclick="exportarExcelSupervisor()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 shadow-2xs transition">
+                  <i data-lucide="sheet" class="w-4 h-4"></i><span>Exportar Todo (.xlsx)</span>
+                </button>
+              </div>
             </div>
 
             <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm overflow-x-auto">
               <table class="w-full text-left text-xs text-slate-700">
-                <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px]">
+                <thead class="bg-slate-50 text-slate-600 font-bold uppercase text-[10px] border-b border-slate-200">
                   <tr>
-                    <th class="p-3">ID / Empresa</th>
-                    <th class="p-3">RUC</th>
-                    <th class="p-3">Razón Social</th>
-                    <th class="p-3">Usuarios Asignados</th>
-                    <th class="p-3">Conductores</th>
+                    <th class="p-3">Código</th>
+                    <th class="p-3">Empresa</th>
+                    <th class="p-3">Conductor</th>
+                    <th class="p-3">Ruta</th>
+                    <th class="p-3">Km Inicial</th>
+                    <th class="p-3">Km Final</th>
+                    <th class="p-3">Recorrido</th>
                     <th class="p-3">Estado</th>
-                    <th class="p-3 text-right">Acciones e Informes</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
-                  ${DB_LOCAL.empresas.map(e => {
-                    const cantUsr = (DB_LOCAL.usuarios || []).filter(u => u.id_empresa === e.id || u.id_empresa === e.ruc).length;
-                    const cantCnd = (DB_LOCAL.conductores || []).filter(c => c.id_empresa === e.id).length;
+                  ${(DB_LOCAL.servicios || []).map(s => {
+                    const ini = Number(s.km_inicial) || 0;
+                    const fin = Number(s.km_final || s.km_actual || ini);
+                    const rec = Math.max(0, fin - ini);
                     return `
                       <tr class="hover:bg-slate-50 transition">
-                        <td class="p-3 font-mono font-bold text-navy-900">${e.id}</td>
-                        <td class="p-3 font-mono">${e.ruc}</td>
-                        <td class="p-3">
-                          <strong class="font-bold text-slate-900 block">${e.razonSocial}</strong>
-                          <span class="text-[10px] text-slate-400">${e.direccion || 'Callao, Perú'}</span>
-                        </td>
-                        <td class="p-3">
-                          <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">${cantUsr} usuarios</span>
-                        </td>
-                        <td class="p-3">
-                          <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-50 text-teal-700 border border-teal-200">${cantCnd} choferes</span>
-                        </td>
-                        <td class="p-3">
-                          <span class="px-2 py-0.5 rounded-full text-[9px] font-bold ${e.estado === 'ACTIVA' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">${e.estado}</span>
-                        </td>
-                        <td class="p-3 text-right space-x-1.5">
-                          <button onclick="verDetallesEmpresaAdmin('${e.id}')" class="px-2.5 py-1.5 bg-navy-900 hover:bg-navy-800 text-white rounded-xl text-xs font-bold inline-flex items-center space-x-1 shadow-sm transition">
-                            <i data-lucide="bar-chart-2" class="w-3.5 h-3.5 text-turquoise-400"></i>
-                            <span>Detalles / Dashboard</span>
-                          </button>
-                          <button onclick="abrirModalUsuarioAvanzadoParaEmpresa('${e.id}')" class="px-2.5 py-1.5 bg-turquoise-600 hover:bg-turquoise-500 text-white rounded-xl text-xs font-bold inline-flex items-center space-x-1 shadow-sm transition" title="Crear usuario para esta empresa">
-                            <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
-                            <span>+ Usuario</span>
-                          </button>
-                          <button onclick="toggleEstadoEmpresaAdmin('${e.id}')" class="px-2 py-1 text-slate-400 hover:text-rose-600 text-[11px] font-semibold" title="Activar / Desactivar">
-                            ${e.estado === 'ACTIVA' ? 'Desactivar' : 'Activar'}
-                          </button>
-                        </td>
+                        <td class="p-3 font-mono font-bold text-navy-900">${s.cod_servicio}</td>
+                        <td class="p-3 font-semibold text-slate-800">${obtenerNombreEmpresa(s.id_empresa)}</td>
+                        <td class="p-3">${s.conductor_nombre}</td>
+                        <td class="p-3 font-medium text-slate-900">${s.origen} → ${s.parada_actual || s.destino || 'Destino'}</td>
+                        <td class="p-3 font-mono">${ini ? ini.toLocaleString() + ' km' : '-'}</td>
+                        <td class="p-3 font-mono">${fin ? fin.toLocaleString() + ' km' : '-'}</td>
+                        <td class="p-3 font-mono text-emerald-700 font-bold">+${rec.toLocaleString()} km</td>
+                        <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-800">${s.estado}</span></td>
                       </tr>
                     `;
                   }).join('')}
@@ -5549,190 +6274,44 @@
             </div>
           </div>
         `;
-      } else if (seccion === 'usuarios') {
-        renderizarVistaUsuariosCompleta(main, true);
-      } else if (seccion === 'conductores') {
-        main.innerHTML = `
-          <div class="p-6 space-y-6">
-            <div>
-              <h2 class="text-lg font-extrabold text-navy-900 tracking-tight">Conductores Agregados por Empresa</h2>
-              <p class="text-xs text-slate-500">Supervisión de qué conductores ha agregado cada empresa y supervisor</p>
-            </div>
+      }
 
-            <div class="space-y-5">
-              ${DB_LOCAL.empresas.map(emp => {
-                const cnds = DB_LOCAL.conductores.filter(c => c.id_empresa === emp.id);
-                return `
-                  <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3">
-                    <div class="flex items-center justify-between pb-2 border-b border-slate-100">
-                      <div>
-                        <strong class="text-navy-900 text-sm font-bold">${emp.razonSocial}</strong>
-                        <span class="text-[10px] text-slate-400 font-mono block">RUC ${emp.ruc}</span>
-                      </div>
-                      <span class="px-2.5 py-1 rounded-xl text-xs font-bold bg-turquoise-50 text-turquoise-800">${cnds.length} conductores</span>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      ${cnds.map(c => `
-                        <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between">
-                          <div class="flex items-center space-x-2.5">
-                            <img src="${c.foto}" class="w-10 h-10 rounded-xl object-cover border border-slate-200">
-                            <div>
-                              <strong class="text-navy-900 text-xs block">${c.nombre}</strong>
-                              <span class="text-[10px] text-slate-500 block font-mono">DNI: ${c.dni} • ${c.licencia} (${c.categoria})</span>
-                              <span class="text-[9px] text-slate-400 block font-mono">Tracto: ${c.placa_tracto}</span>
-                            </div>
-                          </div>
-                          <button onclick="abrirSeguimientoMapaConductor('${c.id_conductor}')" class="px-2.5 py-1 bg-white hover:bg-turquoise-50 border border-slate-200 rounded-lg text-xs font-bold text-turquoise-800">Ver Detalles</button>
-                        </div>
-                      `).join('')}
-                    </div>
-                  </div>
-                `;
-              }).join('')}
-            </div>
-          </div>
-        `;
-      } else if (seccion === 'historial') {
-        // DESCARGA DE HISTORIAL POR DÍA, SEMANA Y AÑO
+      // =========================================================================
+      // 6. CONEXIÓN CLOUD / GOOGLE SHEETS
+      // =========================================================================
+      else if (seccion === 'conexion') {
         main.innerHTML = `
-          <div class="p-6 space-y-6">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div class="p-4 sm:p-6 space-y-6">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-200">
               <div>
-                <h2 class="text-lg font-extrabold text-navy-900 tracking-tight">Historial de Operaciones y Servicios</h2>
-                <p class="text-xs text-slate-500">Filtrado y descarga por Día, Semana y Año</p>
-              </div>
-              <div class="flex items-center space-x-2">
-                <button onclick="exportarHistorialAdminExcel()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 shadow-2xs">
-                  <i data-lucide="sheet" class="w-4 h-4"></i><span>Exportar Excel (.xlsx)</span>
-                </button>
-                <button onclick="exportarHistorialAdminPdf()" class="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 shadow-2xs">
-                  <i data-lucide="file-text" class="w-4 h-4"></i><span>Exportar PDF</span>
-                </button>
+                <h2 class="text-lg font-black text-navy-900 tracking-tight">Conexión con la Nube y Google Sheets</h2>
+                <p class="text-xs text-slate-500">Control de sincronización bidireccional, respaldo de base de datos y auditoría de eventos</p>
               </div>
             </div>
 
-            <!-- Selector de Período Temporal -->
-            <div class="flex items-center space-x-2 bg-white p-2 rounded-2xl border border-slate-200 text-xs font-semibold w-fit">
-              <span class="text-slate-400 px-2 font-bold uppercase text-[10px]">Filtrar período:</span>
-              <button onclick="cambiarFiltroPeriodo('DIA')" class="px-3 py-1.5 rounded-xl ${filtroPeriodoAdmin === 'DIA' ? 'bg-turquoise-600 text-white font-bold' : 'text-slate-600 hover:bg-slate-100'}">Por Día (Hoy)</button>
-              <button onclick="cambiarFiltroPeriodo('SEMANA')" class="px-3 py-1.5 rounded-xl ${filtroPeriodoAdmin === 'SEMANA' ? 'bg-turquoise-600 text-white font-bold' : 'text-slate-600 hover:bg-slate-100'}">Esta Semana</button>
-              <button onclick="cambiarFiltroPeriodo('ANIO')" class="px-3 py-1.5 rounded-xl ${filtroPeriodoAdmin === 'ANIO' ? 'bg-turquoise-600 text-white font-bold' : 'text-slate-600 hover:bg-slate-100'}">Año 2026</button>
-              <button onclick="cambiarFiltroPeriodo('TODO')" class="px-3 py-1.5 rounded-xl ${filtroPeriodoAdmin === 'TODO' ? 'bg-turquoise-600 text-white font-bold' : 'text-slate-600 hover:bg-slate-100'}">Todo</button>
-            </div>
-
-            <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm overflow-x-auto">
-              <table class="w-full text-left text-xs text-slate-700">
-                <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px]">
-                  <tr><th class="p-3">Código</th><th class="p-3">Empresa</th><th class="p-3">Cliente</th><th class="p-3">Conductor</th><th class="p-3">Fecha</th><th class="p-3">Km Recorrido</th><th class="p-3">Estado</th></tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                  ${DB_LOCAL.servicios.map(s => `
-                    <tr>
-                      <td class="p-3 font-mono font-bold text-navy-900">${s.cod_servicio}</td>
-                      <td class="p-3 font-semibold">${obtenerNombreEmpresa(s.id_empresa)}</td>
-                      <td class="p-3">${s.cliente}</td>
-                      <td class="p-3">${s.conductor_nombre}</td>
-                      <td class="p-3 font-mono">${s.fecha_programada}</td>
-                      <td class="p-3 font-mono">${(s.km_final && s.km_inicial) ? (s.km_final - s.km_inicial) + ' km' : 'En ruta'}</td>
-                      <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-slate-100 text-slate-800 border">${s.estado}</span></td>
-                    </tr>
-                  `).join('')}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        `;
-      } else if (seccion === 'evidencias') {
-        const todasEvd = DB_LOCAL.servicios.flatMap(s => s.evidencias || []);
-        main.innerHTML = `
-          <div class="p-6 space-y-6">
-            <div>
-              <h2 class="text-lg font-extrabold text-navy-900 tracking-tight">Auditoría Global de Evidencias</h2>
-              <p class="text-xs text-slate-500">Control maestro de fotografías subidas por todas las empresas</p>
-            </div>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-              ${todasEvd.map(e => `
-                <div class="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-2xs group flex flex-col justify-between">
-                  <div>
-                    <img src="${e.url_foto}" onclick="ampliarFotoVisor('${e.url_foto}', '${e.tipo_evidencia} - ${e.parada}')" class="w-full h-36 object-cover cursor-pointer">
-                    <div class="p-3 text-xs space-y-1">
-                      <div class="flex items-center justify-between">
-                        <span class="text-[9px] font-bold text-turquoise-700 uppercase">${e.tipo_evidencia}</span>
-                        <span class="text-[9px] font-bold px-1.5 py-0.5 rounded ${e.permiso_supervisor === 'AUTORIZADO' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${e.permiso_supervisor}</span>
-                      </div>
-                      <strong class="text-slate-800 font-semibold block truncate">${e.parada}</strong>
-                      <p class="text-[10px] text-slate-500 truncate">${e.conductor} • ${e.cod_servicio}</p>
-                    </div>
-                  </div>
-                  <div class="p-2 border-t border-slate-100 bg-slate-50 flex justify-end">
-                    <button onclick="togglePermisoEvidenciaAdmin('${e.id_evidencia}')" class="text-[10px] font-bold text-turquoise-700 hover:underline">
-                      ${e.permiso_supervisor === 'AUTORIZADO' ? 'Restringir al Supervisor' : 'Autorizar al Supervisor'}
-                    </button>
-                  </div>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-        `;
-      } else if (seccion === 'conexion') {
-        const estadoConectado = Boolean(APPS_SCRIPT_URL);
-        main.innerHTML = `
-          <div class="p-6 space-y-6 max-w-4xl">
-            <div>
-              <h2 class="text-lg font-extrabold text-navy-900 tracking-tight">Conexión con Google Sheets y Apps Script</h2>
-              <p class="text-xs text-slate-500">Configuración del endpoint cloud para sincronización en tiempo real y almacenamiento de fotos en Drive</p>
-            </div>
-
-            <!-- Estado actual -->
-            <div class="p-4 rounded-2xl border ${estadoConectado ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-100 border-slate-200'} flex items-center justify-between">
-              <div class="flex items-center space-x-3">
-                <div class="w-3 h-3 rounded-full ${estadoConectado ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}"></div>
-                <div>
-                  <strong class="text-xs font-bold ${estadoConectado ? 'text-emerald-900' : 'text-slate-800'}">
-                    ${estadoConectado ? 'Conectado a Google Apps Script Web App' : 'Modo Demostración Activo (Base de Datos Local)'}
-                  </strong>
-                  <p class="text-[11px] ${estadoConectado ? 'text-emerald-700' : 'text-slate-500'}">
-                    ${estadoConectado ? 'Los reportes de conductores, odómetros y fotos se sincronizan directamente a Google Sheets y Google Drive.' : 'Puedes usar y probar toda la plataforma sin conexión cloud. Para conectar tu propio Sheet, ingresa la URL abajo.'}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Formulario de URL -->
-            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
-              <label class="block text-xs font-bold text-navy-900">URL del Web App de Google Apps Script (terminada en /exec):</label>
-              <div class="flex flex-col sm:flex-row gap-2">
-                <input type="url" id="input-admin-gas-url" value="${APPS_SCRIPT_URL}" placeholder="https://script.google.com/macros/s/AKfycb.../exec" class="flex-1 p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono">
-                <button onclick="guardarUrlAppsScriptAdmin()" class="px-5 py-3 bg-turquoise-600 hover:bg-turquoise-700 text-white font-bold text-xs rounded-xl shadow-sm transition">
-                  Guardar Enlace
-                </button>
+            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4 max-w-2xl">
+              <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+                <span class="text-xs font-bold text-navy-900 block">URL de Implementación de Google Apps Script:</span>
+                <input type="text" id="cfg-apps-script-url" value="${APPS_SCRIPT_URL}" class="w-full p-2.5 bg-white border border-slate-300 rounded-xl font-mono text-xs text-navy-900">
+                <button onclick="guardarNuevaUrlAppsScript()" class="px-4 py-2 bg-navy-900 hover:bg-navy-800 text-white rounded-xl text-xs font-bold transition">Guardar y Probar Conexión</button>
               </div>
 
               <div class="flex items-center space-x-3 pt-2">
-                <button onclick="probarConexionAppsScript()" class="px-4 py-2 bg-navy-900 hover:bg-navy-800 text-white text-xs font-semibold rounded-xl transition flex items-center space-x-1.5">
-                  <i data-lucide="radio" class="w-3.5 h-3.5"></i>
-                  <span>Probar Conexión</span>
+                <button onclick="ejecutarSincronizacionBidireccional(true)" class="px-4 py-2.5 bg-turquoise-600 hover:bg-turquoise-500 text-white text-xs font-bold rounded-xl flex items-center space-x-2 shadow-sm transition">
+                  <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                  <span>Forzar Sincronización Completa Ahora</span>
                 </button>
-                <button onclick="desconectarAppsScriptAdmin()" class="px-4 py-2 text-rose-600 hover:bg-rose-50 border border-rose-200 text-xs font-semibold rounded-xl transition">
-                  Restablecer a Modo Local
+                <button onclick="exportarBaseDatosAJson()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl flex items-center space-x-2 transition">
+                  <i data-lucide="download" class="w-4 h-4"></i>
+                  <span>Descargar Copia de Seguridad JSON</span>
                 </button>
               </div>
-            </div>
-
-            <!-- Instrucciones de configuración -->
-            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-3 text-xs text-slate-600">
-              <h3 class="font-bold text-navy-900 text-sm">¿Cómo obtener tu URL de Google Apps Script? (Solo 3 pasos)</h3>
-              <ol class="list-decimal pl-5 space-y-2">
-                <li>Abre tu cuenta de Google y entra a <a href="https://script.google.com" target="_blank" class="text-turquoise-700 font-bold underline">script.google.com</a>, crea un proyecto nuevo y pega el contenido del archivo <code>backend/Code.gs</code>.</li>
-                <li>En la barra superior de Apps Script, selecciona la función <strong>configurarSistema</strong> y haz clic en <strong>Ejecutar</strong>. Esto creará automáticamente tu Google Sheet "Control de Transporte" con sus 15 hojas y carpetas en Drive.</li>
-                <li>Haz clic en el botón azul <strong>Implementar &gt; Nueva implementación</strong>, elige <strong>Aplicación web</strong>, en "Quién tiene acceso" selecciona <strong>Cualquier usuario</strong> y copia la URL proporcionada.</li>
-              </ol>
             </div>
           </div>
         `;
       }
-      lucide.createIcons();
+
+      if (window.lucide) lucide.createIcons();
     }
 
     function guardarUrlAppsScriptAdmin() {
@@ -7577,11 +8156,25 @@
                           </span>
                         </td>
                         <td class="p-3 text-right space-x-1">
-                          <button onclick="abrirModalUsuarioAvanzado('${u.usuario}')" class="p-1.5 text-navy-800 hover:text-turquoise-700 hover:bg-slate-100 rounded-lg transition" title="Editar Usuario">
-                            <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                          
+                          <!-- Editar Usuario -->
+                          <button onclick="abrirModalUsuarioAvanzado('${u.usuario}')" class="p-1.5 text-navy-800 hover:text-turquoise-700 hover:bg-slate-100 rounded-lg transition cursor-pointer" title="Editar datos y rol del usuario">
+                            <i data-lucide="edit-3" class="w-3.5 h-3.5 text-navy-900"></i>
                           </button>
-                          <button onclick="eliminarUsuarioDesdePanel('${u.id}')" class="p-1.5 text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-lg transition" title="Eliminar Usuario">
-                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+
+                          <!-- Cambiar Contraseña Rápido -->
+                          <button onclick="cambiarPasswordUsuarioRapido('${u.usuario}')" class="p-1.5 text-amber-600 hover:text-amber-800 hover:bg-amber-50 rounded-lg transition cursor-pointer" title="Cambiar contraseña de este usuario">
+                            <i data-lucide="key" class="w-3.5 h-3.5 text-amber-500"></i>
+                          </button>
+
+                          <!-- Activar / Suspender Usuario -->
+                          <button onclick="alternarEstadoUsuarioAdmin('${u.usuario}')" class="p-1.5 ${u.estado === 'ACTIVO' ? 'text-slate-400 hover:text-amber-600 hover:bg-amber-50' : 'text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50'} rounded-lg transition cursor-pointer" title="${u.estado === 'ACTIVO' ? 'Suspender acceso a este usuario' : 'Reactivar acceso a este usuario'}">
+                            <i data-lucide="${u.estado === 'ACTIVO' ? 'user-x' : 'user-check'}" class="w-3.5 h-3.5"></i>
+                          </button>
+
+                          <!-- Eliminar Usuario -->
+                          <button onclick="eliminarUsuarioAdmin('${u.usuario}')" class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition cursor-pointer" title="Eliminar usuario del sistema">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5 text-rose-600"></i>
                           </button>
                         </td>
                       </tr>
@@ -7865,8 +8458,11 @@
                           <td class="p-3 font-mono text-turquoise-700 font-bold">${u.pass}</td>
                           <td class="p-3"><span class="px-2 py-0.5 rounded text-[9px] font-bold ${u.estado === 'ACTIVO' ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}">${u.estado}</span></td>
                           <td class="p-3 text-right space-x-1">
-                            <button onclick="abrirModalUsuarioAvanzado('${u.usuario}')" class="p-1 text-slate-600 hover:text-navy-900" title="Editar"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
-                            <button onclick="eliminarUsuarioDesdePanel('${u.id}')" class="p-1 text-rose-600 hover:text-rose-800" title="Eliminar"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                            
+                            <button onclick="abrirModalUsuarioAvanzado('${u.usuario}')" class="p-1.5 text-navy-800 hover:bg-slate-100 rounded-lg transition cursor-pointer" title="Editar usuario"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
+                            <button onclick="cambiarPasswordUsuarioRapido('${u.usuario}')" class="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg transition cursor-pointer" title="Cambiar contraseña"><i data-lucide="key" class="w-3.5 h-3.5"></i></button>
+                            <button onclick="alternarEstadoUsuarioAdmin('${u.usuario}')" class="p-1.5 ${u.estado === 'ACTIVO' ? 'text-slate-400 hover:text-amber-600 hover:bg-amber-50' : 'text-emerald-600 hover:bg-emerald-50'} rounded-lg transition cursor-pointer" title="${u.estado === 'ACTIVO' ? 'Suspender usuario' : 'Activar usuario'}"><i data-lucide="${u.estado === 'ACTIVO' ? 'user-x' : 'user-check'}" class="w-3.5 h-3.5"></i></button>
+                            <button onclick="eliminarUsuarioAdmin('${u.usuario}')" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition cursor-pointer" title="Eliminar usuario"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
                           </td>
                         </tr>
                       `).join('')}
@@ -8614,17 +9210,16 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
-            <label class="block font-semibold text-slate-700 mb-1">Empresa / RUC: *</label>
-            <input type="text" id="form-usr-empresa" required placeholder="TRP-001 o RUC" list="lista-empresas-sugeridas" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono focus:ring-2 focus:ring-turquoise-500 outline-none">
-            <datalist id="lista-empresas-sugeridas">
+            <label class="block font-semibold text-slate-700 mb-1">Empresa Asignada: *</label>
+            <select id="form-usr-empresa" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-navy-900 focus:ring-2 focus:ring-turquoise-500 outline-none">
               <option value="TODAS">TODAS (Administración General)</option>
-              <option value="TRP-001">TRP-001 - Transportes Andinos S.A.C.</option>
-              <option value="TRP-002">TRP-002 - Transportes del Centro S.A.</option>
-              <option value="TRP-003">TRP-003 - Expreso Pacífico S.A.C.</option>
-              <option value="20100070970">20100070970 - Aceros Arequipa S.A.</option>
-              <option value="20504789123">20504789123 - Promart Perú</option>
-              <option value="20458912345">20458912345 - Supermercados Makro</option>
-            </datalist>
+              <option value="TRP-001">Transportes Andinos S.A.C. (TRP-001)</option>
+              <option value="TRP-002">Carga del Centro S.A. (TRP-002)</option>
+              <option value="TRP-003">Logística del Pacífico E.I.R.L. (TRP-003)</option>
+              <option value="20100070970">Aceros Arequipa S.A. (Cliente)</option>
+              <option value="20504789123">Promart Perú (Cliente)</option>
+              <option value="20458912345">Supermercados Makro (Cliente)</option>
+            </select>
           </div>
           <div>
             <label class="block font-semibold text-slate-700 mb-1">DNI (8 dígitos):</label>
@@ -8640,7 +9235,7 @@
         <div>
           <div class="flex items-center justify-between mb-1">
             <label class="font-semibold text-slate-700">Contraseña de Acceso: *</label>
-            <button type="button" onclick="generarClaveSeguraInput()" class="text-[11px] text-turquoise-700 hover:text-turquoise-800 font-bold flex items-center space-x-1">
+            <button type="button" onclick="generarClaveSeguraInput()" class="text-[11px] text-turquoise-700 hover:text-turquoise-800 font-bold flex items-center space-x-1 cursor-pointer">
               <i data-lucide="key" class="w-3 h-3"></i>
               <span>Generar Clave Segura</span>
             </button>
@@ -8651,12 +9246,40 @@
           <p class="text-[10px] text-slate-400 mt-1">Usa contraseñas seguras para que el Administrador de Contraseñas de Google no muestre advertencias.</p>
         </div>
 
-        <!-- Nota: La flota de conductores se gestiona de forma independiente en el módulo Conductores -->
+        <!-- Campos adicionales si el Rol es Conductor -->
+        <div id="box-campos-conductor-extra" class="hidden p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
+          <p class="text-[11px] font-bold text-slate-700 flex items-center space-x-1.5">
+            <i data-lucide="truck" class="w-3.5 h-3.5 text-turquoise-600"></i>
+            <span>Datos Operativos de Conductor y Vehículo:</span>
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
+            <div>
+              <label class="block text-[10px] font-semibold text-slate-600 mb-0.5">N° Licencia:</label>
+              <input type="text" id="form-cnd-licencia" placeholder="Q42345678" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs font-mono">
+            </div>
+            <div>
+              <label class="block text-[10px] font-semibold text-slate-600 mb-0.5">Categoría:</label>
+              <select id="form-cnd-categoria" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs font-bold">
+                <option value="A-IIIc">A-IIIc (Pesado)</option>
+                <option value="A-IIIb">A-IIIb</option>
+                <option value="A-IIb">A-IIb</option>
+                <option value="A-I">A-I</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[10px] font-semibold text-slate-600 mb-0.5">Placa Tracto:</label>
+              <input type="text" id="form-cnd-tracto" placeholder="V7X-890" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs font-mono uppercase">
+            </div>
+            <div>
+              <label class="block text-[10px] font-semibold text-slate-600 mb-0.5">Placa Carreta:</label>
+              <input type="text" id="form-cnd-carreta" placeholder="TC8-120" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs font-mono uppercase">
+            </div>
+          </div>
         </div>
 
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Estado de la Cuenta:</label>
-          <select id="form-usr-estado" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
+          <select id="form-usr-estado" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-navy-900 focus:ring-2 focus:ring-turquoise-500 outline-none">
             <option value="ACTIVO" selected>ACTIVO (Habilitado)</option>
             <option value="INACTIVO">INACTIVO (Suspendido)</option>
           </select>
