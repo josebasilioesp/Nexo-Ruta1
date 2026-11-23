@@ -694,15 +694,22 @@
       </div>
       <form onsubmit="event.preventDefault(); verificarDesbloqueoAdmin();" class="space-y-3">
         <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Usuario de Administrador:</label>
+          <input type="text" id="input-unlock-admin-user" required value="admin" placeholder="admin" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-navy-900 focus:ring-2 focus:ring-turquoise-500 focus:outline-none">
+        </div>
+        <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1">Contraseña de Administrador:</label>
-          <input type="password" id="input-unlock-admin-pass" required placeholder="Nexa#Admin2026" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-turquoise-500 focus:outline-none font-medium">
+          <input type="password" id="input-unlock-admin-pass" required value="admin123" placeholder="admin123" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-turquoise-500 focus:outline-none font-medium">
+        </div>
+        <div class="p-2 rounded-xl bg-amber-50 border border-amber-200 text-[10px] text-amber-900">
+          <strong>Acceso Maestro:</strong> Usuario: <code class="font-bold">admin</code> | Clave: <code class="font-bold">admin123</code> o <code class="font-bold">123456</code>
         </div>
         <div class="flex items-center space-x-2 pt-1">
           <button type="button" onclick="cerrarModal('modal-admin-unlock')" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition">
             Cancelar
           </button>
           <button type="submit" class="flex-1 py-2.5 bg-turquoise-600 hover:bg-turquoise-500 text-white font-bold text-xs rounded-xl shadow transition">
-            Entrar
+            Entrar al Panel
           </button>
         </div>
       </form>
@@ -1854,6 +1861,81 @@
       const rawAudit = localStorage.getItem("NEXA_RUTA_AUDIT_LOG");
       if (rawAudit) auditoriaEventos = JSON.parse(rawAudit);
     } catch(e) {}
+
+
+    // MATRIZ OFICIAL DE ROLES Y PERMISOS DEL SISTEMA NEXA RUTA
+    const ROLES_SISTEMA = {
+      ADMIN_GENERAL: {
+        nombre: "Administrador General",
+        badgeColor: "bg-purple-100 text-purple-800 border border-purple-200",
+        accesoWeb: true,
+        accesoApp: true,
+        descripcion: "Máxima autoridad: control total del sistema, multi-empresa, gestión de directores y credenciales."
+      },
+      ADMINISTRATIVO: {
+        nombre: "Administrativo",
+        badgeColor: "bg-blue-100 text-blue-800 border border-blue-200",
+        accesoWeb: true,
+        accesoApp: false,
+        descripcion: "Control total administrativo: programar, modificar, crear y eliminar usuarios y reportes."
+      },
+      PROGRAMADOR: {
+        nombre: "Programador",
+        badgeColor: "bg-teal-100 text-teal-800 border border-teal-200",
+        accesoWeb: true,
+        accesoApp: true,
+        descripcion: "Cargar rutas, asignar servicios, conductor, tracto, carreta y añadir flota."
+      },
+      SEGUIMIENTO: {
+        nombre: "Operaciones / Seguimiento",
+        badgeColor: "bg-indigo-100 text-indigo-800 border border-indigo-200",
+        accesoWeb: true,
+        accesoApp: false,
+        descripcion: "Monitoreo en tiempo real: consultar servicios, trazabilidad y odómetros (solo lectura)."
+      },
+      OPERACIONES: {
+        nombre: "Operaciones / Seguimiento",
+        badgeColor: "bg-indigo-100 text-indigo-800 border border-indigo-200",
+        accesoWeb: true,
+        accesoApp: false,
+        descripcion: "Monitoreo en tiempo real: consultar servicios, trazabilidad y odómetros (solo lectura)."
+      },
+      GERENCIA: {
+        nombre: "Gerencia",
+        badgeColor: "bg-amber-100 text-amber-800 border border-amber-200",
+        accesoWeb: true,
+        accesoApp: false,
+        descripcion: "Visualización de alto nivel: consultar dashboard ejecutivo, KPIs e informes (solo lectura)."
+      },
+      MANTENIMIENTO: {
+        nombre: "Mantenimiento",
+        badgeColor: "bg-slate-100 text-slate-800 border border-slate-200",
+        accesoWeb: true,
+        accesoApp: false,
+        descripcion: "Gestión de mantenimiento: monitoreo técnico de unidades, kilometrajes e incidencias."
+      },
+      CONDUCTOR: {
+        nombre: "Conductor",
+        badgeColor: "bg-emerald-100 text-emerald-800 border border-emerald-200",
+        accesoWeb: false,
+        accesoApp: true,
+        descripcion: "Uso exclusivo en App móvil: ejecutar servicios, GPS satelital, fotos y odómetro."
+      },
+      INVITADO: {
+        nombre: "Cliente Invitado",
+        badgeColor: "bg-rose-100 text-rose-800 border border-rose-200",
+        accesoWeb: true,
+        accesoApp: false,
+        descripcion: "Portal independiente: consultar exclusivamente los servicios y rutas respecto a su empresa."
+      },
+      CLIENTE: {
+        nombre: "Cliente Invitado",
+        badgeColor: "bg-rose-100 text-rose-800 border border-rose-200",
+        accesoWeb: true,
+        accesoApp: false,
+        descripcion: "Portal independiente: consultar exclusivamente los servicios y rutas respecto a su empresa."
+      }
+    };
 
     // BASE DE DATOS LOCAL MULTI-EMPRESA (NEXA RUTA)
     let DB_LOCAL = {
@@ -6088,7 +6170,10 @@
                         </div>
                       </div>
 
-                      <h3 class="text-base font-extrabold text-navy-900 mt-2.5 leading-tight">${e.razonSocial}</h3>
+                      <h3 onclick="verDetallesEmpresaAdmin('${e.id}')" class="text-base font-extrabold text-navy-900 mt-2.5 leading-tight hover:text-turquoise-600 transition cursor-pointer flex items-center justify-between group">
+                        <span>${e.razonSocial}</span>
+                        <i data-lucide="arrow-up-right" class="w-4 h-4 text-slate-300 group-hover:text-turquoise-600 transition"></i>
+                      </h3>
                       <div class="text-[11px] font-mono text-slate-500 mt-1">RUC: ${e.ruc}</div>
                       <div class="text-[11px] text-slate-500 mt-0.5">${e.direccion || 'Callao / Lima, Perú'}</div>
                       <div class="text-[11px] text-slate-400 mt-0.5">Tel: ${e.telefono || '-'}</div>
@@ -7713,13 +7798,36 @@
       }
     }
 
+    function abrirPanelControlTotalWeb() {
+      if (sesionActual && (sesionActual.rol === "ADMIN_GENERAL" || sesionActual.usuario === "admin")) {
+        mostrarModalPanelControlTotal();
+      } else {
+        const modalUnlock = document.getElementById("modal-admin-unlock");
+        if (modalUnlock) {
+          modalUnlock.classList.remove("hidden");
+          const inUser = document.getElementById("input-unlock-admin-user");
+          if (inUser && !inUser.value) inUser.value = "admin";
+          const inp = document.getElementById("input-unlock-admin-pass");
+          if (inp && !inp.value) inp.value = "admin123";
+          lucide.createIcons();
+        }
+      }
+    }
+
     function verificarDesbloqueoAdmin() {
-      const pass = (document.getElementById("input-unlock-admin-pass").value || "").trim();
-      if (pass === "Nexa#Admin2026!" || pass === "Nexa#Admin2026" || pass === "admin123" || pass === "admin" || pass === "DemoAdmin!4826") {
+      const elUser = document.getElementById("input-unlock-admin-user");
+      const elPass = document.getElementById("input-unlock-admin-pass");
+      const user = (elUser ? elUser.value : "").trim().toLowerCase();
+      const pass = (elPass ? elPass.value : "").trim();
+
+      const userValido = !user || ["admin", "admin.general", "admingeneral", "superadmin", "carlos.benitez"].includes(user);
+      const passValida = ["admin123", "123456", "admin", "nexa2026", "Nexa2026", "Nexa#Admin2026!", "Nexa#Admin2026", "DemoAdmin!4826"].includes(pass);
+
+      if (userValido && passValida) {
         cerrarModal("modal-admin-unlock");
         mostrarModalPanelControlTotal();
       } else {
-        mostrarToast("Contraseña de administrador incorrecta. Prueba con Nexa#Admin2026!", "error");
+        mostrarToast("Usuario o contraseña incorrectos. Usa admin / admin123", "error");
       }
     }
 
@@ -8298,11 +8406,15 @@
             </div>
 
             <div class="flex items-center flex-wrap gap-2">
-              <button onclick="abrirModalUsuarioAvanzadoParaEmpresa('${emp.id}')" class="px-3.5 py-2 bg-turquoise-600 hover:bg-turquoise-500 text-white font-bold text-xs rounded-xl flex items-center space-x-1.5 shadow-sm transition">
+              <button onclick="abrirModalCrearEmpresaAdmin('${emp.id}')" class="px-3 py-2 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 font-bold text-xs rounded-xl flex items-center space-x-1.5 shadow-2xs transition cursor-pointer">
+                <i data-lucide="edit" class="w-3.5 h-3.5 text-blue-600"></i>
+                <span>Editar Empresa</span>
+              </button>
+              <button onclick="abrirModalUsuarioAvanzadoParaEmpresa('${emp.id}')" class="px-3.5 py-2 bg-turquoise-600 hover:bg-turquoise-500 text-white font-bold text-xs rounded-xl flex items-center space-x-1.5 shadow-sm transition cursor-pointer">
                 <i data-lucide="user-plus" class="w-4 h-4"></i>
                 <span>+ Crear Usuario para esta Empresa</span>
               </button>
-              <button onclick="mostrarSeccionSupervisor('programacion')" class="px-3.5 py-2 bg-navy-900 hover:bg-navy-800 text-white font-bold text-xs rounded-xl flex items-center space-x-1.5 shadow-sm transition">
+              <button onclick="mostrarSeccionSupervisor('programacion')" class="px-3.5 py-2 bg-navy-900 hover:bg-navy-800 text-white font-bold text-xs rounded-xl flex items-center space-x-1.5 shadow-sm transition cursor-pointer">
                 <i data-lucide="calendar-plus" class="w-4 h-4 text-turquoise-400"></i>
                 <span>Programar Ruta</span>
               </button>
