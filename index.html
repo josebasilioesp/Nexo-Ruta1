@@ -2267,19 +2267,44 @@
     // Guardar referencia por defecto
     DB_LOCAL_DEFAULT = JSON.parse(JSON.stringify(DB_LOCAL));
 
-    // Restaurar usuarios y empresas creados o editados localmente por el Administrador General
+    // =========================================================================
+    // PERSISTENCIA PERMANENTE Y RECUPERACIÓN LOCAL INTELIGENTE (100% LIBRE DE REGRESIÓN)
+    // =========================================================================
     try {
+      // 1. Cargar lista negra permanente de usuarios eliminados
+      const uEliminados = JSON.parse(localStorage.getItem("NEXA_RUTA_USUARIOS_ELIMINADOS") || "[]");
+
+      // 2. Restaurar usuarios guardados localmente
       const uGuardados = localStorage.getItem("NEXA_RUTA_USUARIOS_CUSTOM");
       if (uGuardados) {
         const parsedU = JSON.parse(uGuardados);
         if (Array.isArray(parsedU) && parsedU.length > 0) {
-          parsedU.forEach(u => {
-            const idx = (DB_LOCAL.usuarios || []).findIndex(x => (x.usuario || "").toLowerCase() === (u.usuario || "").toLowerCase());
-            if (idx >= 0) DB_LOCAL.usuarios[idx] = { ...DB_LOCAL.usuarios[idx], ...u };
-            else DB_LOCAL.usuarios.push(u);
+          DB_LOCAL.usuarios = parsedU;
+        }
+      }
+
+      // 3. Purga estricta: ningún usuario en lista negra debe reaparecer jamás al refrescar
+      if (Array.isArray(uEliminados) && uEliminados.length > 0) {
+        DB_LOCAL.usuarios = (DB_LOCAL.usuarios || []).filter(u => {
+          const nom = (u.usuario || "").toLowerCase();
+          return !uEliminados.includes(nom);
+        });
+      }
+
+      // 4. Restaurar conductores personalizados
+      const cGuardados = localStorage.getItem("NEXA_RUTA_CONDUCTORES_CUSTOM");
+      if (cGuardados) {
+        const parsedC = JSON.parse(cGuardados);
+        if (Array.isArray(parsedC) && parsedC.length > 0) {
+          parsedC.forEach(c => {
+            const idx = (DB_LOCAL.conductores || []).findIndex(x => x.id_conductor === c.id_conductor || (x.dni && x.dni === c.dni));
+            if (idx >= 0) DB_LOCAL.conductores[idx] = { ...DB_LOCAL.conductores[idx], ...c };
+            else DB_LOCAL.conductores.push(c);
           });
         }
       }
+
+      // 5. Restaurar empresas guardadas localmente
       const eGuardadas = localStorage.getItem("NEXA_RUTA_EMPRESAS_CUSTOM");
       if (eGuardadas) {
         const parsedE = JSON.parse(eGuardadas);
@@ -2292,13 +2317,16 @@
         }
       }
     } catch(e) {
-      console.warn("Aviso al restaurar usuarios/empresas locales:", e);
+      console.warn("Aviso al restaurar base de datos local:", e);
     }
 
     function persistirUsuariosYEmpresasLocales() {
       try {
         localStorage.setItem("NEXA_RUTA_USUARIOS_CUSTOM", JSON.stringify(DB_LOCAL.usuarios));
         localStorage.setItem("NEXA_RUTA_EMPRESAS_CUSTOM", JSON.stringify(DB_LOCAL.empresas));
+        if (DB_LOCAL.conductores) {
+          localStorage.setItem("NEXA_RUTA_CONDUCTORES_CUSTOM", JSON.stringify(DB_LOCAL.conductores));
+        }
       } catch(e) {}
     }
 
@@ -2355,10 +2383,7 @@
     }
 
     function guardarBaseDatosLocal(notificar = true) {
-      // 100% NUBE: No se almacena la base de datos en la memoria de la PC
-      try {
-        localStorage.removeItem("NEXA_RUTA_DB_v2");
-      } catch(e) {}
+      persistirUsuariosYEmpresasLocales();
       if (notificar) {
         notificarCambioRealtime({ tipo: "DB_ACTUALIZADA", timestamp: Date.now() });
       }
@@ -4296,6 +4321,9 @@ function renderizarModulo02Usuarios(main, empId) {
                         </button>
                         <button onclick="restablecerClaveUsuarioRapido('${u.usuario}')" class="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg transition" title="Restablecer Contraseña">
                           <i data-lucide="key" class="w-4 h-4"></i>
+                        </button>
+                        <button onclick="eliminarUsuarioAdmin('${u.usuario}')" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition" title="Eliminar Usuario">
+                          <i data-lucide="trash-2" class="w-4 h-4"></i>
                         </button>
                       </div>
                     </td>
@@ -6446,6 +6474,10 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
       lucide.createIcons();
     }
 
+    function abrirModalCrearConductor(idEmpresaCustom = null) {
+      abrirModalSupervisorCrearConductor(idEmpresaCustom);
+    }
+
     function abrirModalSupervisorCrearConductor() {
       const idEmp = (sesionActual && sesionActual.id_empresa) ? sesionActual.id_empresa : 'TRP-001';
       const tractos = (DB_LOCAL.tractos || []).filter(t => t.id_empresa === idEmp);
@@ -6553,7 +6585,14 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
 
       // 2. CERRAR MODAL Y PINTAR LA NUEVA TARJETA AL INSTANTE
       cerrarModal("modal-supervisor-crear-conductor");
-      mostrarSeccionSupervisor('conductores');
+      persistirUsuariosYEmpresasLocales();
+      guardarBaseDatosLocal(false);
+      const mainArea = document.getElementById("main-stage-area");
+      if (mainArea && seccionSupervisorActual === '05_conductores') {
+        renderizarModulo05Conductores(mainArea, idEmp);
+      } else {
+        mostrarSeccionSupervisor('conductores');
+      }
       abrirModalConfirmacionAcceso(nombreCompleto, user, pass);
 
       // 3. GUARDAR DIRECTAMENTE EN GOOGLE SHEETS EN SEGUNDO PLANO
@@ -7703,22 +7742,45 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
         mostrarToast("No puedes eliminar la cuenta maestra del Administrador General", "error");
         return;
       }
-      if (!confirm(`¿Estás seguro de eliminar permanentemente al usuario "${usuarioLogin}"? Esta acción no se puede deshacer.`)) {
+      if (!confirm(`¿Estás seguro de eliminar permanentemente al usuario "${usuarioLogin}"? No reaparecerá al actualizar la página.`)) {
         return;
       }
-      const idx = (DB_LOCAL.usuarios || []).findIndex(x => x.usuario === usuarioLogin);
+      const uNomLimpio = String(usuarioLogin || "").trim().toLowerCase();
+
+      // 1. Guardar en lista negra permanente
+      try {
+        const uEliminados = JSON.parse(localStorage.getItem("NEXA_RUTA_USUARIOS_ELIMINADOS") || "[]");
+        if (!uEliminados.includes(uNomLimpio)) {
+          uEliminados.push(uNomLimpio);
+          localStorage.setItem("NEXA_RUTA_USUARIOS_ELIMINADOS", JSON.stringify(uEliminados));
+        }
+      } catch(e) {}
+
+      // 2. Eliminar de DB_LOCAL.usuarios
+      const idx = (DB_LOCAL.usuarios || []).findIndex(x => (x.usuario || "").toLowerCase() === uNomLimpio);
       if (idx >= 0) {
         DB_LOCAL.usuarios.splice(idx, 1);
-        guardarBaseDatosLocal(false);
-        mostrarToast(`Usuario "${usuarioLogin}" eliminado con éxito`, "success");
-        
-        if (seccionAdminActual === 'usuarios') mostrarSeccionAdmin('usuarios');
-        else if (empresaSeleccionadaDetalle) renderizarVistaDetalleEmpresa();
-        else refrescarVistaUsuariosActual();
+      }
 
-        if (APPS_SCRIPT_URL) {
-          llamarApiGoogleSheets({ action: 'admin/eliminar_usuario', usuario: usuarioLogin }).catch(() => {});
+      // 3. Desmarcar si estaba seleccionado
+      if (typeof usuariosSeleccionadosGlobal !== 'undefined') {
+        usuariosSeleccionadosGlobal.delete(usuarioLogin);
+        if (typeof actualizarBarraAccionesMasivasUsuarios === 'function') {
+          actualizarBarraAccionesMasivasUsuarios();
         }
+      }
+
+      // 4. Persistir de inmediato en localStorage
+      persistirUsuariosYEmpresasLocales();
+      guardarBaseDatosLocal(false);
+      mostrarToast(`✅ Usuario "${usuarioLogin}" eliminado permanentemente`, "success");
+      
+      if (seccionAdminActual === 'usuarios') mostrarSeccionAdmin('usuarios');
+      else if (empresaSeleccionadaDetalle) renderizarVistaDetalleEmpresa();
+      else refrescarVistaUsuariosActual();
+
+      if (APPS_SCRIPT_URL) {
+        llamarApiGoogleSheets({ action: 'admin/eliminar_usuario', usuario: usuarioLogin }).catch(() => {});
       }
     }
 
@@ -9941,11 +10003,13 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
       });
     }
 
+    let usuariosSeleccionadosGlobal = new Set();
+
     function generarFilasUsuariosHtml(listaUsuarios) {
       if (!listaUsuarios || listaUsuarios.length === 0) {
         return `
           <tr>
-            <td colspan="8" class="p-8 text-center text-slate-400">
+            <td colspan="9" class="p-8 text-center text-slate-400">
               <i data-lucide="user-x" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
               <p class="font-bold text-slate-600">No se encontraron usuarios</p>
               <p class="text-[11px]">Prueba con otro término de búsqueda o limpia los filtros</p>
@@ -9958,9 +10022,14 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
         const infoRol = ROLES_SISTEMA[u.rol] || { nombre: u.rol, badgeColor: 'bg-slate-100 text-slate-800' };
         const esConductor = u.rol === 'CONDUCTOR';
         const cFicha = esConductor ? (DB_LOCAL.conductores || []).find(c => c.dni === u.dni || c.id_usuario === u.id || (u.id_conductor && c.id_conductor === u.id_conductor)) : null;
+        const estaSeleccionado = usuariosSeleccionadosGlobal.has(u.usuario);
+        const esAdminMaestro = u.usuario === 'admin';
 
         return `
-          <tr class="hover:bg-slate-50 transition">
+          <tr class="hover:bg-slate-50 transition ${estaSeleccionado ? 'bg-turquoise-50/60 font-medium' : ''}">
+            <td class="p-3 text-center w-10">
+              <input type="checkbox" class="chk-usuario-item w-4 h-4 rounded text-turquoise-600 focus:ring-turquoise-500 cursor-pointer" value="${u.usuario}" ${estaSeleccionado ? 'checked' : ''} ${esAdminMaestro ? 'disabled title="La cuenta maestra no se puede seleccionar"' : `onchange="alternarSeleccionUsuarioItem('${u.usuario}', this.checked)"`}>
+            </td>
             <td class="p-3 font-mono font-bold text-navy-900">${u.usuario}</td>
             <td class="p-3">
               <strong class="text-slate-900 block font-semibold">${u.nombre || u.usuario}</strong>
@@ -10125,12 +10194,40 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
             </div>
           </div>
 
+          <!-- Barra de Acciones Masivas (Aparece al seleccionar usuarios) -->
+          <div id="barra-acciones-masivas-usr" class="${usuariosSeleccionadosGlobal.size > 0 ? 'flex' : 'hidden'} flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3.5 bg-navy-900 text-white rounded-2xl shadow-md border border-navy-700 transition">
+            <div class="flex items-center space-x-2.5 text-xs">
+              <span class="w-2.5 h-2.5 rounded-full bg-turquoise-400 animate-pulse"></span>
+              <span class="font-black text-turquoise-300" id="lbl-usr-seleccionados-count">${usuariosSeleccionadosGlobal.size} usuario(s) seleccionado(s)</span>
+            </div>
+            <div class="flex items-center flex-wrap gap-2 text-xs">
+              <button onclick="ejecutarAccionMasivaUsuarios('ACTIVAR')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold flex items-center space-x-1.5 transition cursor-pointer shadow-2xs">
+                <i data-lucide="user-check" class="w-3.5 h-3.5"></i>
+                <span>Activar Cuentas</span>
+              </button>
+              <button onclick="ejecutarAccionMasivaUsuarios('SUSPENDER')" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-bold flex items-center space-x-1.5 transition cursor-pointer shadow-2xs">
+                <i data-lucide="user-x" class="w-3.5 h-3.5"></i>
+                <span>Suspender Cuentas</span>
+              </button>
+              <button onclick="ejecutarAccionMasivaUsuarios('ELIMINAR')" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded-xl font-bold flex items-center space-x-1.5 transition cursor-pointer shadow-2xs">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                <span>Eliminar Seleccionados</span>
+              </button>
+              <button onclick="deseleccionarTodosUsuarios()" class="px-2.5 py-1.5 bg-navy-800 hover:bg-slate-700 text-slate-300 rounded-xl font-bold transition cursor-pointer border border-navy-700">
+                <span>Deseleccionar</span>
+              </button>
+            </div>
+          </div>
+
           <!-- Tabla de Usuarios -->
           <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-2xs">
             <div class="overflow-x-auto">
               <table class="w-full text-left text-xs">
                 <thead class="bg-slate-50 text-slate-600 font-bold uppercase text-[10px] border-b border-slate-200">
                   <tr>
+                    <th class="p-3 w-10 text-center">
+                      <input type="checkbox" id="chk-seleccionar-todos-usr" onchange="alternarSeleccionTodosUsuarios(this.checked)" class="w-4 h-4 rounded text-turquoise-600 focus:ring-turquoise-500 cursor-pointer" title="Seleccionar todos los visibles">
+                    </th>
                     <th class="p-3">Usuario</th>
                     <th class="p-3">Nombres y Apellidos</th>
                     <th class="p-3">Rol / Perfil</th>
@@ -10155,6 +10252,141 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
       }
     }
 
+    
+    // =========================================================================
+    // ACCIONES MASIVAS Y GESTIÓN DE SELECCIÓN DE USUARIOS
+    // =========================================================================
+    function alternarSeleccionTodosUsuarios(checked) {
+      const filtrados = obtenerUsuariosFiltradosMemoria();
+      if (checked) {
+        filtrados.forEach(u => {
+          if (u.usuario !== 'admin') {
+            usuariosSeleccionadosGlobal.add(u.usuario);
+          }
+        });
+      } else {
+        usuariosSeleccionadosGlobal.clear();
+      }
+      actualizarBarraAccionesMasivasUsuarios();
+      actualizarChecksVisiblesUsuarios();
+    }
+
+    function alternarSeleccionUsuarioItem(usuarioLogin, checked) {
+      if (usuarioLogin === 'admin') {
+        mostrarToast("La cuenta maestra de Admin no se puede seleccionar para acciones masivas", "warning");
+        actualizarChecksVisiblesUsuarios();
+        return;
+      }
+      if (checked) {
+        usuariosSeleccionadosGlobal.add(usuarioLogin);
+      } else {
+        usuariosSeleccionadosGlobal.delete(usuarioLogin);
+      }
+      actualizarBarraAccionesMasivasUsuarios();
+      actualizarCheckMaestroUsuarios();
+    }
+
+    function deseleccionarTodosUsuarios() {
+      usuariosSeleccionadosGlobal.clear();
+      actualizarBarraAccionesMasivasUsuarios();
+      actualizarChecksVisiblesUsuarios();
+    }
+
+    function actualizarBarraAccionesMasivasUsuarios() {
+      const barra = document.getElementById("barra-acciones-masivas-usr");
+      const lblCount = document.getElementById("lbl-usr-seleccionados-count");
+      const cant = usuariosSeleccionadosGlobal.size;
+      if (barra) {
+        if (cant > 0) {
+          barra.classList.remove("hidden");
+          barra.classList.add("flex");
+          if (lblCount) lblCount.textContent = cant + " usuario(s) seleccionado(s)";
+          if (window.lucide) lucide.createIcons({ root: barra });
+        } else {
+          barra.classList.add("hidden");
+          barra.classList.remove("flex");
+        }
+      }
+    }
+
+    function actualizarChecksVisiblesUsuarios() {
+      const items = document.querySelectorAll(".chk-usuario-item");
+      items.forEach(chk => {
+        chk.checked = usuariosSeleccionadosGlobal.has(chk.value);
+        const tr = chk.closest("tr");
+        if (tr) {
+          if (chk.checked) tr.classList.add("bg-turquoise-50/60", "font-medium");
+          else tr.classList.remove("bg-turquoise-50/60", "font-medium");
+        }
+      });
+      actualizarCheckMaestroUsuarios();
+    }
+
+    function actualizarCheckMaestroUsuarios() {
+      const chkAll = document.getElementById("chk-seleccionar-todos-usr");
+      if (!chkAll) return;
+      const filtrados = obtenerUsuariosFiltradosMemoria().filter(u => u.usuario !== 'admin');
+      if (filtrados.length === 0) {
+        chkAll.checked = false;
+        return;
+      }
+      const todosMarcados = filtrados.every(u => usuariosSeleccionadosGlobal.has(u.usuario));
+      chkAll.checked = todosMarcados;
+    }
+
+    function ejecutarAccionMasivaUsuarios(accion) {
+      const seleccionados = Array.from(usuariosSeleccionadosGlobal);
+      if (seleccionados.length === 0) {
+        mostrarToast("No hay usuarios seleccionados", "warning");
+        return;
+      }
+
+      if (accion === 'ELIMINAR') {
+        if (!confirm(`¿Estás seguro de eliminar permanentemente a los ${seleccionados.length} usuarios seleccionados? No reaparecerán al actualizar la página.`)) {
+          return;
+        }
+
+        try {
+          const uEliminados = JSON.parse(localStorage.getItem("NEXA_RUTA_USUARIOS_ELIMINADOS") || "[]");
+          seleccionados.forEach(user => {
+            const uNom = user.toLowerCase();
+            if (!uEliminados.includes(uNom)) uEliminados.push(uNom);
+          });
+          localStorage.setItem("NEXA_RUTA_USUARIOS_ELIMINADOS", JSON.stringify(uEliminados));
+        } catch(e) {}
+
+        DB_LOCAL.usuarios = (DB_LOCAL.usuarios || []).filter(u => !seleccionados.includes(u.usuario));
+        persistirUsuariosYEmpresasLocales();
+        guardarBaseDatosLocal(false);
+        usuariosSeleccionadosGlobal.clear();
+        mostrarToast(`✅ ${seleccionados.length} usuarios eliminados permanentemente`, "success");
+        refrescarVistaUsuariosActual();
+
+        if (APPS_SCRIPT_URL) {
+          seleccionados.forEach(user => {
+            llamarApiGoogleSheets({ action: 'admin/eliminar_usuario', usuario: user }).catch(() => {});
+          });
+        }
+      } else if (accion === 'ACTIVAR' || accion === 'SUSPENDER') {
+        const nuevoEstado = accion === 'ACTIVAR' ? 'ACTIVO' : 'INACTIVO';
+        seleccionados.forEach(user => {
+          const u = (DB_LOCAL.usuarios || []).find(x => x.usuario === user);
+          if (u) u.estado = nuevoEstado;
+        });
+        persistirUsuariosYEmpresasLocales();
+        guardarBaseDatosLocal(false);
+        usuariosSeleccionadosGlobal.clear();
+        mostrarToast(`✅ ${seleccionados.length} cuentas cambiadas a estado ${nuevoEstado}`, "success");
+        refrescarVistaUsuariosActual();
+
+        if (APPS_SCRIPT_URL) {
+          seleccionados.forEach(user => {
+            llamarApiGoogleSheets({ action: 'admin/actualizar_estado_usuario', usuario: user, estado: nuevoEstado }).catch(() => {});
+          });
+        }
+      }
+    }
+
     function cambiarFiltroEmpresaUsuarios(idEmpresa) {
       filtroEmpresaUsuariosSeleccionada = idEmpresa;
       const tbody = document.getElementById("tabla-usuarios-tbody");
@@ -10163,6 +10395,8 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
         tbody.innerHTML = generarFilasUsuariosHtml(filtrados);
         const lblCount = document.getElementById("lbl-usuarios-resultado-count");
         if (lblCount) lblCount.textContent = filtrados.length + " resultado(s)";
+        if (typeof actualizarCheckMaestroUsuarios === 'function') actualizarCheckMaestroUsuarios();
+        if (typeof actualizarBarraAccionesMasivasUsuarios === 'function') actualizarBarraAccionesMasivasUsuarios();
         if (window.lucide) lucide.createIcons({ root: tbody });
         return;
       }
@@ -10686,6 +10920,15 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
         return;
       }
 
+      // Si el usuario estaba previamente en la lista negra de eliminados, removerlo porque se está recreando intencionalmente
+      try {
+        let uEliminados = JSON.parse(localStorage.getItem("NEXA_RUTA_USUARIOS_ELIMINADOS") || "[]");
+        if (uEliminados.includes(login)) {
+          uEliminados = uEliminados.filter(x => x !== login);
+          localStorage.setItem("NEXA_RUTA_USUARIOS_ELIMINADOS", JSON.stringify(uEliminados));
+        }
+      } catch(e) {}
+
       const idGen = Date.now().toString().slice(-4);
       const idxExist = (DB_LOCAL.usuarios || []).findIndex(u => u.usuario.toLowerCase() === login);
 
@@ -10703,6 +10946,43 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
 
       let nuevoCnd = null;
 
+      // Si el perfil es Conductor o Auxiliar, crear o actualizar automáticamente su ficha en conductores y conceder acceso móvil
+      if (rol === 'CONDUCTOR' || rol === 'AUXILIAR') {
+        const lic = (document.getElementById("form-cnd-licencia")?.value || "").trim();
+        const cat = (document.getElementById("form-cnd-categoria")?.value || "A-IIIc").trim();
+        const tracto = (document.getElementById("form-cnd-tracto")?.value || "").trim().toUpperCase();
+        const carreta = (document.getElementById("form-cnd-carreta")?.value || "").trim().toUpperCase();
+
+        const idCndAsignado = (idxExist >= 0 && DB_LOCAL.usuarios[idxExist].id_conductor) ? 
+          DB_LOCAL.usuarios[idxExist].id_conductor : ("CND-" + idGen);
+
+        nuevoUsr.id_conductor = idCndAsignado;
+        nuevoUsr.placa_tracto = tracto || "V7X-890";
+        nuevoUsr.placa_carreta = carreta || "TC8-120";
+
+        nuevoCnd = {
+          id_conductor: idCndAsignado,
+          id_empresa: empresa,
+          nombre: nombre || login,
+          dni: dni || ("4" + Math.floor(1000000 + Math.random() * 8999999)),
+          licencia: lic || ("Q" + (dni || Math.floor(10000000 + Math.random() * 89999999))),
+          categoria: cat || "A-IIIc",
+          vencimiento: "31/12/2028",
+          telefono: tel || "999888777",
+          foto: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
+          estado: "Disponible",
+          placa_tracto: tracto || "V7X-890",
+          placa_carreta: carreta || "TC8-120",
+          pass: pass,
+          rol: rol,
+          usuario_login: login,
+          latitud: -12.0463,
+          longitud: -77.0427,
+          precision_m: 5,
+          ultima_actualizacion: "Hace un momento"
+        };
+      }
+
       // 1. Guardar de inmediato en memoria local
       if (idxExist >= 0) {
         DB_LOCAL.usuarios[idxExist] = { ...DB_LOCAL.usuarios[idxExist], ...nuevoUsr };
@@ -10711,15 +10991,16 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
       }
 
       if (nuevoCnd) {
-        const cIdx = (DB_LOCAL.conductores || []).findIndex(c => (c.dni && c.dni === dni) || c.id_conductor === nuevoCnd.id_conductor || c.nombre.toLowerCase() === nuevoUsr.nombre.toLowerCase());
+        const cIdx = (DB_LOCAL.conductores || []).findIndex(c => (c.dni && c.dni === nuevoCnd.dni) || c.id_conductor === nuevoCnd.id_conductor || (c.nombre && c.nombre.toLowerCase() === nuevoUsr.nombre.toLowerCase()));
         if (cIdx >= 0) DB_LOCAL.conductores[cIdx] = { ...DB_LOCAL.conductores[cIdx], ...nuevoCnd };
         else DB_LOCAL.conductores.push(nuevoCnd);
       }
 
+      persistirUsuariosYEmpresasLocales();
       guardarBaseDatosLocal();
       cerrarModal("modal-usuario-avanzado");
       refrescarVistaUsuariosActual();
-      mostrarToast(`✅ Usuario ${login} guardado localmente. Sincronizando con Google Sheets...`, "info");
+      mostrarToast(`✅ Usuario ${login} (${rol}) guardado con acceso completo listo`, "success");
 
       // 2. Sincronizar en segundo plano con Google Sheets
       try {
@@ -10729,7 +11010,7 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
           nuevoConductor: nuevoCnd
         });
         if (res && res.status === "OK") {
-          mostrarToast(`✅ Usuario ${login} guardado en Google Sheets`, "success");
+          mostrarToast(`✅ Usuario ${login} sincronizado con Google Sheets`, "info");
         }
       } catch(e) {
         console.warn("Fallo guardando en nube, queda en cola:", e);
@@ -11109,12 +11390,21 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
           mostrarToast("No puedes eliminar al único Administrador General", "error");
           return;
         }
-        if (confirm(`¿Estás seguro de eliminar el usuario ${u.usuario}?`)) {
+        if (confirm(`¿Estás seguro de eliminar permanentemente al usuario ${u.usuario}? No reaparecerá al actualizar.`)) {
+          const uNomLimpio = String(u.usuario || "").trim().toLowerCase();
+          try {
+            const uEliminados = JSON.parse(localStorage.getItem("NEXA_RUTA_USUARIOS_ELIMINADOS") || "[]");
+            if (!uEliminados.includes(uNomLimpio)) {
+              uEliminados.push(uNomLimpio);
+              localStorage.setItem("NEXA_RUTA_USUARIOS_ELIMINADOS", JSON.stringify(uEliminados));
+            }
+          } catch(e) {}
           DB_LOCAL.usuarios.splice(idx, 1);
+          persistirUsuariosYEmpresasLocales();
           guardarBaseDatosLocal();
-          registrarEventoAuditoria("ELIMINAR_USUARIO", `Usuario ${u.usuario} eliminado desde Panel Maestro`, "Usuarios");
+          registrarEventoAuditoria("ELIMINAR_USUARIO", `Usuario ${u.usuario} eliminado permanentemente`, "Usuarios");
           renderizarPestanaPanelControl();
-          mostrarToast(`Usuario ${u.usuario} eliminado`, "info");
+          mostrarToast(`Usuario ${u.usuario} eliminado permanentemente`, "info");
         }
       }
     }
