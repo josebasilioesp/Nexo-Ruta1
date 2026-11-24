@@ -405,6 +405,15 @@ function procesarApiGetInterno(params) {
     return jsonResponse(procesarLogin(params.usuario, params.password));
   }
 
+  if (action === 'admin/eliminar_usuario' || action === 'eliminar_usuario') {
+    let payload = params;
+    if (params.data) {
+      try { payload = JSON.parse(params.data); } catch(e) {}
+    }
+    const usr = payload.usuario || params.usuario;
+    return jsonResponse(eliminarUsuarioDirecto(usr));
+  }
+
   if (action === 'supervisor/crear_conductor' || action === 'admin/crear_usuario') {
     let payload = params;
     if (params.data) {
@@ -714,6 +723,28 @@ function asignarServicioDirecto(payload) {
   return { status: "OK", cod_servicio: codServicio, mensaje: "Programación creada y publicada en Google Sheets con éxito" };
 }
 
+
+// Eliminar usuario permanentemente de la hoja USUARIOS de Google Sheets
+function eliminarUsuarioDirecto(usuarioLogin) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet() || SpreadsheetApp.openById(SPREADSHEET_ID);
+    const sheetUsr = ss.getSheetByName("USUARIOS");
+    if (!sheetUsr) return { status: "ERROR", mensaje: "Hoja USUARIOS no encontrada" };
+    const uBuscado = String(usuarioLogin || "").trim().toLowerCase();
+    const data = sheetUsr.getDataRange().getValues();
+    for (let i = 1; i < data.length; i++) {
+      const uFila = String(data[i][1] || "").trim().toLowerCase();
+      if (uFila === uBuscado) {
+        sheetUsr.deleteRow(i + 1);
+        return { status: "OK", mensaje: "Usuario " + usuarioLogin + " eliminado de Google Sheets" };
+      }
+    }
+    return { status: "OK", mensaje: "Usuario " + usuarioLogin + " no encontrado en Google Sheets" };
+  } catch(e) {
+    return { status: "ERROR", error: e.message };
+  }
+}
+
 function eliminarServicioDirecto(codServicio) {
   const ss = obtenerSpreadsheet();
   const sheetSrv = ss.getSheetByName("Servicios");
@@ -965,6 +996,10 @@ function doPostInterno(e) {
 
     if (action === "sistema/sync_bidireccional") {
       return jsonResponse(procesarSyncBidireccional(payload));
+    }
+
+    if (action === "admin/eliminar_usuario" || action === "eliminar_usuario") {
+      return jsonResponse(eliminarUsuarioDirecto(payload.usuario));
     }
 
     if (action === "supervisor/crear_conductor" || action === "admin/crear_usuario" || action === "admin/bulk_crear_usuarios") {

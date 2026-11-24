@@ -2316,6 +2316,47 @@
           });
         }
       }
+
+      // 6. Restaurar evidencias fotográficas capturadas por conductores
+      const evdGuardadas = localStorage.getItem("NEXA_RUTA_EVIDENCIAS_CUSTOM");
+      if (evdGuardadas) {
+        const parsedEvd = JSON.parse(evdGuardadas);
+        if (Array.isArray(parsedEvd) && parsedEvd.length > 0) {
+          DB_LOCAL.evidencias = DB_LOCAL.evidencias || [];
+          parsedEvd.forEach(ev => {
+            if (!DB_LOCAL.evidencias.some(x => x.id_evidencia === ev.id_evidencia)) {
+              DB_LOCAL.evidencias.push(ev);
+            }
+          });
+        }
+      }
+
+      // 7. Restaurar ubicaciones GPS reportadas por conductores
+      const ubiGuardadas = localStorage.getItem("NEXA_RUTA_UBICACIONES_CUSTOM");
+      if (ubiGuardadas) {
+        const parsedUbi = JSON.parse(ubiGuardadas);
+        if (Array.isArray(parsedUbi) && parsedUbi.length > 0) {
+          DB_LOCAL.ubicaciones = DB_LOCAL.ubicaciones || [];
+          parsedUbi.forEach(ub => {
+            if (!DB_LOCAL.ubicaciones.some(x => x.id_ubicacion === ub.id_ubicacion)) {
+              DB_LOCAL.ubicaciones.push(ub);
+            }
+          });
+        }
+      }
+
+      // 8. Restaurar servicios modificados
+      const srvGuardados = localStorage.getItem("NEXA_RUTA_SERVICIOS_CUSTOM");
+      if (srvGuardados) {
+        const parsedSrv = JSON.parse(srvGuardados);
+        if (Array.isArray(parsedSrv) && parsedSrv.length > 0) {
+          parsedSrv.forEach(s => {
+            const idx = (DB_LOCAL.servicios || []).findIndex(x => x.cod_servicio === s.cod_servicio);
+            if (idx >= 0) DB_LOCAL.servicios[idx] = { ...DB_LOCAL.servicios[idx], ...s };
+            else DB_LOCAL.servicios.push(s);
+          });
+        }
+      }
     } catch(e) {
       console.warn("Aviso al restaurar base de datos local:", e);
     }
@@ -2326,6 +2367,15 @@
         localStorage.setItem("NEXA_RUTA_EMPRESAS_CUSTOM", JSON.stringify(DB_LOCAL.empresas));
         if (DB_LOCAL.conductores) {
           localStorage.setItem("NEXA_RUTA_CONDUCTORES_CUSTOM", JSON.stringify(DB_LOCAL.conductores));
+        }
+        if (DB_LOCAL.evidencias) {
+          localStorage.setItem("NEXA_RUTA_EVIDENCIAS_CUSTOM", JSON.stringify(DB_LOCAL.evidencias.slice(0, 50)));
+        }
+        if (DB_LOCAL.ubicaciones) {
+          localStorage.setItem("NEXA_RUTA_UBICACIONES_CUSTOM", JSON.stringify(DB_LOCAL.ubicaciones.slice(0, 50)));
+        }
+        if (DB_LOCAL.servicios) {
+          localStorage.setItem("NEXA_RUTA_SERVICIOS_CUSTOM", JSON.stringify(DB_LOCAL.servicios));
         }
       } catch(e) {}
     }
@@ -2375,10 +2425,13 @@
     }
 
     function cargarBaseDatosLocal() {
-      // 100% NUBE: Limpiar residuos locales para que la PC no guarde nada en su disco
       try {
         localStorage.removeItem("NEXA_RUTA_DB_v2");
         localStorage.removeItem("NEXA_RUTA_AUDIT_LOG");
+        const uEliminados = JSON.parse(localStorage.getItem("NEXA_RUTA_USUARIOS_ELIMINADOS") || "[]");
+        if (Array.isArray(uEliminados) && uEliminados.length > 0) {
+          DB_LOCAL.usuarios = (DB_LOCAL.usuarios || []).filter(u => !uEliminados.includes((u.usuario || "").toLowerCase()));
+        }
       } catch(e) {}
     }
 
@@ -2504,10 +2557,15 @@
     }
     // Si se recarga la página antes de que llegue a la nube, el conductor pendiente se vuelve a mostrar
     function reaplicarPendientesLocales() {
+      const uEliminados = JSON.parse(localStorage.getItem("NEXA_RUTA_USUARIOS_ELIMINADOS") || "[]");
       leerPendientes().forEach(({ payload }) => {
         if (!payload) return;
-        if (payload.nuevoUsuario && !DB_LOCAL.usuarios.some(u => (u.usuario || "").toLowerCase() === (payload.nuevoUsuario.usuario || "").toLowerCase())) {
-          DB_LOCAL.usuarios.push(payload.nuevoUsuario);
+        if (payload.nuevoUsuario) {
+          const uNom = (payload.nuevoUsuario.usuario || "").toLowerCase();
+          if (uEliminados.includes(uNom)) return;
+          if (!DB_LOCAL.usuarios.some(u => (u.usuario || "").toLowerCase() === uNom)) {
+            DB_LOCAL.usuarios.push(payload.nuevoUsuario);
+          }
         }
         if (payload.nuevoConductor && !DB_LOCAL.conductores.some(c => c.id_conductor === payload.nuevoConductor.id_conductor || String(c.dni) === String(payload.nuevoConductor.dni))) {
           DB_LOCAL.conductores.push(payload.nuevoConductor);
@@ -2578,11 +2636,14 @@
               return o;
             });
           });
-          // 1. SINCRONIZAR USUARIOS DESDE GOOGLE SHEETS
+          // 1. SINCRONIZAR USUARIOS DESDE GOOGLE SHEETS (Con protección estricta contra resurrección)
           if (Array.isArray(data.usuarios) && data.usuarios.length > 0) {
+            const uEliminados = JSON.parse(localStorage.getItem("NEXA_RUTA_USUARIOS_ELIMINADOS") || "[]");
             data.usuarios.forEach(uCloud => {
               const uKey = String(uCloud.USUARIO || uCloud.usuario || "").trim().toLowerCase();
               if (!uKey) return;
+              // REGLA SUPREMA: Si el usuario fue eliminado por el administrador, NUNCA volver a añadirlo
+              if (uEliminados.includes(uKey)) return;
               const idx = DB_LOCAL.usuarios.findIndex(u => String(u.usuario || "").trim().toLowerCase() === uKey);
               // NUNCA sobreescribir la contraseña de texto plano local con el hash SHA-256 de Google Sheets
               let passEnNube = (idx >= 0 && DB_LOCAL.usuarios[idx].pass && DB_LOCAL.usuarios[idx].pass.length < 30) ? DB_LOCAL.usuarios[idx].pass : null;
@@ -2607,6 +2668,8 @@
                 DB_LOCAL.usuarios.push(uNorm);
               }
             });
+            // Purga estricta permanente en memoria
+            DB_LOCAL.usuarios = (DB_LOCAL.usuarios || []).filter(u => !uEliminados.includes((u.usuario || "").toLowerCase()));
           }
 
           // 2. SINCRONIZAR CONDUCTORES DESDE GOOGLE SHEETS (Para que aparezcan en todas las computadoras)
@@ -4013,6 +4076,93 @@ function renderizarModulo01Dashboard(main, empId) {
         </div>
       </div>
 
+      <!-- SECCIÓN: EVIDENCIAS FOTOGRÁFICAS Y UBICACIÓN GPS EN VIVO (Imagen 2 y Solicitud Usuario) -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <!-- Panel de Fotos y Evidencias en Vivo -->
+        <div class="lg:col-span-2 bg-white p-5 rounded-3xl border border-slate-200 shadow-2xs space-y-4">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+            <h3 class="text-xs font-black text-navy-900 flex items-center space-x-2">
+              <i data-lucide="camera" class="w-4 h-4 text-turquoise-600"></i>
+              <span>Evidencias Fotográficas de Ruta (En Vivo desde Móvil)</span>
+            </h3>
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-turquoise-100 text-turquoise-800">
+              ${(DB_LOCAL.evidencias || []).filter(e => !empId || empId === 'TODAS' || e.id_empresa === empId || e.id_empresa === 'TODAS').length} Foto(s) Registrada(s)
+            </span>
+          </div>
+
+          ${(() => {
+            const evds = (DB_LOCAL.evidencias || []).filter(e => !empId || empId === 'TODAS' || e.id_empresa === empId || e.id_empresa === 'TODAS');
+            if (evds.length === 0) {
+              return `
+                <div class="p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-slate-400 space-y-2">
+                  <i data-lucide="image" class="w-8 h-8 mx-auto text-slate-300"></i>
+                  <p class="text-xs font-bold text-slate-600">Aún no hay fotos registradas para esta empresa</p>
+                  <p class="text-[11px]">Cuando el conductor tome una foto con su móvil aparecerá aquí al instante junto con su GPS</p>
+                </div>
+              `;
+            }
+            return `
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                ${evds.slice(0, 8).map(e => `
+                  <div class="group relative bg-slate-50 rounded-2xl p-2 border border-slate-200 hover:shadow-md transition">
+                    <div class="h-28 w-full rounded-xl overflow-hidden bg-slate-200 relative cursor-pointer" onclick="ampliarFotoVisor('${e.url_foto}', '${e.tipo_evidencia} - ${e.conductor}')">
+                      <img src="${e.url_foto}" alt="Evidencia" class="w-full h-full object-cover group-hover:scale-105 transition duration-200">
+                      <span class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-navy-950/80 text-white font-mono text-[9px]">
+                        ${e.tipo_evidencia}
+                      </span>
+                    </div>
+                    <div class="pt-2 text-[10px] space-y-0.5">
+                      <strong class="text-navy-900 block truncate font-bold">${e.conductor || 'Conductor'}</strong>
+                      <span class="text-slate-500 block truncate">${e.parada || e.cod_servicio}</span>
+                      <span class="text-[9px] text-slate-400 block font-mono">${e.fecha_captura || 'Recién capturada'}</span>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            `;
+          })()}
+        </div>
+
+        <!-- Panel de Mapa GPS en Vivo del Conductor -->
+        <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-2xs space-y-3 flex flex-col justify-between">
+          ${(() => {
+            const ubis = (DB_LOCAL.ubicaciones || []).filter(u => !empId || empId === 'TODAS' || u.id_empresa === empId || u.id_empresa === 'TODAS');
+            const ultUbi = ubis.length > 0 ? ubis[0] : ((DB_LOCAL.evidencias || []).find(e => e.latitud && e.longitud && (!empId || empId === 'TODAS' || e.id_empresa === empId)) || null);
+            const latG = ultUbi && ultUbi.latitud ? Number(ultUbi.latitud) : -12.0463;
+            const lngG = ultUbi && ultUbi.longitud ? Number(ultUbi.longitud) : -77.0427;
+            const lugarNombre = ultUbi ? (ultUbi.parada || 'En ruta') : 'Callao / Base';
+            const horaUbi = ultUbi ? (ultUbi.fecha_hora_captura || ultUbi.fecha_captura || 'Hoy') : 'En línea';
+
+            return `
+              <div class="space-y-1">
+                <div class="flex items-center justify-between">
+                  <h3 class="text-xs font-black text-navy-900 flex items-center space-x-2">
+                    <i data-lucide="map-pin" class="w-4 h-4 text-rose-500 animate-bounce"></i>
+                    <span>Último Reporte Satelital GPS</span>
+                  </h3>
+                  <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                    Satelital Activo
+                  </span>
+                </div>
+                <p class="text-[10px] text-slate-500 truncate">
+                  ${lugarNombre} • ${horaUbi}
+                </p>
+              </div>
+
+              <div class="h-44 w-full rounded-2xl border border-slate-200 overflow-hidden relative bg-slate-100">
+                <iframe width="100%" height="100%" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?q=${latG},${lngG}&hl=es&z=14&output=embed"></iframe>
+              </div>
+
+              <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-100 text-[10px] flex items-center justify-between">
+                <span class="text-slate-500">Coordenadas:</span>
+                <span class="font-mono font-bold text-navy-900">${latG.toFixed(4)}, ${lngG.toFixed(4)}</span>
+                <a href="https://maps.google.com/?q=${latG},${lngG}" target="_blank" class="text-turquoise-700 font-bold hover:underline">Abrir Mapa</a>
+              </div>
+            `;
+          })()}
+        </div>
+      </div>
+
       <!-- Gráficos Estadísticos (Imagen 2) -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
         <!-- Distribución de Estados -->
@@ -4858,45 +5008,42 @@ function abrirModalDetalleServicioOficial(codServicio) {
           </div>
         </div>
 
-        <!-- Ubicación GPS (Imagen 6) -->
+                <!-- Ubicación GPS Dinámica del Servicio -->
         <div class="space-y-1.5">
           <span class="text-xs font-black text-navy-900 flex items-center space-x-1.5">
             <i data-lucide="map-pin" class="w-4 h-4 text-rose-500"></i>
-            <span>Ubicación Satelital GPS en Tiempo Real</span>
+            <span>Ubicación Satelital GPS del Servicio en Tiempo Real</span>
           </span>
           <div class="h-44 w-full rounded-2xl border border-slate-200 overflow-hidden relative bg-slate-100 flex items-center justify-center">
-            <iframe width="100%" height="100%" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?q=-11.9542,-77.1245&hl=es&z=13&output=embed"></iframe>
+            <iframe width="100%" height="100%" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?q=${s.latitud || -11.9542},${s.longitud || -77.1245}&hl=es&z=14&output=embed"></iframe>
           </div>
         </div>
 
-        <!-- Evidencias Fotográficas y Documentos (Imagen 6) -->
+        <!-- Evidencias Fotográficas Reales Subidas por el Conductor -->
         <div class="space-y-2">
           <span class="text-xs font-black text-navy-900 flex items-center space-x-1.5">
             <i data-lucide="camera" class="w-4 h-4 text-turquoise-600"></i>
-            <span>Evidencias Fotográficas y Guías de Remisión</span>
+            <span>Evidencias Fotográficas y Guías de Remisión (${(s.evidencias || (DB_LOCAL.evidencias || []).filter(e => e.cod_servicio === s.cod_servicio)).length})</span>
           </span>
-          <div class="grid grid-cols-3 gap-2">
-            <div class="p-2 bg-slate-50 rounded-xl border border-slate-200 text-center text-[10px]">
-              <div class="h-20 bg-slate-200 rounded-lg mb-1 overflow-hidden flex items-center justify-center text-slate-400">
-                <i data-lucide="image" class="w-6 h-6"></i>
-              </div>
-              <span class="font-bold block text-slate-700">Precinto de Seguridad</span>
-            </div>
-            <div class="p-2 bg-slate-50 rounded-xl border border-slate-200 text-center text-[10px]">
-              <div class="h-20 bg-slate-200 rounded-lg mb-1 overflow-hidden flex items-center justify-center text-slate-400">
-                <i data-lucide="image" class="w-6 h-6"></i>
-              </div>
-              <span class="font-bold block text-slate-700">Carga en Tolva</span>
-            </div>
-            <div class="p-2 bg-slate-50 rounded-xl border border-slate-200 text-center text-[10px]">
-              <div class="h-20 bg-slate-200 rounded-lg mb-1 overflow-hidden flex items-center justify-center text-slate-400">
-                <i data-lucide="file-check-2" class="w-6 h-6"></i>
-              </div>
-              <span class="font-bold block text-slate-700">Guía Firmada SUTRAN</span>
-            </div>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+            ${(() => {
+              const fotosSrv = s.evidencias && s.evidencias.length > 0 ? s.evidencias : (DB_LOCAL.evidencias || []).filter(e => e.cod_servicio === s.cod_servicio);
+              if (fotosSrv.length === 0) {
+                return '<p class="text-xs text-slate-400 col-span-3 text-center py-4 bg-slate-50 rounded-xl border border-slate-100">Aún no hay fotos registradas para este servicio.</p>';
+              }
+              return fotosSrv.map(ev => `
+                <div class="p-2 bg-slate-50 rounded-xl border border-slate-200 text-center text-[10px] space-y-1 group">
+                  <div class="h-24 w-full rounded-lg overflow-hidden bg-slate-200 cursor-pointer" onclick="ampliarFotoVisor('${ev.url_foto}', '${ev.tipo_evidencia} - ${ev.parada}')">
+                    <img src="${ev.url_foto}" class="w-full h-full object-cover group-hover:scale-105 transition duration-150">
+                  </div>
+                  <strong class="font-bold block text-slate-800 truncate">${ev.tipo_evidencia}</strong>
+                  <span class="text-[9px] text-slate-500 block truncate">${ev.parada || ''}</span>
+                  <span class="text-[9px] text-slate-400 block font-mono">${ev.fecha_captura || ''}</span>
+                </div>
+              `).join('');
+            })()}
           </div>
         </div>
-
         <!-- Incidencias e Historial del Servicio (Imagen 6) -->
         <div class="p-3 bg-amber-50 rounded-2xl border border-amber-200 text-xs text-amber-900 space-y-1">
           <strong class="font-bold flex items-center space-x-1">
@@ -7771,13 +7918,18 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
       }
 
       // 4. Persistir de inmediato en localStorage
+      // Limpiar de pendientes de sincronización
+      try {
+        const peds = leerPendientes().filter(p => !p.payload || (String(p.payload.usuario || "").toLowerCase() !== uNomLimpio && (!p.payload.nuevoUsuario || String(p.payload.nuevoUsuario.usuario || "").toLowerCase() !== uNomLimpio)));
+        guardarPendientes(peds);
+      } catch(e) {}
+
       persistirUsuariosYEmpresasLocales();
       guardarBaseDatosLocal(false);
       mostrarToast(`✅ Usuario "${usuarioLogin}" eliminado permanentemente`, "success");
       
-      if (seccionAdminActual === 'usuarios') mostrarSeccionAdmin('usuarios');
-      else if (empresaSeleccionadaDetalle) renderizarVistaDetalleEmpresa();
-      else refrescarVistaUsuariosActual();
+      // Actualizar pantalla al instante (0 ms) sin necesidad de recargar la página
+      actualizarPantallaUsuariosEnVivo();
 
       if (APPS_SCRIPT_URL) {
         llamarApiGoogleSheets({ action: 'admin/eliminar_usuario', usuario: usuarioLogin }).catch(() => {});
@@ -10356,11 +10508,16 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
         } catch(e) {}
 
         DB_LOCAL.usuarios = (DB_LOCAL.usuarios || []).filter(u => !seleccionados.includes(u.usuario));
+        try {
+          const selsLower = seleccionados.map(s => s.toLowerCase());
+          const peds = leerPendientes().filter(p => !p.payload || (!selsLower.includes(String(p.payload.usuario || "").toLowerCase()) && (!p.payload.nuevoUsuario || !selsLower.includes(String(p.payload.nuevoUsuario.usuario || "").toLowerCase()))));
+          guardarPendientes(peds);
+        } catch(e) {}
         persistirUsuariosYEmpresasLocales();
         guardarBaseDatosLocal(false);
         usuariosSeleccionadosGlobal.clear();
         mostrarToast(`✅ ${seleccionados.length} usuarios eliminados permanentemente`, "success");
-        refrescarVistaUsuariosActual();
+        actualizarPantallaUsuariosEnVivo();
 
         if (APPS_SCRIPT_URL) {
           seleccionados.forEach(user => {
@@ -10453,6 +10610,64 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
         return;
       }
       refrescarVistaUsuariosActual();
+    }
+
+    
+    // =========================================================================
+    // ACTUALIZACIÓN DE PANTALLA EN TIEMPO REAL (0 ms - SIN NECESIDAD DE RECARGAR)
+    // =========================================================================
+    function actualizarPantallaUsuariosEnVivo() {
+      const tbody = document.getElementById("tabla-usuarios-tbody");
+      if (tbody) {
+        const filtrados = obtenerUsuariosFiltradosMemoria();
+        tbody.innerHTML = generarFilasUsuariosHtml(filtrados);
+
+        // 1. Actualizar Badge Total del Encabezado
+        const badgeTotal = document.getElementById("badge-total-usuarios");
+        if (badgeTotal) badgeTotal.textContent = (DB_LOCAL.usuarios || []).length + " Registrados";
+
+        // 2. Actualizar Contador de Resultados
+        const lblCount = document.getElementById("lbl-usuarios-resultado-count");
+        if (lblCount) lblCount.textContent = filtrados.length + " resultado(s)";
+
+        // 3. Actualizar Contadores de las Tarjetas de Rol
+        const total = (DB_LOCAL.usuarios || []).length;
+        const countAdmin = (DB_LOCAL.usuarios || []).filter(u => u.rol === 'ADMIN_GENERAL').length;
+        const countAdminis = (DB_LOCAL.usuarios || []).filter(u => u.rol === 'ADMINISTRATIVO').length;
+        const countProg = (DB_LOCAL.usuarios || []).filter(u => u.rol === 'PROGRAMADOR').length;
+        const countSeg = (DB_LOCAL.usuarios || []).filter(u => u.rol === 'SEGUIMIENTO' || u.rol === 'OPERACIONES').length;
+        const countGer = (DB_LOCAL.usuarios || []).filter(u => u.rol === 'GERENCIA').length;
+        const countCond = (DB_LOCAL.usuarios || []).filter(u => u.rol === 'CONDUCTOR').length;
+        const countInv = (DB_LOCAL.usuarios || []).filter(u => u.rol === 'INVITADO' || u.rol === 'CLIENTE').length;
+
+        const rolesMap = {
+          TODOS: total,
+          ADMIN_GENERAL: countAdmin,
+          ADMINISTRATIVO: countAdminis,
+          PROGRAMADOR: countProg,
+          SEGUIMIENTO: countSeg,
+          GERENCIA: countGer,
+          CONDUCTOR: countCond,
+          INVITADO: countInv
+        };
+
+        Object.keys(rolesMap).forEach(r => {
+          const btn = document.getElementById('btn-filtro-rol-' + r);
+          if (btn) {
+            const numSpan = btn.querySelector('.text-base');
+            if (numSpan) numSpan.textContent = rolesMap[r];
+          }
+        });
+
+        // 4. Sincronizar barra y checks
+        if (typeof actualizarCheckMaestroUsuarios === 'function') actualizarCheckMaestroUsuarios();
+        if (typeof actualizarBarraAccionesMasivasUsuarios === 'function') actualizarBarraAccionesMasivasUsuarios();
+        if (window.lucide) lucide.createIcons({ root: tbody });
+        return;
+      }
+
+      // Si se encuentra en otra vista o submódulo
+      if (typeof refrescarVistaUsuariosActual === 'function') refrescarVistaUsuariosActual();
     }
 
     function refrescarVistaUsuariosActual() {
