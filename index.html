@@ -3511,7 +3511,20 @@
     // ==========================================
     // PORTAL DEL CONDUCTOR (NEXA RUTA MÓVIL)
     // ==========================================
-    function abrirPortalConductor() {
+        function volverDesdeConductor() {
+      if (sesionActual && (sesionActual.rol === 'ADMIN_GENERAL' || sesionActual.usuario === 'admin')) {
+        abrirPortalAdminGeneral();
+      } else if (sesionActual && (sesionActual.rol === 'ADMINISTRATIVO' || sesionActual.rol === 'PROGRAMADOR' || sesionActual.rol === 'SUPERVISOR')) {
+        abrirPortalSupervisor(sesionActual.rol);
+      } else {
+        // Conductor puro: confirmación amigable para volver a pantalla de login
+        if (confirm("¿Deseas volver a la pantalla de inicio de sesión?")) {
+          cerrarSesionCompleta();
+        }
+      }
+    }
+
+function abrirPortalConductor() {
       solicitarPermisoGpsTiempoReal();
       document.getElementById("sidebar-navy").classList.add("hidden");
       const main = document.getElementById("main-stage-area");
@@ -3560,7 +3573,19 @@
       }
 
       main.innerHTML = `
-        <div class="max-w-md mx-auto w-full p-4 flex flex-col min-h-full space-y-4">
+        <div class="max-w-md mx-auto w-full p-4 flex flex-col min-h-full space-y-3">
+          <!-- BARRA DE NAVEGACIÓN Y RETROCESO (Solicitud Usuario) -->
+          <div class="flex items-center justify-between pb-1">
+            <button type="button" onclick="volverDesdeConductor()" class="flex items-center space-x-1.5 py-1.5 px-3 bg-white hover:bg-slate-100 text-navy-900 border border-slate-200 rounded-xl text-xs font-black shadow-2xs transition cursor-pointer">
+              <i data-lucide="arrow-left" class="w-4 h-4 text-turquoise-600"></i>
+              <span>← Retroceder</span>
+            </button>
+            <button type="button" onclick="cerrarSesionCompleta()" class="flex items-center space-x-1 py-1 px-2.5 bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 rounded-xl text-[11px] font-bold transition cursor-pointer">
+              <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+              <span>Salir</span>
+            </button>
+          </div>
+
           <div class="bg-navy-900 text-white rounded-3xl p-4 shadow-lg border border-navy-800 flex items-center justify-between">
             <div class="flex items-center space-x-3">
               <img src="${cndFicha.foto}" class="w-12 h-12 rounded-2xl object-cover border-2 border-turquoise-500 shadow-sm">
@@ -4916,36 +4941,43 @@ function cambiarSubPestanaProgEmpresa(tab) {
 function abrirModalCrearProgramacionManual() {
   const modal = document.getElementById("modal-supervisor-crear-programacion");
   if (!modal) return;
-  const empId = sesionActual.id_empresa;
+  const empId = sesionActual ? sesionActual.id_empresa : 'TRP-001';
   
   const codInput = document.getElementById("prog-crear-cod");
   if (codInput) {
-    codInput.value = "SRV-2026-" + String((DB_LOCAL.servicios || []).length + 1).padStart(4, '0');
+    let srvNum = (DB_LOCAL.servicios || []).length + 1;
+    while ((DB_LOCAL.servicios || []).some(s => s.id_servicio === ('SRV-2026-' + String(srvNum).padStart(4, '0')))) {
+      srvNum++;
+    }
+    codInput.value = 'SRV-2026-' + String(srvNum).padStart(4, '0');
   }
   const fechaInput = document.getElementById("prog-crear-fecha");
   if (fechaInput && !fechaInput.value) {
     fechaInput.value = new Date().toISOString().split('T')[0];
   }
 
-  // Poblar select conductores
+  // Poblar select conductores de la empresa
   const cndSelect = document.getElementById("prog-crear-conductor");
   if (cndSelect) {
     const cnds = (DB_LOCAL.conductores || []).filter(c => !empId || empId === 'TODAS' || c.id_empresa === empId || c.id_empresa === 'TODAS');
-    cndSelect.innerHTML = cnds.map(c => `<option value="${c.id_conductor}">${c.nombre} (${c.dni})</option>`).join('');
+    const cndsList = cnds.length > 0 ? cnds : DB_LOCAL.conductores;
+    cndSelect.innerHTML = cndsList.map(c => `<option value="${c.id_conductor}">${c.nombre} (${c.dni}) - Lic: ${c.licencia}</option>`).join('');
   }
 
-  // Poblar select tractos
+  // Poblar select tractos con placas reales
   const tractoSelect = document.getElementById("prog-crear-tracto");
   if (tractoSelect) {
-    const tractos = (DB_LOCAL.unidades || []).filter(u => u.tipo === 'Tracto' && (!empId || empId === 'TODAS' || u.id_empresa === empId || u.id_empresa === 'TODAS'));
-    tractoSelect.innerHTML = tractos.map(t => `<option value="${t.placa}">${t.placa} - ${t.marca} ${t.modelo}</option>`).join('');
+    let tractosPlacas = (DB_LOCAL.tractos || []).filter(t => !empId || empId === 'TODAS' || t.id_empresa === empId || t.id_empresa === 'TODAS').map(t => t.placa);
+    if (tractosPlacas.length === 0) tractosPlacas = ["V7X-890", "F4C-902", "T3B-891", "B5K-710"];
+    tractoSelect.innerHTML = tractosPlacas.map(p => `<option value="${p}">${p}</option>`).join('');
   }
 
-  // Poblar select carretas
+  // Poblar select carretas con placas reales
   const carretaSelect = document.getElementById("prog-crear-carreta");
   if (carretaSelect) {
-    const carretas = (DB_LOCAL.unidades || []).filter(u => (u.tipo === 'Semirremolque' || u.tipo === 'Carreta') && (!empId || empId === 'TODAS' || u.id_empresa === empId || u.id_empresa === 'TODAS'));
-    carretaSelect.innerHTML = carretas.map(c => `<option value="${c.placa}">${c.placa} - ${c.marca} ${c.modelo}</option>`).join('');
+    let carretasPlacas = (DB_LOCAL.carretas || []).filter(c => !empId || empId === 'TODAS' || c.id_empresa === empId || c.id_empresa === 'TODAS').map(c => c.placa);
+    if (carretasPlacas.length === 0) carretasPlacas = ["TC8-120", "TR8-901", "C1M-552", "TC8-110"];
+    carretaSelect.innerHTML = carretasPlacas.map(p => `<option value="${p}">${p}</option>`).join('');
   }
 
   modal.classList.remove("hidden");
@@ -7599,6 +7631,8 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
         evidencias: []
       };
 
+      nuevoSrv.id_empresa = (sesionActual && sesionActual.id_empresa && sesionActual.id_empresa !== 'TODAS') ? sesionActual.id_empresa : 'TRP-001';
+      DB_LOCAL.servicios = DB_LOCAL.servicios || [];
       DB_LOCAL.servicios.unshift(nuevoSrv);
       guardarBaseDatosLocal();
 
@@ -11087,8 +11121,17 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
         return;
       }
       const main = document.getElementById("main-stage-area");
-      if (main && (seccionAdminActual === 'usuarios' || seccionSupervisorActual === 'usuarios')) {
-        renderizarVistaUsuariosCompleta(main, true);
+      if (main) {
+        if (seccionSupervisorActual === 'usuarios' || seccionSupervisorActual === '02_usuarios') {
+          renderizarModulo02Usuarios(main, sesionActual ? sesionActual.id_empresa : 'TRP-001');
+          lucide.createIcons();
+          return;
+        }
+        if (seccionAdminActual === 'usuarios' || (sesionActual && sesionActual.rol === 'ADMIN_GENERAL')) {
+          renderizarVistaUsuariosCompleta(main, true);
+          lucide.createIcons();
+          return;
+        }
       }
     }
 
@@ -11557,17 +11600,26 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
       const idGen = Date.now().toString().slice(-4);
       const idxExist = (DB_LOCAL.usuarios || []).findIndex(u => u.usuario.toLowerCase() === login);
 
+      const empAsignada = empresa || (sesionActual && sesionActual.id_empresa !== 'TODAS' ? sesionActual.id_empresa : 'TRP-001');
       const nuevoUsr = {
         id: idxExist >= 0 ? DB_LOCAL.usuarios[idxExist].id : ("USR-" + idGen),
         usuario: login,
         nombre: nombre || login,
         rol: rol,
-        id_empresa: empresa,
+        id_empresa: empAsignada,
         dni: dni,
         telefono: tel,
         pass: pass,
-        estado: estado
+        estado: estado,
+        creado_manualmente: true
       };
+
+      // Si estaba en lista negra, remover permanentemente
+      try {
+        let uElim = JSON.parse(localStorage.getItem("NEXA_RUTA_USUARIOS_ELIMINADOS") || "[]");
+        uElim = uElim.filter(x => x.toLowerCase() !== login.toLowerCase());
+        localStorage.setItem("NEXA_RUTA_USUARIOS_ELIMINADOS", JSON.stringify(uElim));
+      } catch(e) {}
 
       let nuevoCnd = null;
 
