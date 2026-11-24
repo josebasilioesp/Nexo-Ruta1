@@ -1863,6 +1863,20 @@
         accesoApp: false,
         descripcion: "Visualización de alto nivel: consultar dashboard ejecutivo, KPIs e informes (solo lectura)."
       },
+      CONSULTA: {
+        nombre: "Consulta",
+        badgeColor: "bg-amber-100 text-amber-800 border border-amber-200",
+        accesoWeb: true,
+        accesoApp: false,
+        descripcion: "Visualización de alto nivel: consultar dashboard ejecutivo, servicios y métricas (solo lectura)."
+      },
+      AUXILIAR: {
+        nombre: "Auxiliar",
+        badgeColor: "bg-cyan-100 text-cyan-800 border border-cyan-200",
+        accesoWeb: false,
+        accesoApp: true,
+        descripcion: "Uso exclusivo en App móvil: asistencia de ruta, apoyo de carga y reporte en carretera."
+      },
       MANTENIMIENTO: {
         nombre: "Mantenimiento",
         badgeColor: "bg-slate-100 text-slate-800 border border-slate-200",
@@ -2165,6 +2179,75 @@
           accion_admin: "Coordinado con cliente Minera Chinalco tolerancia de 2 horas.",
           fecha: "21/11/2026 07:15"
         }
+      ],
+      unidades: [
+        { id: "UNI-001", tipo: "Tracto", placa: "V7X-890", id_empresa: "TRP-001", marca: "Volvo", modelo: "FH 540", anio: 2022, config: "6x4 - T3S3", ejes: 3, capacidad_tn: 48, soat_nro: "8932014 Pacífico Seguros", soat_vencimiento: "15/10/2027", soat_vigente: true, citv_nro: "CITV-45902 Lider", citv_vencimiento: "20/09/2027", citv_vigente: true, estado: "OPERATIVO", total_servicios: 14 },
+        { id: "UNI-002", tipo: "Semirremolque", placa: "TC8-120", id_empresa: "TRP-001", marca: "Randon", modelo: "Plataforma Baranda", anio: 2021, config: "Plataforma 3 Ejes", ejes: 3, capacidad_tn: 32, soat_nro: "9102431 Rimac", soat_vencimiento: "18/11/2027", soat_vigente: true, citv_nro: "CITV-38104 San Martín", citv_vencimiento: "14/11/2027", citv_vigente: true, estado: "OPERATIVO", total_servicios: 12 },
+        { id: "UNI-003", tipo: "Tracto", placa: "B4K-712", id_empresa: "TRP-001", marca: "Scania", modelo: "R500", anio: 2023, config: "6x4 - T3S3", ejes: 3, capacidad_tn: 50, soat_nro: "7749120 La Positiva", soat_vencimiento: "12/12/2027", soat_vigente: true, citv_nro: "CITV-59201 Revisiones Perú", citv_vencimiento: "05/11/2027", citv_vigente: true, estado: "OPERATIVO", total_servicios: 9 },
+        { id: "UNI-004", tipo: "Semirremolque", placa: "F3M-905", id_empresa: "TRP-001", marca: "Tremac", modelo: "Cisterna MATPEL 9000 Gal", anio: 2020, config: "Cisterna 3 Ejes", ejes: 3, capacidad_tn: 30, soat_nro: "6620194 Rimac", soat_vencimiento: "01/08/2027", soat_vigente: true, citv_nro: "CITV-21094 CITV Sur", citv_vencimiento: "15/07/2027", citv_vigente: true, estado: "OPERATIVO", total_servicios: 8 },
+        { id: "UNI-005", tipo: "Tracto", placa: "T8P-650", id_empresa: "TRP-001", marca: "Mercedes-Benz", modelo: "Actros 2645", anio: 2021, config: "6x4 - T3S2", ejes: 3, capacidad_tn: 45, soat_nro: "5510294 Mapfre", soat_vencimiento: "30/11/2027", soat_vigente: true, citv_nro: "CITV-98412 Certificados Callao", citv_vencimiento: "20/12/2027", citv_vigente: true, estado: "EN MANTENIMIENTO", total_servicios: 11 },
+        { id: "UNI-006", tipo: "Tracto", placa: "W3D-880", id_empresa: "TRP-002", marca: "International", modelo: "ProStar", anio: 2020, config: "6x4", ejes: 3, capacidad_tn: 48, soat_nro: "4410291 Rimac", soat_vencimiento: "12/08/2027", soat_vigente: true, citv_nro: "CITV-81023 Lima Centro", citv_vencimiento: "05/10/2027", citv_vigente: true, estado: "OPERATIVO", total_servicios: 6 },
+        { id: "UNI-007", tipo: "Semirremolque", placa: "C9R-441", id_empresa: "TRP-002", marca: "Great Dane", modelo: "Furgón Seco 53 Pies", anio: 2019, config: "Furgón 3 Ejes", ejes: 3, capacidad_tn: 28, soat_nro: "3310294 La Positiva", soat_vencimiento: "22/10/2027", soat_vigente: true, citv_nro: "CITV-39120 CITV Ate", citv_vencimiento: "18/09/2027", citv_vigente: true, estado: "OPERATIVO", total_servicios: 5 },
+        { id: "UNI-008", tipo: "Tracto", placa: "D1X-750", id_empresa: "TRP-003", marca: "Kenworth", modelo: "T680", anio: 2022, config: "6x4", ejes: 3, capacidad_tn: 48, soat_nro: "2210294 Mapfre", soat_vencimiento: "10/05/2027", soat_vigente: true, citv_nro: "CITV-44102 CITV Callao", citv_vencimiento: "14/09/2027", citv_vigente: true, estado: "OPERATIVO", total_servicios: 4 },
+        { id: "UNI-009", tipo: "Semirremolque", placa: "A7B-330", id_empresa: "TRP-003", marca: "Montenegro", modelo: "Plataforma Granelera", anio: 2021, config: "Plataforma 3 Ejes", ejes: 3, capacidad_tn: 30, soat_nro: "1110294 Pacífico", soat_vencimiento: "14/09/2027", soat_vigente: true, citv_nro: "CITV-10294 CITV Sur", citv_vencimiento: "10/08/2027", citv_vigente: true, estado: "OPERATIVO", total_servicios: 4 }
+      ],
+      configuracion: {
+        notificaciones: {
+          serviciosPendientes: true,
+          cambiosProgramacion: true,
+          vencimientoLicencias: true,
+          vencimientoDocumentos: true,
+          alertasOperativas: true
+        },
+        servicios: {
+          estados: ["Programado", "Pendiente", "En ruta", "En destino", "Finalizado", "Observado", "Cancelado"],
+          tipos: ["Carga Pesada General", "Carga Refrigerada", "Materiales Peligrosos (MATPEL)", "Granel Seco", "Contenedores Marítimos"],
+          clientes: ["Aceros Arequipa S.A.", "Minera Chinalco Perú S.A.", "Alicorp S.A.A.", "Gloria S.A.", "Sociedad Minera Cerro Verde S.A.A."],
+          puntosCargaDescarga: [
+            "Puerto del Callao (APM Terminals)",
+            "Almacén Central Ate - Lima",
+            "Mina Las Bambas - Apurímac",
+            "Planta Pisco - Aceros Arequipa",
+            "Depósito Minero Cerro Verde - Arequipa"
+          ],
+          motivosCancelacion: [
+            "Desistimiento del cliente",
+            "Unidad averiada sin reemplazo",
+            "Bloqueo de carreteras / Factores climáticos",
+            "Falta de documentación de carga en origen"
+          ],
+          motivosReprogramacion: [
+            "Retraso en muelle / almacén de carga",
+            "Falla mecánica leve reprogramada",
+            "Tráfico denso en ruta troncal",
+            "Cambio de turno o descanso de conductor"
+          ]
+        },
+        permisosAppMovil: {
+          consultarServicios: true,
+          iniciarFinalizar: true,
+          pausarServicios: true,
+          registrarIncidencias: true,
+          subirFotos: true,
+          adjuntarDocumentos: true,
+          registrarEntregas: true,
+          consultarHistorial: true,
+          actualizarDatosPersonales: false,
+          recibirNotificaciones: true
+        },
+        general: {
+          logo: "",
+          nombre: "Transportes Andinos S.A.C.",
+          ruc: "20601234567",
+          direccion: "Av. Industrial 450, Callao",
+          telefono: "(01) 450-8900",
+          correo: "operaciones@transportesandinos.com",
+          zonaHoraria: "America/Lima (UTC-5)"
+        }
+      },
+      auditoria_programacion: [
+        { id: "AUD-PRG-01", cod_servicio: "SRV-2026-0001", usuario: "Roberto Sánchez (Programador)", fecha: "21/11/2026", hora: "05:30", accion: "Asignación Inicial", detalle: "Se asignó tracto V7X-890, carreta TC8-120 y conductor Juan Carlos Pérez." },
+        { id: "AUD-PRG-02", cod_servicio: "SRV-2026-0001", usuario: "Roberto Sánchez (Programador)", fecha: "21/11/2026", hora: "05:40", accion: "Cambio de Carreta", detalle: "Se cambió carreta TC8-110 por TC8-120 por mayor capacidad de carga." }
       ],
       auditoria: [
         {
@@ -3474,600 +3557,2385 @@
     // ==========================================
     function abrirPortalSupervisor(modoRol = null) {
       document.getElementById("sidebar-navy").classList.remove("hidden");
-      document.getElementById("lbl-sidebar-empresa-nombre").textContent = obtenerNombreEmpresa(sesionActual.id_empresa);
+      const empId = sesionActual.id_empresa;
+      document.getElementById("lbl-sidebar-empresa-nombre").textContent = obtenerNombreEmpresa(empId);
 
-      const rol = String(modoRol || (sesionActual && sesionActual.rol) || 'SUPERVISOR').toUpperCase();
+      const rol = String(modoRol || (sesionActual && sesionActual.rol) || 'ADMINISTRATIVO').toUpperCase();
+      const esAdminGen = (sesionActual && (sesionActual.rol === 'ADMIN_GENERAL' || sesionActual.usuario === 'admin'));
       const menu = document.getElementById("sidebar-menu-list");
-      let menuHtml = '';
 
-      if (rol === 'ADMINISTRATIVO') {
-        menuHtml = `
-          <button onclick="mostrarSeccionSupervisor('dashboard')" id="sup-menu-dashboard" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-white bg-navy-800 font-bold transition">
-            <i data-lucide="layout-dashboard" class="w-4 h-4 text-turquoise-400"></i>
-            <span>Dashboard de Flota</span>
-          </button>
-          <button onclick="mostrarSeccionSupervisor('programacion')" id="sup-menu-programacion" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
-            <i data-lucide="calendar-plus" class="w-4 h-4 text-turquoise-400"></i>
-            <span>Programación</span>
-          </button>
-          <button onclick="mostrarSeccionSupervisor('usuarios')" id="sup-menu-usuarios" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
-            <i data-lucide="user-check" class="w-4 h-4 text-turquoise-400"></i>
-            <span>Personal y Usuarios</span>
-          </button>
-          <button onclick="mostrarSeccionSupervisor('servicios')" id="sup-menu-servicios" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
-            <i data-lucide="route" class="w-4 h-4"></i>
-            <span>Servicios y Rutas</span>
-          </button>
-          <button onclick="mostrarSeccionSupervisor('conductores')" id="sup-menu-conductores" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
-            <i data-lucide="users" class="w-4 h-4"></i>
-            <span>Conductores y Flota</span>
-          </button>
-          <button onclick="mostrarSeccionSupervisor('evidencias')" id="sup-menu-evidencias" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
-            <i data-lucide="image" class="w-4 h-4"></i>
-            <span>Evidencias y Fotos</span>
-          </button>
-          <button onclick="mostrarSeccionSupervisor('incidencias')" id="sup-menu-incidencias" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
-            <i data-lucide="alert-circle" class="w-4 h-4"></i>
-            <span>Incidencias</span>
-          </button>
-        `;
-      } else if (rol === 'PROGRAMADOR') {
-        menuHtml = `
-          <button onclick="mostrarSeccionSupervisor('programacion')" id="sup-menu-programacion" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-white bg-navy-800 font-bold transition">
-            <i data-lucide="calendar-plus" class="w-4 h-4 text-turquoise-400"></i>
-            <span>Programación de Rutas</span>
-          </button>
-          <button onclick="mostrarSeccionSupervisor('servicios')" id="sup-menu-servicios" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
-            <i data-lucide="route" class="w-4 h-4"></i>
-            <span>Servicios y Despacho</span>
-          </button>
-          <button onclick="mostrarSeccionSupervisor('conductores')" id="sup-menu-conductores" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
-            <i data-lucide="truck" class="w-4 h-4"></i>
-            <span>Flota y Asignaciones</span>
-          </button>
-        `;
-      } else if (rol === 'SEGUIMIENTO' || rol === 'OPERACIONES') {
-        menuHtml = `
-          <button onclick="mostrarSeccionSupervisor('dashboard')" id="sup-menu-dashboard" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-white bg-navy-800 font-bold transition">
-            <i data-lucide="layout-dashboard" class="w-4 h-4 text-turquoise-400"></i>
-            <span>Monitoreo Satelital en Vivo</span>
-          </button>
-          <button onclick="mostrarSeccionSupervisor('servicios')" id="sup-menu-servicios" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
-            <i data-lucide="route" class="w-4 h-4"></i>
-            <span>Servicios y Rutas (Consulta)</span>
-          </button>
-          <button onclick="mostrarSeccionSupervisor('evidencias')" id="sup-menu-evidencias" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
-            <i data-lucide="image" class="w-4 h-4"></i>
-            <span>Auditoría de Evidencias</span>
-          </button>
-          <button onclick="mostrarSeccionSupervisor('incidencias')" id="sup-menu-incidencias" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
-            <i data-lucide="alert-circle" class="w-4 h-4"></i>
-            <span>Incidencias Operativas</span>
-          </button>
-        `;
-      } else if (rol === 'GERENCIA') {
-        menuHtml = `
-          <button onclick="mostrarSeccionSupervisor('dashboard')" id="sup-menu-dashboard" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-white bg-navy-800 font-bold transition">
-            <i data-lucide="layout-dashboard" class="w-4 h-4 text-turquoise-400"></i>
-            <span>Dashboard Ejecutivo de Flota</span>
-          </button>
-          <button onclick="mostrarSeccionSupervisor('servicios')" id="sup-menu-servicios" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
-            <i data-lucide="route" class="w-4 h-4"></i>
-            <span>Historial y Odómetros</span>
-          </button>
-        `;
-      } else if (rol === 'MANTENIMIENTO') {
-        menuHtml = `
-          <button onclick="mostrarSeccionSupervisor('dashboard')" id="sup-menu-dashboard" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-white bg-navy-800 font-bold transition">
-            <i data-lucide="layout-dashboard" class="w-4 h-4 text-turquoise-400"></i>
-            <span>Control de Flota y Odómetros</span>
-          </button>
-          <button onclick="mostrarSeccionSupervisor('conductores')" id="sup-menu-conductores" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
-            <i data-lucide="truck" class="w-4 h-4"></i>
-            <span>Unidades (Tractos y Carretas)</span>
-          </button>
-          <button onclick="mostrarSeccionSupervisor('incidencias')" id="sup-menu-incidencias" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
-            <i data-lucide="wrench" class="w-4 h-4"></i>
-            <span>Incidencias Mecánicas</span>
-          </button>
-        `;
-      } else {
-        menuHtml = `
-          <button onclick="mostrarSeccionSupervisor('dashboard')" id="sup-menu-dashboard" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-white bg-navy-800 font-bold transition">
-            <i data-lucide="layout-dashboard" class="w-4 h-4 text-turquoise-400"></i>
-            <span>Dashboard de Flota</span>
-          </button>
-          <button onclick="mostrarSeccionSupervisor('programacion')" id="sup-menu-programacion" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
-            <i data-lucide="calendar-plus" class="w-4 h-4 text-turquoise-400"></i>
-            <span>Programación</span>
-          </button>
-          <button onclick="mostrarSeccionSupervisor('conductores')" id="sup-menu-conductores" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
-            <i data-lucide="users" class="w-4 h-4"></i>
-            <span>Conductores de mi flota</span>
-          </button>
-          <button onclick="mostrarSeccionSupervisor('servicios')" id="sup-menu-servicios" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
-            <i data-lucide="route" class="w-4 h-4"></i>
-            <span>Servicios y Rutas</span>
-          </button>
-          <button onclick="mostrarSeccionSupervisor('evidencias')" id="sup-menu-evidencias" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
-            <i data-lucide="image" class="w-4 h-4"></i>
-            <span>Evidencias y Fotos</span>
-          </button>
-          <button onclick="mostrarSeccionSupervisor('incidencias')" id="sup-menu-incidencias" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition">
-            <i data-lucide="alert-circle" class="w-4 h-4"></i>
-            <span>Incidencias</span>
-          </button>
+      // Banner de supervisión global si entra el Administrador General
+      let bannerSuperAdmin = '';
+      if (esAdminGen) {
+        bannerSuperAdmin = `
+          <div class="p-3 bg-gradient-to-r from-amber-500/20 via-amber-600/20 to-amber-700/20 border border-amber-500/50 rounded-2xl mb-3 shadow-xs">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-1.5 text-amber-400 font-extrabold text-[9px] uppercase tracking-wider">
+                <i data-lucide="crown" class="w-3.5 h-3.5 text-amber-400"></i>
+                <span>MANDO SUPREMO</span>
+              </div>
+              <button onclick="abrirPortalAdminGeneral()" class="text-[10px] bg-amber-500 hover:bg-amber-400 text-navy-950 px-2 py-0.5 rounded-lg font-black transition cursor-pointer">
+                Volver
+              </button>
+            </div>
+            <strong class="text-white text-xs block font-black mt-1">Supervisando Empresa</strong>
+            <span class="text-[10px] text-amber-200 block truncate">${obtenerNombreEmpresa(empId)}</span>
+          </div>
         `;
       }
 
-      // Botón universal de Flujo Operativo 7 pasos
-      menuHtml += `
+      // SIDEBAR OFICIAL DE LA EMPRESA (01 AL 08)
+      menu.innerHTML = `
+        ${bannerSuperAdmin}
+        <div class="space-y-1">
+          <!-- 01 DASHBOARD -->
+          <button onclick="mostrarSeccionSupervisor('dashboard')" id="sup-menu-dashboard" class="w-full flex items-center justify-between p-2.5 rounded-2xl text-left transition group text-slate-300 hover:text-white hover:bg-navy-800">
+            <div class="flex items-center space-x-3">
+              <span class="font-mono text-xs font-black text-slate-400 group-hover:text-turquoise-400">01</span>
+              <div class="w-7 h-7 rounded-lg bg-navy-800 flex items-center justify-center text-turquoise-400 group-hover:bg-turquoise-500/20">
+                <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <div class="text-xs font-black text-white tracking-wide">DASHBOARD</div>
+                <div class="text-[10px] text-slate-400">Resumen total de servicios</div>
+              </div>
+            </div>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-500 group-hover:text-white"></i>
+          </button>
+
+          <!-- 02 USUARIOS -->
+          <button onclick="mostrarSeccionSupervisor('usuarios')" id="sup-menu-usuarios" class="w-full flex items-center justify-between p-2.5 rounded-2xl text-left transition group text-slate-300 hover:text-white hover:bg-navy-800">
+            <div class="flex items-center space-x-3">
+              <span class="font-mono text-xs font-black text-slate-400 group-hover:text-turquoise-400">02</span>
+              <div class="w-7 h-7 rounded-lg bg-navy-800 flex items-center justify-center text-turquoise-400 group-hover:bg-turquoise-500/20">
+                <i data-lucide="users" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <div class="text-xs font-black text-white tracking-wide">USUARIOS</div>
+                <div class="text-[10px] text-slate-400">Creación y administración de cuentas</div>
+              </div>
+            </div>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-500 group-hover:text-white"></i>
+          </button>
+
+          <!-- 03 PROGRAMACIÓN -->
+          <button onclick="mostrarSeccionSupervisor('programacion')" id="sup-menu-programacion" class="w-full flex items-center justify-between p-2.5 rounded-2xl text-left transition group text-slate-300 hover:text-white hover:bg-navy-800">
+            <div class="flex items-center space-x-3">
+              <span class="font-mono text-xs font-black text-slate-400 group-hover:text-turquoise-400">03</span>
+              <div class="w-7 h-7 rounded-lg bg-navy-800 flex items-center justify-center text-turquoise-400 group-hover:bg-turquoise-500/20">
+                <i data-lucide="calendar" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <div class="text-xs font-black text-white tracking-wide">PROGRAMACIÓN</div>
+                <div class="text-[10px] text-slate-400">Programación, rutas y asignaciones</div>
+              </div>
+            </div>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-500 group-hover:text-white"></i>
+          </button>
+
+          <!-- 04 SERVICIOS -->
+          <button onclick="mostrarSeccionSupervisor('servicios')" id="sup-menu-servicios" class="w-full flex items-center justify-between p-2.5 rounded-2xl text-left transition group text-slate-300 hover:text-white hover:bg-navy-800">
+            <div class="flex items-center space-x-3">
+              <span class="font-mono text-xs font-black text-slate-400 group-hover:text-turquoise-400">04</span>
+              <div class="w-7 h-7 rounded-lg bg-navy-800 flex items-center justify-center text-turquoise-400 group-hover:bg-turquoise-500/20">
+                <i data-lucide="clipboard-list" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <div class="text-xs font-black text-white tracking-wide">SERVICIOS</div>
+                <div class="text-[10px] text-slate-400">Control y seguimiento de operaciones</div>
+              </div>
+            </div>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-500 group-hover:text-white"></i>
+          </button>
+
+          <!-- 05 CONDUCTORES -->
+          <button onclick="mostrarSeccionSupervisor('conductores')" id="sup-menu-conductores" class="w-full flex items-center justify-between p-2.5 rounded-2xl text-left transition group text-slate-300 hover:text-white hover:bg-navy-800">
+            <div class="flex items-center space-x-3">
+              <span class="font-mono text-xs font-black text-slate-400 group-hover:text-turquoise-400">05</span>
+              <div class="w-7 h-7 rounded-lg bg-navy-800 flex items-center justify-center text-turquoise-400 group-hover:bg-turquoise-500/20">
+                <i data-lucide="contact" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <div class="text-xs font-black text-white tracking-wide">CONDUCTORES</div>
+                <div class="text-[10px] text-slate-400">Registro e información de conductores</div>
+              </div>
+            </div>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-500 group-hover:text-white"></i>
+          </button>
+
+          <!-- 06 UNIDADES -->
+          <button onclick="mostrarSeccionSupervisor('unidades')" id="sup-menu-unidades" class="w-full flex items-center justify-between p-2.5 rounded-2xl text-left transition group text-slate-300 hover:text-white hover:bg-navy-800">
+            <div class="flex items-center space-x-3">
+              <span class="font-mono text-xs font-black text-slate-400 group-hover:text-turquoise-400">06</span>
+              <div class="w-7 h-7 rounded-lg bg-navy-800 flex items-center justify-center text-turquoise-400 group-hover:bg-turquoise-500/20">
+                <i data-lucide="truck" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <div class="text-xs font-black text-white tracking-wide">UNIDADES</div>
+                <div class="text-[10px] text-slate-400">Registro e información de transportes</div>
+              </div>
+            </div>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-500 group-hover:text-white"></i>
+          </button>
+
+          <!-- 07 CONFIGURACIÓN -->
+          <button onclick="mostrarSeccionSupervisor('configuracion')" id="sup-menu-configuracion" class="w-full flex items-center justify-between p-2.5 rounded-2xl text-left transition group text-slate-300 hover:text-white hover:bg-navy-800">
+            <div class="flex items-center space-x-3">
+              <span class="font-mono text-xs font-black text-slate-400 group-hover:text-turquoise-400">07</span>
+              <div class="w-7 h-7 rounded-lg bg-navy-800 flex items-center justify-center text-turquoise-400 group-hover:bg-turquoise-500/20">
+                <i data-lucide="settings" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <div class="text-xs font-black text-white tracking-wide">CONFIGURACIÓN</div>
+                <div class="text-[10px] text-slate-400">Parámetros y permisos del sistema</div>
+              </div>
+            </div>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-500 group-hover:text-white"></i>
+          </button>
+
+          <!-- 08 REPORTES -->
+          <button onclick="mostrarSeccionSupervisor('reportes')" id="sup-menu-reportes" class="w-full flex items-center justify-between p-2.5 rounded-2xl text-left transition group text-slate-300 hover:text-white hover:bg-navy-800">
+            <div class="flex items-center space-x-3">
+              <span class="font-mono text-xs font-black text-slate-400 group-hover:text-turquoise-400">08</span>
+              <div class="w-7 h-7 rounded-lg bg-navy-800 flex items-center justify-center text-turquoise-400 group-hover:bg-turquoise-500/20">
+                <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <div class="text-xs font-black text-white tracking-wide">REPORTES</div>
+                <div class="text-[10px] text-slate-400">Informes y descarga de bases de datos</div>
+              </div>
+            </div>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-500 group-hover:text-white"></i>
+          </button>
+        </div>
+
         <div class="pt-3 mt-3 border-t border-navy-800">
-          <button onclick="abrirModalFlujoOperativo()" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-turquoise-400 hover:bg-navy-800 font-medium transition">
+          <button onclick="abrirModalFlujoOperativo()" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-turquoise-400 hover:bg-navy-800 font-medium transition cursor-pointer">
             <i data-lucide="git-merge" class="w-4 h-4 text-turquoise-400"></i>
-            <span>Flujo del Sistema (7 Pasos)</span>
+            <span class="text-xs font-bold">Flujo del Sistema (7 Pasos)</span>
           </button>
         </div>
       `;
 
-      menu.innerHTML = menuHtml;
-
       let secRestaurar = 'dashboard';
-      if (rol === 'PROGRAMADOR') secRestaurar = 'programacion';
       try {
-        secRestaurar = localStorage.getItem("NEXA_RUTA_ACTIVE_SECTION") || localStorage.getItem("NEXA_RUTA_LAST_SECTION_SUPERVISOR") || secRestaurar;
+        secRestaurar = localStorage.getItem("NEXA_RUTA_ACTIVE_SECTION") || 'dashboard';
       } catch(e) {}
       mostrarSeccionSupervisor(secRestaurar);
       lucide.createIcons();
     }
 
     function mostrarSeccionSupervisor(seccion) {
+      // Normalizar alias
+      if (seccion === 'resumen') seccion = 'dashboard';
+      if (seccion === 'evidencias' || seccion === 'incidencias') seccion = 'servicios';
+      
       seccionSupervisorActual = seccion;
       try { localStorage.setItem("NEXA_RUTA_ACTIVE_SECTION", seccion); } catch(e) {}
-      try {
-        localStorage.setItem("NEXA_RUTA_LAST_SECTION_SUPERVISOR", seccion);
-      } catch(e) {}
       toggleMenuMobile(false);
-      ['dashboard', 'programacion', 'usuarios', 'conductores', 'servicios', 'evidencias', 'incidencias'].forEach(s => {
+
+      // Estilo de botones en sidebar
+      ['dashboard', 'usuarios', 'programacion', 'servicios', 'conductores', 'unidades', 'configuracion', 'reportes'].forEach(s => {
         const btn = document.getElementById(`sup-menu-${s}`);
         if (btn) {
-          btn.className = s === seccion 
-            ? "w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-white bg-navy-800 font-bold transition"
-            : "w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 font-medium transition";
+          if (s === seccion) {
+            btn.className = "w-full flex items-center justify-between p-2.5 rounded-2xl text-left transition bg-gradient-to-r from-navy-800 to-navy-900 border border-turquoise-500/30 text-white shadow-sm";
+          } else {
+            btn.className = "w-full flex items-center justify-between p-2.5 rounded-2xl text-left transition group text-slate-300 hover:text-white hover:bg-navy-800";
+          }
         }
       });
 
       sincronizarUsuariosYConductoresUnificados();
       const main = document.getElementById("main-stage-area");
-      const serviciosEmpresa = DB_LOCAL.servicios.filter(s => !s.id_empresa || s.id_empresa === 'TODAS' || s.id_empresa === sesionActual.id_empresa);
-      const conductoresEmpresa = DB_LOCAL.conductores.filter(c => !c.id_empresa || c.id_empresa === 'TODAS' || c.id_empresa === sesionActual.id_empresa);
-      const incidenciasEmpresa = DB_LOCAL.incidencias.filter(i => !i.id_empresa || i.id_empresa === 'TODAS' || i.id_empresa === sesionActual.id_empresa);
-      const todasEvidenciasEmpresa = serviciosEmpresa.flatMap(s => s.evidencias || []).filter(e => e.permiso_supervisor === "AUTORIZADO");
-      
-      const kmTotalesEmpresa = serviciosEmpresa.reduce((acc, s) => {
-        const ini = s.km_inicial || 0;
-        const fin = s.km_final || (s.km_actual || ini);
-        return acc + Math.max(0, fin - ini);
-      }, 0);
+      if (!main) return;
+      const empId = sesionActual.id_empresa;
 
-      if (seccion === 'usuarios') {
-        renderizarVistaUsuariosCompleta(main, false);
-      } else if (seccion === 'programacion') {
-        renderizarPanelProgramacion(main, serviciosEmpresa, conductoresEmpresa);
-      } else if (seccion === 'dashboard') {
-        main.innerHTML = `
-          <div class="p-6 space-y-6">
-            <!-- Encabezado del Dashboard del Supervisor -->
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <div>
-                <div class="flex items-center space-x-2">
-                  <h2 class="text-lg font-extrabold text-navy-900 tracking-tight">Dashboard de Flota</h2>
-                  <span class="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span>Operación en Vivo</span>
-                  </span>
-                </div>
-                <p class="text-xs text-slate-500">${obtenerNombreEmpresa(sesionActual.id_empresa)} • Supervisión integral, odómetros en tiempo real y despacho</p>
-              </div>
-              <div class="flex items-center space-x-2">
-                <button onclick="exportarExcelSupervisor()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 shadow-2xs transition">
-                  <i data-lucide="sheet" class="w-4 h-4"></i><span>Descargar Excel (.xlsx)</span>
-                </button>
-                <button onclick="exportarPdfSupervisor()" class="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 shadow-2xs transition">
-                  <i data-lucide="file-text" class="w-4 h-4"></i><span>Descargar PDF</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- 5 Tarjetas KPI del Supervisor -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5 text-xs">
-              <div class="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
-                <span class="text-slate-400 block font-bold text-[9px] uppercase">Conductores en Ruta</span>
-                <div class="flex items-baseline space-x-1.5 mt-1">
-                  <strong class="text-xl font-extrabold text-navy-900">${conductoresEmpresa.filter(c => c.estado === 'En ruta').length}</strong>
-                  <span class="text-slate-400 text-xs">/ ${conductoresEmpresa.length}</span>
-                </div>
-                <span class="text-[10px] text-emerald-600 font-semibold block mt-0.5">● Transmitiendo GPS</span>
-              </div>
-              
-              <div class="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
-                <span class="text-slate-400 block font-bold text-[9px] uppercase">Viajes Activos Hoy</span>
-                <strong class="text-xl font-extrabold text-turquoise-700 block mt-1">${serviciosEmpresa.filter(s => s.estado !== 'Finalizado').length}</strong>
-                <span class="text-[10px] text-slate-400 block mt-0.5">En carga y tránsito</span>
-              </div>
-
-              <div class="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
-                <span class="text-slate-400 block font-bold text-[9px] uppercase">Km Totales Flota</span>
-                <strong class="text-xl font-extrabold text-navy-900 block mt-1">${kmTotalesEmpresa.toLocaleString()} km</strong>
-                <span class="text-[10px] text-slate-400 block mt-0.5">Odómetros auditados</span>
-              </div>
-
-              <div class="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
-                <span class="text-slate-400 block font-bold text-[9px] uppercase">Evidencias en Drive</span>
-                <strong class="text-xl font-extrabold text-navy-900 block mt-1">${todasEvidenciasEmpresa.length}</strong>
-                <span class="text-[10px] text-slate-400 block mt-0.5">Fotos y remitos</span>
-              </div>
-
-              <div class="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
-                <span class="text-slate-400 block font-bold text-[9px] uppercase">Alertas e Incidencias</span>
-                <strong class="text-xl font-extrabold ${incidenciasEmpresa.length > 0 ? 'text-amber-600' : 'text-slate-700'} block mt-1">${incidenciasEmpresa.length}</strong>
-                <span class="text-[10px] text-slate-400 block mt-0.5">Novedades de ruta</span>
-              </div>
-            </div>
-
-            <!-- Cuadro de Monitoreo en Vivo de Viajes, Odómetros y Conductores -->
-            <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3">
-              <div class="flex items-center justify-between">
-                <div>
-                  <h3 class="text-sm font-extrabold text-navy-900">Monitoreo Operativo en Tiempo Real</h3>
-                  <p class="text-xs text-slate-500">Estado de cada camión, odómetro inicial vs actual y enlace a mapa GPS con fotos</p>
-                </div>
-                <button onclick="abrirModalSupervisorAsignarRuta()" class="px-3 py-1.5 bg-navy-900 hover:bg-navy-800 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 transition">
-                  <i data-lucide="plus" class="w-3.5 h-3.5"></i><span>+ Asignar Ruta</span>
-                </button>
-              </div>
-
-              <!-- TABLA DETALLADA PARA PANTALLAS GRANDES (COMPUTADORA / TABLET) -->
-              <div class="hidden md:block overflow-x-auto">
-                <table class="w-full text-left text-xs text-slate-700">
-                  <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[9px]">
-                    <tr>
-                      <th class="p-3">Servicio</th>
-                      <th class="p-3">Conductor & DNI</th>
-                      <th class="p-3">Tracto / Carreta</th>
-                      <th class="p-3">Ruta (Origen -> Destino)</th>
-                      <th class="p-3">Km Inicial</th>
-                      <th class="p-3">Km Actual</th>
-                      <th class="p-3">Km Rec.</th>
-                      <th class="p-3">Estado</th>
-                      <th class="p-3 text-right">Monitoreo GPS</th>
-                    </tr>
-                  </thead>
-                  <tbody class="divide-y divide-slate-100">
-                    ${serviciosEmpresa.map(s => {
-                      const kmIni = s.km_inicial || 0;
-                      const kmFin = s.km_final || (s.km_actual || kmIni);
-                      const kmRec = Math.max(0, kmFin - kmIni);
-                      const cnd = DB_LOCAL.conductores.find(c => c.id_conductor === s.id_conductor) || {};
-                      return `
-                        <tr class="hover:bg-slate-50 transition">
-                          <td class="p-3 font-mono font-bold text-navy-900">
-                            <span>${s.cod_servicio}</span>
-                            <span class="block text-[10px] font-normal text-slate-500 truncate max-w-[130px]">${s.cliente}</span>
-                          </td>
-                          <td class="p-3">
-                            <div class="flex items-center space-x-2">
-                              <img src="${cnd.foto || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80'}" class="w-7 h-7 rounded-lg object-cover border border-slate-200">
-                              <div>
-                                <strong class="text-slate-800 block">${s.conductor_nombre}</strong>
-                                <span class="text-[10px] text-slate-400 font-mono">DNI: ${s.conductor_dni || cnd.dni || '-'}</span>
-                              </div>
-                            </div>
-                          </td>
-                          <td class="p-3 font-mono font-bold text-slate-700">${s.placa_tracto} / ${s.placa_carreta}</td>
-                          <td class="p-3">
-                            <span class="text-slate-600">${s.origen}</span>
-                            <span class="text-slate-400 mx-1">➔</span>
-                            <strong class="text-turquoise-800">${s.parada_actual}</strong>
-                          </td>
-                          <td class="p-3 font-mono text-slate-600">${kmIni ? kmIni.toLocaleString() + ' km' : '-'}</td>
-                          <td class="p-3 font-mono font-bold text-navy-900">${kmFin ? kmFin.toLocaleString() + ' km' : '-'}</td>
-                          <td class="p-3 font-mono font-bold text-emerald-600">+${kmRec.toLocaleString()} km</td>
-                          <td class="p-3">
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${s.estado === 'Finalizado' ? 'bg-emerald-100 text-emerald-800' : (s.estado === 'En ruta' || s.estado === 'En tránsito al destino' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700')}">
-                              ${s.estado}
-                            </span>
-                          </td>
-                          <td class="p-3 text-right">
-                            <button onclick="abrirSeguimientoMapaConductor('${s.id_conductor}')" class="px-2.5 py-1 bg-turquoise-600 hover:bg-turquoise-700 text-white font-bold rounded-lg text-[11px] inline-flex items-center space-x-1 shadow-2xs transition">
-                              <i data-lucide="map" class="w-3.5 h-3.5"></i><span>Ver en mapa y fotos</span>
-                            </button>
-                          </td>
-                        </tr>
-                      `;
-                    }).join('')}
-                  </tbody>
-                </table>
-              </div>
-
-              <!-- TARJETAS RESPONSIVAS PARA MÓVIL (100% ADAPTADO SIN CORTES) -->
-              <div class="block md:hidden space-y-3">
-                ${serviciosEmpresa.map(s => {
-                  const kmIni = s.km_inicial || 0;
-                  const kmFin = s.km_final || (s.km_actual || kmIni);
-                  const kmRec = Math.max(0, kmFin - kmIni);
-                  const cnd = DB_LOCAL.conductores.find(c => c.id_conductor === s.id_conductor) || {};
-                  return `
-                    <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 shadow-2xs space-y-2.5">
-                      <div class="flex items-center justify-between">
-                        <div>
-                          <span class="font-mono font-extrabold text-navy-900 text-xs">${s.cod_servicio}</span>
-                          <span class="block text-[10px] text-slate-500">${s.cliente}</span>
-                        </div>
-                        <span class="px-2 py-0.5 rounded-full text-[9px] font-bold ${s.estado === 'Finalizado' ? 'bg-emerald-100 text-emerald-800' : (s.estado === 'En ruta' || s.estado === 'En tránsito al destino' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700')}">
-                          ${s.estado}
-                        </span>
-                      </div>
-
-                      <div class="flex items-center space-x-2.5 pt-1">
-                        <img src="${cnd.foto || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80'}" class="w-10 h-10 rounded-xl object-cover border border-slate-200 shrink-0">
-                        <div class="truncate">
-                          <strong class="text-slate-800 text-xs block truncate">${s.conductor_nombre}</strong>
-                          <span class="text-[10px] text-slate-500 font-mono block">DNI: ${s.conductor_dni || cnd.dni || '-'}</span>
-                          <span class="text-[10px] text-turquoise-800 font-mono font-bold block">${s.placa_tracto} / ${s.placa_carreta}</span>
-                        </div>
-                      </div>
-
-                      <div class="p-2.5 bg-white rounded-xl border border-slate-100 text-[11px] space-y-1">
-                        <div class="flex items-center justify-between text-slate-600">
-                          <span class="text-[10px] text-slate-400">Ruta:</span>
-                          <span class="font-semibold text-slate-800 truncate max-w-[200px]">${s.origen} ➔ ${s.parada_actual}</span>
-                        </div>
-                        <div class="flex items-center justify-between text-slate-600 font-mono text-[10px] pt-1 border-t border-slate-100">
-                          <span>Km Ini: <strong>${kmIni ? kmIni.toLocaleString() : '-'}</strong></span>
-                          <span class="text-emerald-700 font-bold">+${kmRec.toLocaleString()} km</span>
-                          <span>Km Act: <strong class="text-navy-900">${kmFin ? kmFin.toLocaleString() : '-'}</strong></span>
-                        </div>
-                      </div>
-
-                      <button onclick="abrirSeguimientoMapaConductor('${s.id_conductor}')" class="w-full py-2.5 bg-turquoise-600 hover:bg-turquoise-700 text-white font-bold rounded-xl text-xs flex items-center justify-center space-x-1.5 shadow-2xs transition">
-                        <i data-lucide="map" class="w-4 h-4"></i>
-                        <span>Ver mapa en vivo y fotos</span>
-                      </button>
-                    </div>
-                  `;
-                }).join('')}
-              </div>
-            </div>
-
-            <!-- Últimas Evidencias Fotográficas Subidas Hoy -->
-            <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3">
-              <div class="flex items-center justify-between">
-                <div>
-                  <h3 class="text-sm font-extrabold text-navy-900">Últimas Evidencias Fotográficas de Ruta (Google Drive)</h3>
-                  <p class="text-xs text-slate-500">Fotografías de carga, precintos, guías de remisión selladas y descargas subidas por tus conductores</p>
-                </div>
-                <button onclick="mostrarSeccionSupervisor('evidencias')" class="text-turquoise-700 text-xs font-bold hover:underline">Ver todas las fotos ➔</button>
-              </div>
-
-              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                ${todasEvidenciasEmpresa.slice(0, 4).map(e => `
-                  <div class="bg-slate-50 rounded-2xl overflow-hidden border border-slate-200 shadow-2xs group flex flex-col justify-between">
-                    <div class="relative overflow-hidden cursor-pointer" onclick="ampliarFotoVisor('${e.url_foto}', '${e.tipo_evidencia} - ${e.parada}')">
-                      <img src="${e.url_foto}" class="w-full h-28 object-cover group-hover:scale-105 transition duration-200">
-                      <span class="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[9px] font-bold bg-navy-950/80 text-white backdrop-blur-xs">${e.tipo_evidencia}</span>
-                    </div>
-                    <div class="p-2.5 text-[10px]">
-                      <strong class="text-navy-900 block truncate">${e.parada}</strong>
-                      <span class="text-slate-500 block truncate">${e.conductor}</span>
-                      <span class="text-slate-400 block text-[9px] mt-0.5">${e.fecha_captura}</span>
-                    </div>
-                  </div>
-                `).join('')}
-              </div>
-            </div>
-          </div>
-        `;
-      } else if (seccion === 'conductores') {
-        main.innerHTML = `
-          <div class="p-6 space-y-6">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <div>
-                <h2 class="text-lg font-extrabold text-navy-900 tracking-tight">Conductores de mi Flota</h2>
-                <p class="text-xs text-slate-500">${obtenerNombreEmpresa(sesionActual.id_empresa)} • Control individual, odómetros, seguimiento en tiempo real y asignación</p>
-              </div>
-              <div class="flex items-center space-x-2">
-                <button onclick="abrirModalSupervisorCrearConductor()" class="px-3 py-2 bg-turquoise-600 hover:bg-turquoise-700 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 shadow-2xs">
-                  <i data-lucide="user-plus" class="w-4 h-4"></i><span>+ Registrar Conductor</span>
-                </button>
-                <button onclick="abrirModalSupervisorAsignarRuta()" class="px-3 py-2 bg-navy-900 hover:bg-navy-800 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 shadow-2xs">
-                  <i data-lucide="map-pin" class="w-4 h-4"></i><span>Asignar Ruta</span>
-                </button>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              ${conductoresEmpresa.length === 0 ? `
-                <div class="col-span-full text-center py-12 bg-white rounded-3xl border border-slate-200">
-                  <p class="text-sm text-slate-500 font-bold">No hay conductores asignados en esta empresa</p>
-                  <button onclick="abrirModalSupervisorCrearConductor()" class="mt-3 px-4 py-2 bg-turquoise-600 hover:bg-turquoise-700 text-white rounded-xl text-xs font-bold">+ Registrar Primer Conductor</button>
-                </div>
-              ` : conductoresEmpresa.map(c => {
-                const srvActivo = DB_LOCAL.servicios.find(s => s.id_conductor === c.id_conductor);
-                const totalFotos = srvActivo ? (srvActivo.evidencias || []).length : 0;
-                const kmIni = srvActivo ? (srvActivo.km_inicial || 0) : 0;
-                const kmFin = srvActivo ? (srvActivo.km_final || (srvActivo.km_actual || kmIni)) : 0;
-                const kmRec = Math.max(0, kmFin - kmIni);
-                return `
-                  <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm flex flex-col justify-between hover:border-turquoise-400 transition">
-                    <div class="space-y-3">
-                      <div class="flex items-center space-x-3">
-                        <img src="${c.foto}" class="w-14 h-14 rounded-2xl object-cover border-2 border-turquoise-500 shadow-xs">
-                        <div class="flex-1 min-w-0">
-                          <div class="flex items-center justify-between">
-                            <h3 class="text-sm font-extrabold text-navy-900 truncate">${c.nombre}</h3>
-                            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold ${c.estado === 'En ruta' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}">${c.estado}</span>
-                          </div>
-                          <p class="text-[11px] text-slate-500">DNI: <strong class="font-mono text-slate-700">${c.dni}</strong> • Brevete: <strong class="text-turquoise-800">${c.licencia} (${c.categoria})</strong></p>
-                          <p class="text-[10px] text-slate-400">Tracto: <span class="font-mono font-bold text-slate-700">${c.placa_tracto}</span> | Carreta: <span class="font-mono font-bold text-slate-700">${c.placa_carreta}</span></p>
-                        </div>
-                      </div>
-
-                      <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-1.5">
-                        <span class="text-[9px] text-slate-400 font-bold uppercase block">Ruta Asignada en Curso:</span>
-                        <div class="flex items-center justify-between">
-                          <strong class="text-navy-900 truncate">${srvActivo ? srvActivo.cod_servicio + ' - ' + srvActivo.cliente : 'Sin viaje asignado'}</strong>
-                          <span class="text-[10px] text-turquoise-700 font-bold shrink-0 ml-1">${srvActivo ? srvActivo.parada_actual : ''}</span>
-                        </div>
-                        <div class="grid grid-cols-3 gap-1 pt-1 border-t border-slate-200/60 text-[10px]">
-                          <div><span class="text-slate-400 block text-[9px]">Km Inicial:</span><strong class="font-mono">${kmIni ? kmIni.toLocaleString() + ' km' : '-'}</strong></div>
-                          <div><span class="text-slate-400 block text-[9px]">Km Actual:</span><strong class="font-mono text-navy-900">${kmFin ? kmFin.toLocaleString() + ' km' : '-'}</strong></div>
-                          <div><span class="text-slate-400 block text-[9px]">Recorrido:</span><strong class="font-mono text-emerald-600">+${kmRec.toLocaleString()} km</strong></div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-                      <span class="text-[10px] text-slate-500 font-mono"><i data-lucide="camera" class="w-3.5 h-3.5 inline mr-1 text-turquoise-600"></i>${totalFotos} fotos</span>
-                      <div class="flex items-center space-x-1.5">
-                        <button onclick="abrirModalEditarConductorSupervisor('${c.id_conductor}')" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl flex items-center space-x-1 transition shadow-2xs" title="Editar datos y cambiar contraseña">
-                          <i data-lucide="key" class="w-3.5 h-3.5 text-slate-500"></i>
-                          <span>Editar / Clave</span>
-                        </button>
-                        <button onclick="abrirSeguimientoMapaConductor('${c.id_conductor}')" class="px-3.5 py-1.5 bg-turquoise-600 hover:bg-turquoise-700 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 transition shadow-xs">
-                          <i data-lucide="map" class="w-3.5 h-3.5"></i>
-                          <span>Ver mapa</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                `;
-              }).join('')}
-            </div>
-          </div>
-        `;
-      } else if (seccion === 'servicios') {
-        main.innerHTML = `
-          <div class="p-6 space-y-6">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <div>
-                <h2 class="text-lg font-extrabold text-navy-900 tracking-tight">Servicios y Rutas de Despacho</h2>
-                <p class="text-xs text-slate-500">${obtenerNombreEmpresa(sesionActual.id_empresa)} • Descarga detallada en cuadros en Excel y PDF</p>
-              </div>
-              <div class="flex items-center space-x-2">
-                <button onclick="exportarExcelSupervisor()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 shadow-2xs">
-                  <i data-lucide="sheet" class="w-4 h-4"></i><span>Descargar Excel (.xlsx)</span>
-                </button>
-                <button onclick="exportarPdfSupervisor()" class="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 shadow-2xs">
-                  <i data-lucide="file-text" class="w-4 h-4"></i><span>Descargar PDF</span>
-                </button>
-              </div>
-            </div>
-
-            <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm overflow-x-auto">
-              <table class="w-full text-left text-xs text-slate-700">
-                <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px]">
-                  <tr>
-                    <th class="p-3">Código</th>
-                    <th class="p-3">Cliente</th>
-                    <th class="p-3">Conductor</th>
-                    <th class="p-3">Placas</th>
-                    <th class="p-3">Destino Actual</th>
-                    <th class="p-3">Km Inicial</th>
-                    <th class="p-3">Km Actual</th>
-                    <th class="p-3">Estado</th>
-                    <th class="p-3 text-right">Acción</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                  ${serviciosEmpresa.map(s => {
-                    const kmIni = s.km_inicial || 0;
-                    const kmFin = s.km_final || (s.km_actual || kmIni);
-                    return `
-                      <tr class="hover:bg-slate-50 transition">
-                        <td class="p-3 font-mono font-bold text-navy-900">${s.cod_servicio}</td>
-                        <td class="p-3 font-semibold text-slate-800">${s.cliente}</td>
-                        <td class="p-3">${s.conductor_nombre}</td>
-                        <td class="p-3 font-mono text-slate-600">${s.placa_tracto} / ${s.placa_carreta}</td>
-                        <td class="p-3 text-turquoise-800 font-medium">${s.parada_actual}</td>
-                        <td class="p-3 font-mono">${kmIni ? kmIni.toLocaleString() + ' km' : '-'}</td>
-                        <td class="p-3 font-mono font-bold text-navy-900">${kmFin ? kmFin.toLocaleString() + ' km' : '-'}</td>
-                        <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border">${s.estado}</span></td>
-                        <td class="p-3 text-right">
-                          <button onclick="abrirSeguimientoMapaConductor('${s.id_conductor}')" class="text-turquoise-700 font-bold hover:underline">Ver seguimiento</button>
-                        </td>
-                      </tr>
-                    `;
-                  }).join('')}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        `;
-      } else if (seccion === 'evidencias') {
-        // Unificar evidencias de servicios y de la base global para que aparezcan al instante
-        const evdMap = new Map();
-        (DB_LOCAL.evidencias || []).filter(e => e.id_empresa === sesionActual.id_empresa).forEach(e => evdMap.set(e.id_evidencia, e));
-        serviciosEmpresa.flatMap(s => s.evidencias || []).forEach(e => evdMap.set(e.id_evidencia, e));
-        const todasEvidencias = Array.from(evdMap.values()).filter(e => e.permiso_supervisor === "AUTORIZADO");
-        main.innerHTML = `
-          <div class="p-6 space-y-6">
-            <div>
-              <h2 class="text-lg font-extrabold text-navy-900 tracking-tight">Evidencias y Fotos de Carga/Descarga</h2>
-              <p class="text-xs text-slate-500">${obtenerNombreEmpresa(sesionActual.id_empresa)} • Fotos subidas por tus conductores en ruta</p>
-            </div>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-              ${todasEvidencias.map(e => `
-                <div class="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-2xs group flex flex-col justify-between">
-                  <div class="relative overflow-hidden cursor-pointer" onclick="ampliarFotoVisor('${e.url_foto}', '${e.tipo_evidencia} - ${e.parada}')">
-                    <img src="${e.url_foto}" class="w-full h-36 object-cover group-hover:scale-105 transition">
-                    <span class="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[9px] font-bold bg-navy-950/80 text-white backdrop-blur-xs">${e.tipo_evidencia}</span>
-                  </div>
-                  <div class="p-3 text-xs">
-                    <strong class="text-slate-800 font-semibold block truncate">${e.parada}</strong>
-                    <span class="text-[10px] text-slate-400 block">${e.conductor} • ${e.fecha_captura}</span>
-                    ${e.latitud && e.longitud ? `
-                      <button type="button" onclick="abrirVisorMapaGoogleInline('${e.latitud}', '${e.longitud}', '${e.parada || 'Ubicación de Evidencia'}', '${e.conductor} - ${e.tipo_evidencia}')" class="inline-flex items-center space-x-1 text-[10px] text-rose-700 font-bold hover:underline mt-1 cursor-pointer">
-                        <i data-lucide="map-pin" class="w-3 h-3 text-rose-600"></i>
-                        <span>Google Maps: ${Number(e.latitud).toFixed(4)}, ${Number(e.longitud).toFixed(4)}</span>
-                      </button>
-                    ` : ''}
-                  </div>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-        `;
-      } else if (seccion === 'incidencias') {
-        main.innerHTML = `
-          <div class="p-6 space-y-6">
-            <div>
-              <h2 class="text-lg font-extrabold text-navy-900 tracking-tight">Incidencias de mi Flota</h2>
-              <p class="text-xs text-slate-500">${obtenerNombreEmpresa(sesionActual.id_empresa)} • Alertas reportadas</p>
-            </div>
-            <div class="space-y-3">
-              ${incidenciasEmpresa.map(i => `
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs text-xs space-y-1.5">
-                  <div class="flex items-center justify-between">
-                    <strong class="text-navy-900 font-bold">${i.tipo} - Servicio ${i.cod_servicio}</strong>
-                    <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-100 text-amber-800">${i.estado}</span>
-                  </div>
-                  <p class="text-slate-700">${i.descripcion}</p>
-                  <p class="text-[10px] text-slate-400">Conductor: ${i.conductor} • ${i.fecha}</p>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-        `;
+      switch(seccion) {
+        case 'dashboard':
+          renderizarModulo01Dashboard(main, empId);
+          break;
+        case 'usuarios':
+          renderizarModulo02Usuarios(main, empId);
+          break;
+        case 'programacion':
+          renderizarModulo03Programacion(main, empId);
+          break;
+        case 'servicios':
+          renderizarModulo04Servicios(main, empId);
+          break;
+        case 'conductores':
+          renderizarModulo05Conductores(main, empId);
+          break;
+        case 'unidades':
+          renderizarModulo06Unidades(main, empId);
+          break;
+        case 'configuracion':
+          renderizarModulo07Configuracion(main, empId);
+          break;
+        case 'reportes':
+          renderizarModulo08Reportes(main, empId);
+          break;
+        default:
+          renderizarModulo01Dashboard(main, empId);
       }
       lucide.createIcons();
     }
 
-    // ==========================================
-    // CONTROL DEL MAPA LEAFLET (CARTO VOYAGER + SATÉLITE ESRI)
-    // ==========================================
-    let capaMapaCalles = null;
-    let capaMapaSatelite = null;
+
+    // =========================================================================
+// MÓDULOS OFICIALES DEL PORTAL DE EMPRESA (01 AL 08)
+// =========================================================================
+
+// Variables de estado del portal de empresa
+let filtroDashboardEmpresa = { fechaDesde: '', fechaHasta: '', cliente: '', conductor: '', placa: '' };
+let filtroRolUsuariosEmpresa = 'TODOS';
+let filtroBusquedaUsuariosEmpresa = '';
+let subPestanaProgEmpresa = 'servicios'; // 'servicios' o 'auditoria'
+let filtroEstadoServiciosEmpresa = 'TODOS';
+let filtroBusquedaServiciosEmpresa = '';
+let filtroConductoresEmpresa = 'TODOS';
+let filtroBusquedaConductoresEmpresa = '';
+let filtroUnidadesEmpresa = 'TODAS';
+let pestanaConfiguracionEmpresa = 'A'; // 'A', 'B', 'C', 'D'
+let tipoReporteSeleccionado = 'general';
+let reporteGeneradoActual = null;
+
+// =========================================================================
+// 01. DASHBOARD - RESUMEN GENERAL (Image 2)
+// =========================================================================
+function renderizarModulo01Dashboard(main, empId) {
+  const serviciosEmp = (DB_LOCAL.servicios || []).filter(s => !empId || empId === 'TODAS' || s.id_empresa === empId || s.id_empresa === 'TODAS');
+  const conductoresEmp = (DB_LOCAL.conductores || []).filter(c => !empId || empId === 'TODAS' || c.id_empresa === empId || c.id_empresa === 'TODAS');
+  const unidadesEmp = (DB_LOCAL.unidades || []).filter(u => !empId || empId === 'TODAS' || u.id_empresa === empId || u.id_empresa === 'TODAS');
+
+  // Aplicar filtros de fecha, cliente, conductor, placa
+  let serviciosFiltrados = serviciosEmp.filter(s => {
+    if (filtroDashboardEmpresa.cliente && s.cliente !== filtroDashboardEmpresa.cliente) return false;
+    if (filtroDashboardEmpresa.conductor && s.conductor_nombre !== filtroDashboardEmpresa.conductor && s.id_conductor !== filtroDashboardEmpresa.conductor) return false;
+    if (filtroDashboardEmpresa.placa && s.placa_tracto !== filtroDashboardEmpresa.placa && s.placa_carreta !== filtroDashboardEmpresa.placa) return false;
+    if (filtroDashboardEmpresa.fechaDesde && s.fecha_programada && s.fecha_programada < filtroDashboardEmpresa.fechaDesde) return false;
+    if (filtroDashboardEmpresa.fechaHasta && s.fecha_programada && s.fecha_programada > filtroDashboardEmpresa.fechaHasta) return false;
+    return true;
+  });
+
+  // KPIs solicitados en Imagen 2
+  const totalServicios = serviciosFiltrados.length;
+  const servProgramados = serviciosFiltrados.filter(s => s.estado === 'Programado' || s.estado === 'Asignado').length;
+  const servPendientes = serviciosFiltrados.filter(s => s.estado === 'Pendiente' || s.estado === 'Por Iniciar').length;
+  const servEnRuta = serviciosFiltrados.filter(s => (s.estado || '').includes('tránsito') || (s.estado || '').includes('ruta') || s.estado === 'En camino al punto de carga' || s.estado === 'En ruta').length;
+  const servEnDestino = serviciosFiltrados.filter(s => s.estado === 'En destino' || s.estado === 'En descarga' || (s.estado || '').includes('destino')).length;
+  const servFinalizados = serviciosFiltrados.filter(s => s.estado === 'Finalizado' || s.estado === 'Completado').length;
+  const servObservados = serviciosFiltrados.filter(s => s.estado === 'Observado' || s.estado === 'Con Incidencia').length;
+  const servCancelados = serviciosFiltrados.filter(s => s.estado === 'Cancelado' || s.estado === 'Anulado').length;
+  const totalConductores = conductoresEmp.length;
+  const totalUnidades = unidadesEmp.length;
+
+  // Clientes únicos para filtro
+  const clientesUnicos = [...new Set(serviciosEmp.map(s => s.cliente).filter(Boolean))];
+  const conductoresUnicos = [...new Set(conductoresEmp.map(c => c.nombre).filter(Boolean))];
+  const placasUnicas = [...new Set(unidadesEmp.map(u => u.placa).filter(Boolean))];
+
+  main.innerHTML = `
+    <div class="p-4 sm:p-6 space-y-6 animate-in fade-in duration-150">
+      <!-- Encabezado 01 Dashboard -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-slate-200">
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="px-2 py-0.5 rounded-md bg-navy-900 text-turquoise-400 font-mono text-xs font-black">01</span>
+            <h1 class="text-xl font-black text-navy-900 tracking-tight">DASHBOARD — Resumen General</h1>
+          </div>
+          <p class="text-xs text-slate-500 mt-0.5">${obtenerNombreEmpresa(empId)} • Panel principal de control operativo y estadístico</p>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button onclick="mostrarSeccionSupervisor('programacion')" class="px-3.5 py-2 bg-turquoise-600 hover:bg-turquoise-500 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-sm transition cursor-pointer">
+            <i data-lucide="calendar-plus" class="w-4 h-4"></i>
+            <span>+ Programar Servicio</span>
+          </button>
+          <button onclick="mostrarSeccionSupervisor('reportes')" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition cursor-pointer">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+            <span>Descargar Reporte</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filtros por fecha, cliente, conductor y placa (Imagen 2) -->
+      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-black text-navy-900 flex items-center space-x-1.5">
+            <i data-lucide="filter" class="w-3.5 h-3.5 text-turquoise-600"></i>
+            <span>Filtros de Dashboard (Fecha, Cliente, Conductor y Placa)</span>
+          </span>
+          <button onclick="limpiarFiltrosDashboardEmpresa()" class="text-[11px] text-slate-400 hover:text-slate-600 font-medium">Limpiar Filtros</button>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2.5 text-xs">
+          <div>
+            <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Fecha Desde:</label>
+            <input type="date" id="filtro-dash-desde" value="${filtroDashboardEmpresa.fechaDesde}" onchange="aplicarFiltrosDashboardEmpresa()" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 outline-none focus:ring-1 focus:ring-turquoise-500">
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Fecha Hasta:</label>
+            <input type="date" id="filtro-dash-hasta" value="${filtroDashboardEmpresa.fechaHasta}" onchange="aplicarFiltrosDashboardEmpresa()" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 outline-none focus:ring-1 focus:ring-turquoise-500">
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Cliente:</label>
+            <select id="filtro-dash-cliente" onchange="aplicarFiltrosDashboardEmpresa()" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 outline-none focus:ring-1 focus:ring-turquoise-500">
+              <option value="">Todos los clientes</option>
+              ${clientesUnicos.map(c => `<option value="${c}" ${filtroDashboardEmpresa.cliente === c ? 'selected' : ''}>${c}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Conductor:</label>
+            <select id="filtro-dash-conductor" onchange="aplicarFiltrosDashboardEmpresa()" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 outline-none focus:ring-1 focus:ring-turquoise-500">
+              <option value="">Todos los conductores</option>
+              ${conductoresUnicos.map(c => `<option value="${c}" ${filtroDashboardEmpresa.conductor === c ? 'selected' : ''}>${c}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Placa (Tracto/Carreta):</label>
+            <select id="filtro-dash-placa" onchange="aplicarFiltrosDashboardEmpresa()" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 outline-none focus:ring-1 focus:ring-turquoise-500">
+              <option value="">Todas las placas</option>
+              ${placasUnicas.map(p => `<option value="${p}" ${filtroDashboardEmpresa.placa === p ? 'selected' : ''}>${p}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tarjetas de KPIs (Total, Programados, Pendientes, En ruta, Finalizados, Observados, Cancelados, Conductores, Unidades) -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
+        <div class="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
+          <div class="flex items-center justify-between text-slate-400">
+            <span class="text-[10px] font-black uppercase tracking-wider">Total Servicios</span>
+            <i data-lucide="layers" class="w-4 h-4 text-navy-800"></i>
+          </div>
+          <div class="text-2xl font-black text-navy-900 mt-2">${totalServicios}</div>
+          <span class="text-[10px] text-slate-400 mt-0.5 block">Registrados en el sistema</span>
+        </div>
+
+        <div class="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
+          <div class="flex items-center justify-between text-blue-500">
+            <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Programados</span>
+            <i data-lucide="calendar" class="w-4 h-4"></i>
+          </div>
+          <div class="text-2xl font-black text-blue-600 mt-2">${servProgramados}</div>
+          <span class="text-[10px] text-slate-400 mt-0.5 block">Asignados con fecha</span>
+        </div>
+
+        <div class="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
+          <div class="flex items-center justify-between text-amber-500">
+            <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Pendientes</span>
+            <i data-lucide="clock" class="w-4 h-4"></i>
+          </div>
+          <div class="text-2xl font-black text-amber-600 mt-2">${servPendientes}</div>
+          <span class="text-[10px] text-slate-400 mt-0.5 block">Por iniciar despacho</span>
+        </div>
+
+        <div class="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
+          <div class="flex items-center justify-between text-emerald-500">
+            <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">En Ruta</span>
+            <span class="flex h-2.5 w-2.5 relative">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+            </span>
+          </div>
+          <div class="text-2xl font-black text-emerald-600 mt-2">${servEnRuta}</div>
+          <span class="text-[10px] text-slate-400 mt-0.5 block">Monitoreo GPS activo</span>
+        </div>
+
+        <div class="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
+          <div class="flex items-center justify-between text-teal-500">
+            <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Finalizados</span>
+            <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+          </div>
+          <div class="text-2xl font-black text-teal-600 mt-2">${servFinalizados}</div>
+          <span class="text-[10px] text-slate-400 mt-0.5 block">Entrega completada</span>
+        </div>
+
+        <div class="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
+          <div class="flex items-center justify-between text-rose-500">
+            <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Observados</span>
+            <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+          </div>
+          <div class="text-2xl font-black text-rose-600 mt-2">${servObservados}</div>
+          <span class="text-[10px] text-slate-400 mt-0.5 block">Incidencias en revisión</span>
+        </div>
+
+        <div class="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
+          <div class="flex items-center justify-between text-slate-400">
+            <span class="text-[10px] font-black uppercase tracking-wider">Cancelados</span>
+            <i data-lucide="x-circle" class="w-4 h-4 text-slate-400"></i>
+          </div>
+          <div class="text-2xl font-black text-slate-600 mt-2">${servCancelados}</div>
+          <span class="text-[10px] text-slate-400 mt-0.5 block">Anulados con motivo</span>
+        </div>
+
+        <div class="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
+          <div class="flex items-center justify-between text-turquoise-600">
+            <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Conductores</span>
+            <i data-lucide="contact" class="w-4 h-4"></i>
+          </div>
+          <div class="text-2xl font-black text-turquoise-700 mt-2">${totalConductores}</div>
+          <span class="text-[10px] text-slate-400 mt-0.5 block">En nómina de la empresa</span>
+        </div>
+
+        <div class="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs col-span-2 sm:col-span-1 lg:col-span-2">
+          <div class="flex items-center justify-between text-indigo-600">
+            <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Total Unidades de Flota</span>
+            <i data-lucide="truck" class="w-4 h-4"></i>
+          </div>
+          <div class="text-2xl font-black text-indigo-700 mt-2">${totalUnidades} unidades</div>
+          <span class="text-[10px] text-slate-400 mt-0.5 block">Tractos y Semirremolques con SOAT y CITV al día</span>
+        </div>
+      </div>
+
+      <!-- Gráficos Estadísticos (Imagen 2) -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <!-- Distribución de Estados -->
+        <div class="lg:col-span-2 bg-white p-5 rounded-3xl border border-slate-200 shadow-2xs space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-black text-navy-900 flex items-center space-x-2">
+              <i data-lucide="bar-chart-2" class="w-4 h-4 text-turquoise-600"></i>
+              <span>Distribución y Eficiencia de Servicios Operativos</span>
+            </h3>
+            <span class="text-[11px] text-slate-400">Métricas en tiempo real</span>
+          </div>
+
+          <!-- Barra de progreso visual combinada -->
+          <div class="space-y-1.5">
+            <div class="h-3 w-full bg-slate-100 rounded-full overflow-hidden flex">
+              <div style="width: ${totalServicios > 0 ? (servFinalizados / totalServicios * 100) : 0}%" class="bg-teal-500 h-full transition-all" title="Finalizados: ${servFinalizados}"></div>
+              <div style="width: ${totalServicios > 0 ? (servEnRuta / totalServicios * 100) : 0}%" class="bg-emerald-500 h-full transition-all" title="En Ruta: ${servEnRuta}"></div>
+              <div style="width: ${totalServicios > 0 ? (servProgramados / totalServicios * 100) : 0}%" class="bg-blue-500 h-full transition-all" title="Programados: ${servProgramados}"></div>
+              <div style="width: ${totalServicios > 0 ? (servPendientes / totalServicios * 100) : 0}%" class="bg-amber-500 h-full transition-all" title="Pendientes: ${servPendientes}"></div>
+              <div style="width: ${totalServicios > 0 ? (servObservados / totalServicios * 100) : 0}%" class="bg-rose-500 h-full transition-all" title="Observados: ${servObservados}"></div>
+            </div>
+            <div class="flex flex-wrap items-center gap-3 text-[11px] text-slate-500 pt-1">
+              <span class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-teal-500"></span><span>Finalizados (${servFinalizados})</span></span>
+              <span class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span><span>En Ruta (${servEnRuta})</span></span>
+              <span class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span><span>Programados (${servProgramados})</span></span>
+              <span class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span><span>Pendientes (${servPendientes})</span></span>
+              <span class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span><span>Observados (${servObservados})</span></span>
+            </div>
+          </div>
+
+          <!-- Tabla de Servicios Recientes -->
+          <div class="overflow-x-auto pt-2">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-500 uppercase text-[10px] font-black border-y border-slate-100">
+                <tr>
+                  <th class="py-2.5 px-3">Código</th>
+                  <th class="py-2.5 px-3">Cliente</th>
+                  <th class="py-2.5 px-3">Ruta</th>
+                  <th class="py-2.5 px-3">Conductor</th>
+                  <th class="py-2.5 px-3">Tracto / Carreta</th>
+                  <th class="py-2.5 px-3">Estado</th>
+                  <th class="py-2.5 px-3 text-right">Acción</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 text-slate-700">
+                ${serviciosFiltrados.slice(0, 5).map(s => `
+                  <tr class="hover:bg-slate-50/80 transition">
+                    <td class="py-2 px-3 font-mono font-bold text-navy-900">${s.cod_servicio}</td>
+                    <td class="py-2 px-3 font-semibold text-slate-800">${s.cliente}</td>
+                    <td class="py-2 px-3 text-slate-600">${s.origen} → ${s.parada_actual || s.destino || 'Destino'}</td>
+                    <td class="py-2 px-3">${s.conductor_nombre || 'Sin asignar'}</td>
+                    <td class="py-2 px-3 font-mono text-[11px]">${s.placa_tracto || '-'} / ${s.placa_carreta || '-'}</td>
+                    <td class="py-2 px-3">
+                      <span class="px-2 py-0.5 rounded text-[10px] font-bold ${
+                        (s.estado || '').includes('tránsito') || (s.estado || '').includes('ruta') ? 'bg-emerald-100 text-emerald-800' :
+                        s.estado === 'Finalizado' ? 'bg-teal-100 text-teal-800' :
+                        s.estado === 'Programado' ? 'bg-blue-100 text-blue-800' :
+                        s.estado === 'Observado' ? 'bg-rose-100 text-rose-800' : 'bg-slate-100 text-slate-700'
+                      }">
+                        ${s.estado}
+                      </span>
+                    </td>
+                    <td class="py-2 px-3 text-right">
+                      <button onclick="abrirModalDetalleServicioOficial('${s.cod_servicio}')" class="px-2.5 py-1 bg-navy-900 hover:bg-navy-800 text-white rounded-lg text-[10px] font-bold transition cursor-pointer">
+                        Ver Ficha
+                      </button>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Estado Operativo de la Flota -->
+        <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-2xs space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-black text-navy-900 flex items-center space-x-2">
+              <i data-lucide="shield-check" class="w-4 h-4 text-turquoise-600"></i>
+              <span>Vigencia Documental y Flota</span>
+            </h3>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">100% Legal</span>
+          </div>
+
+          <div class="space-y-3 text-xs">
+            <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+              <div>
+                <span class="block font-bold text-slate-800">SOAT Vigente</span>
+                <span class="text-[10px] text-slate-400">Pólizas al día en todas las unidades</span>
+              </div>
+              <span class="text-emerald-600 font-black text-sm">Al día</span>
+            </div>
+
+            <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+              <div>
+                <span class="block font-bold text-slate-800">Inspección Técnica (CITV)</span>
+                <span class="text-[10px] text-slate-400">Certificados vigentes SUTRAN</span>
+              </div>
+              <span class="text-emerald-600 font-black text-sm">Al día</span>
+            </div>
+
+            <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+              <div>
+                <span class="block font-bold text-slate-800">Licencias de Conducir</span>
+                <span class="text-[10px] text-slate-400">Brevete A-IIIc y A-IIIb verificados</span>
+              </div>
+              <span class="text-emerald-600 font-black text-sm">${conductoresEmp.length} Choferes</span>
+            </div>
+          </div>
+
+          <div class="pt-2">
+            <button onclick="mostrarSeccionSupervisor('unidades')" class="w-full py-2.5 bg-turquoise-50 hover:bg-turquoise-100 text-turquoise-800 font-bold text-xs rounded-xl flex items-center justify-center space-x-1.5 transition cursor-pointer">
+              <span>Gestionar Unidades y Documentación</span>
+              <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function aplicarFiltrosDashboardEmpresa() {
+  const desde = document.getElementById("filtro-dash-desde");
+  const hasta = document.getElementById("filtro-dash-hasta");
+  const cli = document.getElementById("filtro-dash-cliente");
+  const cnd = document.getElementById("filtro-dash-conductor");
+  const plc = document.getElementById("filtro-dash-placa");
+
+  filtroDashboardEmpresa = {
+    fechaDesde: desde ? desde.value : '',
+    fechaHasta: hasta ? hasta.value : '',
+    cliente: cli ? cli.value : '',
+    conductor: cnd ? cnd.value : '',
+    placa: plc ? plc.value : ''
+  };
+
+  const main = document.getElementById("main-stage-area");
+  renderizarModulo01Dashboard(main, sesionActual.id_empresa);
+  lucide.createIcons();
+}
+
+function limpiarFiltrosDashboardEmpresa() {
+  filtroDashboardEmpresa = { fechaDesde: '', fechaHasta: '', cliente: '', conductor: '', placa: '' };
+  const main = document.getElementById("main-stage-area");
+  renderizarModulo01Dashboard(main, sesionActual.id_empresa);
+  lucide.createIcons();
+}
+
+// =========================================================================
+// 02. USUARIOS - ADMINISTRACIÓN DE CUENTAS (Images 3 & 4)
+// =========================================================================
+function renderizarModulo02Usuarios(main, empId) {
+  // Los 7 perfiles oficiales especificados en Imágenes 3 y 4:
+  // 1. Administrador (Web completa)
+  // 2. Programación (Web)
+  // 3. Operaciones (Web)
+  // 4. Consulta (Web)
+  // 5. Mantenimiento (Web)
+  // 6. Conductor (App móvil)
+  // 7. Auxiliar (App móvil)
+  
+  const usuariosEmp = (DB_LOCAL.usuarios || []).filter(u => !empId || empId === 'TODAS' || u.id_empresa === empId || u.id_empresa === 'TODAS');
+
+  let filtrados = usuariosEmp.filter(u => {
+    if (filtroRolUsuariosEmpresa !== 'TODOS') {
+      if (filtroRolUsuariosEmpresa === 'ADMIN' && u.rol !== 'ADMINISTRATIVO' && u.rol !== 'ADMIN_GENERAL') return false;
+      if (filtroRolUsuariosEmpresa === 'PROGRAMACION' && u.rol !== 'PROGRAMADOR') return false;
+      if (filtroRolUsuariosEmpresa === 'OPERACIONES' && u.rol !== 'OPERACIONES' && u.rol !== 'SEGUIMIENTO') return false;
+      if (filtroRolUsuariosEmpresa === 'CONSULTA' && u.rol !== 'CONSULTA' && u.rol !== 'GERENCIA') return false;
+      if (filtroRolUsuariosEmpresa === 'MANTENIMIENTO' && u.rol !== 'MANTENIMIENTO') return false;
+      if (filtroRolUsuariosEmpresa === 'CONDUCTOR' && u.rol !== 'CONDUCTOR') return false;
+      if (filtroRolUsuariosEmpresa === 'AUXILIAR' && u.rol !== 'AUXILIAR') return false;
+    }
+
+    if (filtroBusquedaUsuariosEmpresa) {
+      const q = filtroBusquedaUsuariosEmpresa.toLowerCase();
+      const matchNom = (u.nombre || '').toLowerCase().includes(q);
+      const matchUser = (u.usuario || '').toLowerCase().includes(q);
+      const matchDni = String(u.dni || '').includes(q);
+      return matchNom || matchUser || matchDni;
+    }
+    return true;
+  });
+
+  main.innerHTML = `
+    <div class="p-4 sm:p-6 space-y-6 animate-in fade-in duration-150">
+      <!-- Encabezado 02 Usuarios -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-slate-200">
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="px-2 py-0.5 rounded-md bg-navy-900 text-turquoise-400 font-mono text-xs font-black">02</span>
+            <h1 class="text-xl font-black text-navy-900 tracking-tight">USUARIOS — Creación y Administración de Cuentas</h1>
+          </div>
+          <p class="text-xs text-slate-500 mt-0.5">${obtenerNombreEmpresa(empId)} • Control de usuarios, activación/desactivación, roles y contraseñas</p>
+        </div>
+        <button onclick="abrirModalUsuarioAvanzadoParaEmpresa('${empId}')" class="px-4 py-2 bg-turquoise-600 hover:bg-turquoise-500 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-sm transition cursor-pointer">
+          <i data-lucide="user-plus" class="w-4 h-4"></i>
+          <span>+ Crear Usuario</span>
+        </button>
+      </div>
+
+      <!-- NOTA OFICIAL: Cuentas de Conductores y Auxiliares (Imagen 4) -->
+      <div class="p-3.5 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl flex items-start space-x-3 text-xs text-blue-900">
+        <i data-lucide="info" class="w-5 h-5 text-blue-600 shrink-0 mt-0.5"></i>
+        <div>
+          <strong class="font-black block">Regla Oficial de Cuentas Móviles (Conductor y Auxiliar):</strong>
+          <span>Las cuentas de <strong>Conductor</strong> y <strong>Auxiliar</strong> se crearán y administrarán directamente desde sus respectivos registros en <strong>05. CONDUCTORES</strong>; no será necesario registrarlas nuevamente desde este módulo.</span>
+        </div>
+      </div>
+
+      <!-- Filtros por Rol Oficial (7 Perfiles) -->
+      <div class="space-y-3">
+        <div class="flex items-center flex-wrap gap-1.5 text-xs">
+          <button onclick="cambiarFiltroRolEmpresa('TODOS')" class="px-3 py-1.5 rounded-xl font-bold transition cursor-pointer ${filtroRolUsuariosEmpresa === 'TODOS' ? 'bg-navy-900 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}">
+            Todos (${usuariosEmp.length})
+          </button>
+          <button onclick="cambiarFiltroRolEmpresa('ADMIN')" class="px-3 py-1.5 rounded-xl font-bold transition cursor-pointer ${filtroRolUsuariosEmpresa === 'ADMIN' ? 'bg-navy-900 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}">
+            1. Administrador (Web)
+          </button>
+          <button onclick="cambiarFiltroRolEmpresa('PROGRAMACION')" class="px-3 py-1.5 rounded-xl font-bold transition cursor-pointer ${filtroRolUsuariosEmpresa === 'PROGRAMACION' ? 'bg-navy-900 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}">
+            2. Programación (Web)
+          </button>
+          <button onclick="cambiarFiltroRolEmpresa('OPERACIONES')" class="px-3 py-1.5 rounded-xl font-bold transition cursor-pointer ${filtroRolUsuariosEmpresa === 'OPERACIONES' ? 'bg-navy-900 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}">
+            3. Operaciones (Web)
+          </button>
+          <button onclick="cambiarFiltroRolEmpresa('CONSULTA')" class="px-3 py-1.5 rounded-xl font-bold transition cursor-pointer ${filtroRolUsuariosEmpresa === 'CONSULTA' ? 'bg-navy-900 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}">
+            4. Consulta (Web)
+          </button>
+          <button onclick="cambiarFiltroRolEmpresa('MANTENIMIENTO')" class="px-3 py-1.5 rounded-xl font-bold transition cursor-pointer ${filtroRolUsuariosEmpresa === 'MANTENIMIENTO' ? 'bg-navy-900 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}">
+            5. Mantenimiento (Web)
+          </button>
+          <button onclick="cambiarFiltroRolEmpresa('CONDUCTOR')" class="px-3 py-1.5 rounded-xl font-bold transition cursor-pointer ${filtroRolUsuariosEmpresa === 'CONDUCTOR' ? 'bg-navy-900 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}">
+            6. Conductor (App móvil)
+          </button>
+          <button onclick="cambiarFiltroRolEmpresa('AUXILIAR')" class="px-3 py-1.5 rounded-xl font-bold transition cursor-pointer ${filtroRolUsuariosEmpresa === 'AUXILIAR' ? 'bg-navy-900 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}">
+            7. Auxiliar (App móvil)
+          </button>
+        </div>
+
+        <!-- Buscador -->
+        <div class="relative max-w-md">
+          <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+          <input type="text" id="input-buscar-usuarios-empresa" value="${filtroBusquedaUsuariosEmpresa}" oninput="filtrarBusquedaUsuariosEmpresa(this.value)" placeholder="Buscar por usuario, nombre o DNI..." class="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-700 outline-none focus:ring-1 focus:ring-turquoise-500">
+        </div>
+      </div>
+
+      <!-- Tabla de Usuarios (Imagen 3 & 4) -->
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-2xs overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 text-slate-500 uppercase text-[10px] font-black border-b border-slate-200">
+              <tr>
+                <th class="py-3 px-4">Usuario</th>
+                <th class="py-3 px-4">Nombres y Apellidos</th>
+                <th class="py-3 px-4">Perfil / Rol</th>
+                <th class="py-3 px-4">Acceso Autorizado</th>
+                <th class="py-3 px-4">Estado Cuenta</th>
+                <th class="py-3 px-4">Último Acceso</th>
+                <th class="py-3 px-4 text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-slate-700">
+              ${filtrados.length === 0 ? `
+                <tr>
+                  <td colspan="7" class="py-8 text-center text-slate-400 text-xs">No se encontraron usuarios para los criterios seleccionados.</td>
+                </tr>
+              ` : filtrados.map(u => {
+                const esWeb = u.rol !== 'CONDUCTOR' && u.rol !== 'AUXILIAR';
+                const tipoAcceso = u.rol === 'ADMINISTRATIVO' || u.rol === 'ADMIN_GENERAL' ? 'Web completa' : (esWeb ? 'Web' : 'App móvil');
+                const badgeColor = u.rol === 'ADMINISTRATIVO' || u.rol === 'ADMIN_GENERAL' ? 'bg-purple-100 text-purple-800' :
+                  u.rol === 'PROGRAMADOR' ? 'bg-blue-100 text-blue-800' :
+                  u.rol === 'OPERACIONES' || u.rol === 'SEGUIMIENTO' ? 'bg-indigo-100 text-indigo-800' :
+                  u.rol === 'CONSULTA' || u.rol === 'GERENCIA' ? 'bg-amber-100 text-amber-800' :
+                  u.rol === 'MANTENIMIENTO' ? 'bg-slate-100 text-slate-800' : 'bg-emerald-100 text-emerald-800';
+
+                return `
+                  <tr class="hover:bg-slate-50/70 transition">
+                    <td class="py-3 px-4 font-mono font-bold text-navy-900">${u.usuario}</td>
+                    <td class="py-3 px-4">
+                      <div class="font-bold text-slate-800">${u.nombre || u.usuario}</div>
+                      <div class="text-[10px] text-slate-400">DNI: ${u.dni || '-'} • Tel: ${u.telefono || '-'}</div>
+                    </td>
+                    <td class="py-3 px-4">
+                      <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${badgeColor}">
+                        ${u.rol}
+                      </span>
+                    </td>
+                    <td class="py-3 px-4">
+                      <span class="font-semibold text-[11px] ${tipoAcceso === 'App móvil' ? 'text-emerald-700' : 'text-blue-700'}">
+                        ${tipoAcceso}
+                      </span>
+                    </td>
+                    <td class="py-3 px-4">
+                      <button onclick="alternarEstadoUsuarioRapido('${u.usuario}')" class="px-2.5 py-1 rounded-full text-[10px] font-bold transition cursor-pointer ${u.estado === 'ACTIVO' ? 'bg-emerald-100 text-emerald-800 hover:bg-rose-100 hover:text-rose-800' : 'bg-rose-100 text-rose-800 hover:bg-emerald-100 hover:text-emerald-800'}" title="Clic para alternar estado">
+                        ${u.estado || 'ACTIVO'}
+                      </button>
+                    </td>
+                    <td class="py-3 px-4 text-slate-500 text-[11px]">
+                      ${u.ultimo_acceso || '23/11/2026 09:15'}
+                    </td>
+                    <td class="py-3 px-4 text-right">
+                      <div class="flex items-center justify-end space-x-1">
+                        <button onclick="abrirModalUsuarioAvanzado('${u.usuario}')" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Editar Usuario">
+                          <i data-lucide="edit-3" class="w-4 h-4"></i>
+                        </button>
+                        <button onclick="restablecerClaveUsuarioRapido('${u.usuario}')" class="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg transition" title="Restablecer Contraseña">
+                          <i data-lucide="key" class="w-4 h-4"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function cambiarFiltroRolEmpresa(rol) {
+  filtroRolUsuariosEmpresa = rol;
+  const main = document.getElementById("main-stage-area");
+  renderizarModulo02Usuarios(main, sesionActual.id_empresa);
+  lucide.createIcons();
+}
+
+function filtrarBusquedaUsuariosEmpresa(val) {
+  filtroBusquedaUsuariosEmpresa = val;
+  const main = document.getElementById("main-stage-area");
+  renderizarModulo02Usuarios(main, sesionActual.id_empresa);
+  lucide.createIcons();
+}
+
+function alternarEstadoUsuarioRapido(usuario) {
+  const u = (DB_LOCAL.usuarios || []).find(x => x.usuario === usuario);
+  if (!u) return;
+  u.estado = u.estado === 'ACTIVO' ? 'INACTIVO' : 'ACTIVO';
+  guardarBaseDatosLocal();
+  mostrarToast(`Usuario ${u.usuario} ahora está ${u.estado}`, u.estado === 'ACTIVO' ? 'success' : 'warning');
+  const main = document.getElementById("main-stage-area");
+  renderizarModulo02Usuarios(main, sesionActual.id_empresa);
+  lucide.createIcons();
+}
+
+function restablecerClaveUsuarioRapido(usuario) {
+  const nuevaClave = prompt(`Ingrese la nueva contraseña para el usuario ${usuario}:`, "Nexa2026!");
+  if (!nuevaClave) return;
+  const u = (DB_LOCAL.usuarios || []).find(x => x.usuario === usuario);
+  if (u) {
+    u.pass = nuevaClave;
+    guardarBaseDatosLocal();
+    mostrarToast(`Contraseña restablecida exitosamente para ${usuario}`, 'success');
+  }
+}
+
+// =========================================================================
+// 03. PROGRAMACIÓN - GESTIÓN DE OPERACIONES (Image 5)
+// =========================================================================
+function renderizarModulo03Programacion(main, empId) {
+  const serviciosEmp = (DB_LOCAL.servicios || []).filter(s => !empId || empId === 'TODAS' || s.id_empresa === empId || s.id_empresa === 'TODAS');
+  const auditoriaProg = (DB_LOCAL.auditoria_programacion || []).filter(a => !empId || empId === 'TODAS' || a.id_empresa === empId || a.id_empresa === 'TODAS');
+
+  main.innerHTML = `
+    <div class="p-4 sm:p-6 space-y-6 animate-in fade-in duration-150">
+      <!-- Encabezado 03 Programación -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-slate-200">
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="px-2 py-0.5 rounded-md bg-navy-900 text-turquoise-400 font-mono text-xs font-black">03</span>
+            <h1 class="text-xl font-black text-navy-900 tracking-tight">PROGRAMACIÓN — Gestión de Operaciones</h1>
+          </div>
+          <p class="text-xs text-slate-500 mt-0.5">${obtenerNombreEmpresa(empId)} • Rutas, paradas intermedias, asignación de tractos, carretas y personal</p>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button onclick="abrirModalCrearProgramacionManual()" class="px-3.5 py-2 bg-turquoise-600 hover:bg-turquoise-500 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-sm transition cursor-pointer">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span>+ Programación Manual</span>
+          </button>
+          <button onclick="abrirModalImportarExcelSupervisor()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-sm transition cursor-pointer">
+            <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+            <span>Importar desde Excel</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Pestañas: Servicios Programados vs Historial de Modificaciones (Auditoría) -->
+      <div class="flex items-center space-x-2 border-b border-slate-200 pb-2 text-xs">
+        <button onclick="cambiarSubPestanaProgEmpresa('servicios')" class="px-3.5 py-1.5 rounded-xl font-bold transition cursor-pointer ${subPestanaProgEmpresa === 'servicios' ? 'bg-navy-900 text-white' : 'text-slate-600 hover:bg-slate-100'}">
+          <i data-lucide="calendar" class="w-3.5 h-3.5 inline mr-1"></i>
+          <span>Servicios y Asignaciones Activas (${serviciosEmp.length})</span>
+        </button>
+        <button onclick="cambiarSubPestanaProgEmpresa('auditoria')" class="px-3.5 py-1.5 rounded-xl font-bold transition cursor-pointer ${subPestanaProgEmpresa === 'auditoria' ? 'bg-navy-900 text-white' : 'text-slate-600 hover:bg-slate-100'}">
+          <i data-lucide="history" class="w-3.5 h-3.5 inline mr-1"></i>
+          <span>Historial de Modificaciones (Auditoría) (${auditoriaProg.length})</span>
+        </button>
+      </div>
+
+      ${subPestanaProgEmpresa === 'servicios' ? `
+        <!-- Lista de Servicios y Asignaciones (Imagen 5) -->
+        <div class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            ${serviciosEmp.map(s => {
+              const paradasIntermedias = s.paradas && s.paradas.length > 0 ? s.paradas.map(p => p.nombre || p.direccion).join(' → ') : 'Directo';
+              return `
+                <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-2xs space-y-4 flex flex-col justify-between hover:shadow-md transition">
+                  <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                      <span class="font-mono font-black text-xs text-navy-900 bg-slate-100 px-2 py-0.5 rounded-lg">${s.cod_servicio}</span>
+                      <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        (s.estado || '').includes('tránsito') || (s.estado || '').includes('ruta') ? 'bg-emerald-100 text-emerald-800' :
+                        s.estado === 'Finalizado' ? 'bg-teal-100 text-teal-800' :
+                        s.estado === 'Programado' ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-700'
+                      }">${s.estado}</span>
+                    </div>
+
+                    <div>
+                      <h4 class="font-bold text-navy-900 text-sm">${s.cliente}</h4>
+                      <p class="text-xs text-slate-500 flex items-center space-x-1 mt-0.5">
+                        <i data-lucide="map-pin" class="w-3.5 h-3.5 text-rose-500 shrink-0"></i>
+                        <span>${s.origen} → ${s.destino || s.parada_actual || 'Destino'}</span>
+                      </p>
+                      <div class="text-[10px] text-slate-400 mt-1 bg-slate-50 p-2 rounded-xl border border-slate-100">
+                        <span class="font-semibold text-slate-600">Puntos Intermedios:</span> ${paradasIntermedias}
+                      </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 text-[11px] pt-1">
+                      <div class="p-2 bg-slate-50 rounded-xl border border-slate-100">
+                        <span class="text-[9px] text-slate-400 font-bold block uppercase">Tracto / Carreta</span>
+                        <strong class="font-mono text-navy-900">${s.placa_tracto || '-'}</strong> / <span class="font-mono text-slate-600">${s.placa_carreta || '-'}</span>
+                      </div>
+                      <div class="p-2 bg-slate-50 rounded-xl border border-slate-100">
+                        <span class="text-[9px] text-slate-400 font-bold block uppercase">Conductor / Auxiliar</span>
+                        <strong class="text-navy-900 block truncate">${s.conductor_nombre || 'Sin asignar'}</strong>
+                        <span class="text-[10px] text-slate-500 block truncate">${s.auxiliar || 'Sin auxiliar'}</span>
+                      </div>
+                    </div>
+
+                    <div class="text-[10px] text-slate-400 flex items-center justify-between">
+                      <span>Prog: ${s.fecha_programada || 'Hoy'} ${s.hora_programada || ''}</span>
+                      <span>${s.instrucciones ? 'Instrucciones activas' : 'Carga regular'}</span>
+                    </div>
+                  </div>
+
+                  <!-- Botones de Acción de Programación (Imagen 5) -->
+                  <div class="pt-2 border-t border-slate-100 grid grid-cols-2 gap-1.5 text-[10px]">
+                    <button onclick="abrirModalModificarProgramacion('${s.cod_servicio}', 'placas')" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg transition text-center cursor-pointer">
+                      Cambiar Placas
+                    </button>
+                    <button onclick="abrirModalModificarProgramacion('${s.cod_servicio}', 'personal')" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg transition text-center cursor-pointer">
+                      Cambiar Personal
+                    </button>
+                    <button onclick="abrirModalModificarProgramacion('${s.cod_servicio}', 'reprogramar')" class="p-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold rounded-lg transition text-center cursor-pointer">
+                      Reprogramar
+                    </button>
+                    <button onclick="abrirModalModificarProgramacion('${s.cod_servicio}', 'anular')" class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-800 font-bold rounded-lg transition text-center cursor-pointer">
+                      Anular
+                    </button>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      ` : `
+        <!-- Historial de Modificaciones (Auditoría) (Imagen 5) -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-2xs overflow-hidden">
+          <div class="p-4 border-b border-slate-200 flex items-center justify-between">
+            <h3 class="text-xs font-black text-navy-900 flex items-center space-x-2">
+              <i data-lucide="shield-alert" class="w-4 h-4 text-turquoise-600"></i>
+              <span>Historial de Auditoría de Programación y Despacho</span>
+            </h3>
+            <span class="text-[11px] text-slate-400">Registrado automáticamente con fecha, hora, usuario y detalle</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-500 uppercase text-[10px] font-black border-b border-slate-200">
+                <tr>
+                  <th class="py-2.5 px-3">Fecha y Hora</th>
+                  <th class="py-2.5 px-3">Servicio</th>
+                  <th class="py-2.5 px-3">Usuario Responsable</th>
+                  <th class="py-2.5 px-3">Acción Operativa</th>
+                  <th class="py-2.5 px-3">Detalle / Motivo Registrado</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 text-slate-700">
+                ${auditoriaProg.length === 0 ? `
+                  <tr>
+                    <td colspan="5" class="py-8 text-center text-slate-400">No hay registros de modificaciones aún.</td>
+                  </tr>
+                ` : auditoriaProg.map(a => `
+                  <tr class="hover:bg-slate-50/70 transition">
+                    <td class="py-2.5 px-3 font-mono text-[11px] text-slate-500">${a.fecha} ${a.hora}</td>
+                    <td class="py-2.5 px-3 font-mono font-bold text-navy-900">${a.cod_servicio}</td>
+                    <td class="py-2.5 px-3 font-semibold text-slate-800">${a.usuario}</td>
+                    <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-800">${a.accion}</span></td>
+                    <td class="py-2.5 px-3 text-slate-600 text-[11px]">${a.detalle}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `}
+    </div>
+  `;
+}
+
+function cambiarSubPestanaProgEmpresa(tab) {
+  subPestanaProgEmpresa = tab;
+  const main = document.getElementById("main-stage-area");
+  renderizarModulo03Programacion(main, sesionActual.id_empresa);
+  lucide.createIcons();
+}
+
+function abrirModalCrearProgramacionManual() {
+  const modal = document.getElementById("modal-supervisor-crear-programacion");
+  if (!modal) return;
+  const empId = sesionActual.id_empresa;
+  
+  const codInput = document.getElementById("prog-crear-cod");
+  if (codInput) {
+    codInput.value = "SRV-2026-" + String((DB_LOCAL.servicios || []).length + 1).padStart(4, '0');
+  }
+  const fechaInput = document.getElementById("prog-crear-fecha");
+  if (fechaInput && !fechaInput.value) {
+    fechaInput.value = new Date().toISOString().split('T')[0];
+  }
+
+  // Poblar select conductores
+  const cndSelect = document.getElementById("prog-crear-conductor");
+  if (cndSelect) {
+    const cnds = (DB_LOCAL.conductores || []).filter(c => !empId || empId === 'TODAS' || c.id_empresa === empId || c.id_empresa === 'TODAS');
+    cndSelect.innerHTML = cnds.map(c => `<option value="${c.id_conductor}">${c.nombre} (${c.dni})</option>`).join('');
+  }
+
+  // Poblar select tractos
+  const tractoSelect = document.getElementById("prog-crear-tracto");
+  if (tractoSelect) {
+    const tractos = (DB_LOCAL.unidades || []).filter(u => u.tipo === 'Tracto' && (!empId || empId === 'TODAS' || u.id_empresa === empId || u.id_empresa === 'TODAS'));
+    tractoSelect.innerHTML = tractos.map(t => `<option value="${t.placa}">${t.placa} - ${t.marca} ${t.modelo}</option>`).join('');
+  }
+
+  // Poblar select carretas
+  const carretaSelect = document.getElementById("prog-crear-carreta");
+  if (carretaSelect) {
+    const carretas = (DB_LOCAL.unidades || []).filter(u => (u.tipo === 'Semirremolque' || u.tipo === 'Carreta') && (!empId || empId === 'TODAS' || u.id_empresa === empId || u.id_empresa === 'TODAS'));
+    carretaSelect.innerHTML = carretas.map(c => `<option value="${c.placa}">${c.placa} - ${c.marca} ${c.modelo}</option>`).join('');
+  }
+
+  modal.classList.remove("hidden");
+  lucide.createIcons();
+}
+
+function abrirModalImportarExcelSupervisor() {
+  const modal = document.getElementById("modal-supervisor-importar-excel");
+  if (modal) {
+    modal.classList.remove("hidden");
+    lucide.createIcons();
+  }
+}
+
+function abrirModalModificarProgramacion(codServicio, accion) {
+  const s = (DB_LOCAL.servicios || []).find(x => x.cod_servicio === codServicio);
+  if (!s) return;
+
+  if (accion === 'anular') {
+    const motivo = prompt(`¿Está seguro de anular el servicio ${codServicio}? Ingrese el motivo de cancelación obligatorio:`, "Desistimiento del cliente");
+    if (!motivo) return;
+    s.estado = 'Cancelado';
+    s.motivo_cancelacion = motivo;
+    registrarAuditoriaProgramacion(codServicio, 'Anulación de Servicio', `Servicio anulado. Motivo: ${motivo}`);
+    guardarBaseDatosLocal();
+    mostrarToast(`Servicio ${codServicio} anulado correctamente`, 'warning');
+    const main = document.getElementById("main-stage-area");
+    renderizarModulo03Programacion(main, sesionActual.id_empresa);
+    lucide.createIcons();
+    return;
+  }
+
+  if (accion === 'reprogramar') {
+    const nuevaFecha = prompt(`Reprogramar ${codServicio}. Ingrese nueva fecha (YYYY-MM-DD):`, "2026-11-24");
+    if (!nuevaFecha) return;
+    const motivo = prompt("Ingrese el motivo de reprogramación:", "Cambio de ventana horaria solicitado por cliente");
+    s.fecha_programada = nuevaFecha;
+    s.motivo_reprogramacion = motivo;
+    registrarAuditoriaProgramacion(codServicio, 'Reprogramación de Servicio', `Reprogramado a fecha ${nuevaFecha}. Motivo: ${motivo || 'No especificado'}`);
+    guardarBaseDatosLocal();
+    mostrarToast(`Servicio reprogramado para el ${nuevaFecha}`, 'success');
+    const main = document.getElementById("main-stage-area");
+    renderizarModulo03Programacion(main, sesionActual.id_empresa);
+    lucide.createIcons();
+    return;
+  }
+
+  if (accion === 'placas') {
+    const nuevoTracto = prompt(`Cambiar placa de tracto para ${codServicio} (Actual: ${s.placa_tracto}):`, s.placa_tracto || "V7X-890");
+    const nuevaCarreta = prompt(`Cambiar placa de semirremolque/carreta (Actual: ${s.placa_carreta}):`, s.placa_carreta || "TC8-120");
+    if (nuevoTracto) {
+      const antT = s.placa_tracto;
+      s.placa_tracto = nuevoTracto;
+      if (nuevaCarreta) s.placa_carreta = nuevaCarreta;
+      registrarAuditoriaProgramacion(codServicio, 'Cambio de Placas', `Tracto cambiado de ${antT} a ${nuevoTracto}. Carreta: ${nuevaCarreta || s.placa_carreta}`);
+      guardarBaseDatosLocal();
+      mostrarToast(`Placas actualizadas para ${codServicio}`, 'success');
+      const main = document.getElementById("main-stage-area");
+      renderizarModulo03Programacion(main, sesionActual.id_empresa);
+      lucide.createIcons();
+    }
+    return;
+  }
+
+  if (accion === 'personal') {
+    const nuevoCnd = prompt(`Asignar nuevo conductor para ${codServicio} (Actual: ${s.conductor_nombre}):`, s.conductor_nombre || "Juan Carlos Pérez");
+    const nuevoAux = prompt(`Asignar nuevo auxiliar para ${codServicio} (Actual: ${s.auxiliar}):`, s.auxiliar || "Mario Silva");
+    if (nuevoCnd) {
+      const antC = s.conductor_nombre;
+      s.conductor_nombre = nuevoCnd;
+      if (nuevoAux) s.auxiliar = nuevoAux;
+      registrarAuditoriaProgramacion(codServicio, 'Cambio de Personal', `Conductor cambiado de ${antC} a ${nuevoCnd}. Auxiliar: ${nuevoAux || s.auxiliar}`);
+      guardarBaseDatosLocal();
+      mostrarToast(`Personal reasignado para ${codServicio}`, 'success');
+      const main = document.getElementById("main-stage-area");
+      renderizarModulo03Programacion(main, sesionActual.id_empresa);
+      lucide.createIcons();
+    }
+    return;
+  }
+}
+
+function registrarAuditoriaProgramacion(codServicio, accion, detalle) {
+  if (!DB_LOCAL.auditoria_programacion) DB_LOCAL.auditoria_programacion = [];
+  const now = new Date();
+  const fechaStr = now.toLocaleDateString('es-PE');
+  const horaStr = now.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+  const usr = (sesionActual && (sesionActual.nombre || sesionActual.usuario)) || 'Administrador';
+
+  DB_LOCAL.auditoria_programacion.unshift({
+    id: 'AUD-PRG-' + Date.now(),
+    id_empresa: sesionActual.id_empresa,
+    cod_servicio: codServicio,
+    usuario: usr,
+    fecha: fechaStr,
+    hora: horaStr,
+    accion: accion,
+    detalle: detalle
+  });
+}
+
+// =========================================================================
+// 04. SERVICIOS - CONTROL Y SEGUIMIENTO (Image 6)
+// =========================================================================
+function renderizarModulo04Servicios(main, empId) {
+  // Los 7 estados especificados en Imagen 6:
+  // Programado, Pendiente, En ruta, En destino, Finalizado, Observado, Cancelado
+  const serviciosEmp = (DB_LOCAL.servicios || []).filter(s => !empId || empId === 'TODAS' || s.id_empresa === empId || s.id_empresa === 'TODAS');
+
+  let filtrados = serviciosEmp.filter(s => {
+    if (filtroEstadoServiciosEmpresa !== 'TODOS') {
+      const est = (s.estado || '').toLowerCase();
+      if (filtroEstadoServiciosEmpresa === 'Programado' && s.estado !== 'Programado' && s.estado !== 'Asignado') return false;
+      if (filtroEstadoServiciosEmpresa === 'Pendiente' && s.estado !== 'Pendiente' && s.estado !== 'Por Iniciar') return false;
+      if (filtroEstadoServiciosEmpresa === 'En ruta' && !est.includes('ruta') && !est.includes('tránsito') && !est.includes('camino')) return false;
+      if (filtroEstadoServiciosEmpresa === 'En destino' && !est.includes('destino') && !est.includes('descarga')) return false;
+      if (filtroEstadoServiciosEmpresa === 'Finalizado' && s.estado !== 'Finalizado' && s.estado !== 'Completado') return false;
+      if (filtroEstadoServiciosEmpresa === 'Observado' && s.estado !== 'Observado' && s.estado !== 'Con Incidencia') return false;
+      if (filtroEstadoServiciosEmpresa === 'Cancelado' && s.estado !== 'Cancelado' && s.estado !== 'Anulado') return false;
+    }
+
+    if (filtroBusquedaServiciosEmpresa) {
+      const q = filtroBusquedaServiciosEmpresa.toLowerCase();
+      const matchCod = (s.cod_servicio || '').toLowerCase().includes(q);
+      const matchCli = (s.cliente || '').toLowerCase().includes(q);
+      const matchCnd = (s.conductor_nombre || '').toLowerCase().includes(q);
+      const matchTracto = (s.placa_tracto || '').toLowerCase().includes(q);
+      const matchCarreta = (s.placa_carreta || '').toLowerCase().includes(q);
+      return matchCod || matchCli || matchCnd || matchTracto || matchCarreta;
+    }
+    return true;
+  });
+
+  main.innerHTML = `
+    <div class="p-4 sm:p-6 space-y-6 animate-in fade-in duration-150">
+      <!-- Encabezado 04 Servicios -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-slate-200">
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="px-2 py-0.5 rounded-md bg-navy-900 text-turquoise-400 font-mono text-xs font-black">04</span>
+            <h1 class="text-xl font-black text-navy-900 tracking-tight">SERVICIOS — Control y Seguimiento de Operaciones</h1>
+          </div>
+          <p class="text-xs text-slate-500 mt-0.5">${obtenerNombreEmpresa(empId)} • Administración desde inicio hasta finalización con GPS, fotos e historial</p>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button onclick="mostrarSeccionSupervisor('programacion')" class="px-3.5 py-2 bg-turquoise-600 hover:bg-turquoise-500 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-sm transition cursor-pointer">
+            <i data-lucide="calendar-plus" class="w-4 h-4"></i>
+            <span>+ Nuevo Servicio</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filtros por los 7 Estados Oficiales (Imagen 6) -->
+      <div class="space-y-3">
+        <div class="flex items-center flex-wrap gap-1.5 text-xs">
+          ${['TODOS', 'Programado', 'Pendiente', 'En ruta', 'En destino', 'Finalizado', 'Observado', 'Cancelado'].map(st => `
+            <button onclick="cambiarFiltroEstadoServiciosEmpresa('${st}')" class="px-3 py-1.5 rounded-xl font-bold transition cursor-pointer ${filtroEstadoServiciosEmpresa === st ? 'bg-navy-900 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}">
+              ${st === 'TODOS' ? `Todos (${serviciosEmp.length})` : st}
+            </button>
+          `).join('')}
+        </div>
+
+        <div class="relative max-w-md">
+          <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+          <input type="text" id="input-buscar-servicios-empresa" value="${filtroBusquedaServiciosEmpresa}" oninput="filtrarBusquedaServiciosEmpresa(this.value)" placeholder="Buscar por código, cliente, conductor o placa..." class="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-700 outline-none focus:ring-1 focus:ring-turquoise-500">
+        </div>
+      </div>
+
+      <!-- Listado de Servicios con Ficha Completa (Imagen 6) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        ${filtrados.length === 0 ? `
+          <div class="col-span-full bg-white p-8 rounded-3xl border border-slate-200 text-center text-slate-400 text-xs">
+            No se encontraron servicios registrados con el estado seleccionado.
+          </div>
+        ` : filtrados.map(s => {
+          const badgeClass = 
+            (s.estado || '').includes('ruta') || (s.estado || '').includes('tránsito') ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' :
+            s.estado === 'Finalizado' ? 'bg-teal-100 text-teal-800 border border-teal-200' :
+            s.estado === 'Programado' ? 'bg-blue-100 text-blue-800 border border-blue-200' :
+            s.estado === 'Observado' ? 'bg-rose-100 text-rose-800 border border-rose-200' :
+            s.estado === 'Cancelado' ? 'bg-slate-200 text-slate-700 border border-slate-300' : 'bg-amber-100 text-amber-800 border border-amber-200';
+
+          return `
+            <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-2xs space-y-4 flex flex-col justify-between hover:shadow-md transition">
+              <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                  <span class="font-mono font-black text-xs text-navy-900 bg-slate-100 px-2 py-0.5 rounded-lg">${s.cod_servicio}</span>
+                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${badgeClass}">${s.estado}</span>
+                </div>
+
+                <div>
+                  <h4 class="font-black text-navy-900 text-sm leading-tight">${s.cliente}</h4>
+                  <p class="text-xs text-slate-500 flex items-center space-x-1 mt-1">
+                    <i data-lucide="navigation" class="w-3.5 h-3.5 text-turquoise-600 shrink-0"></i>
+                    <span>${s.origen} → ${s.destino || s.parada_actual || 'Destino'}</span>
+                  </p>
+                </div>
+
+                <!-- Detalles de placas y personal (Imagen 6) -->
+                <div class="grid grid-cols-2 gap-2 text-xs bg-slate-50 p-2.5 rounded-2xl border border-slate-100">
+                  <div>
+                    <span class="text-[9px] font-bold text-slate-400 block uppercase">Tracto / Carreta</span>
+                    <strong class="font-mono text-navy-900 text-[11px]">${s.placa_tracto || '-'}</strong> / <span class="font-mono text-[11px] text-slate-600">${s.placa_carreta || '-'}</span>
+                  </div>
+                  <div>
+                    <span class="text-[9px] font-bold text-slate-400 block uppercase">Conductor / Aux</span>
+                    <strong class="text-navy-900 block truncate text-[11px]">${s.conductor_nombre || 'Sin asignar'}</strong>
+                    <span class="text-[10px] text-slate-400 block truncate">${s.auxiliar || 'Sin auxiliar'}</span>
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between text-[11px] text-slate-500 pt-1">
+                  <span>Prog: ${s.fecha_programada || 'Hoy'} ${s.hora_programada || ''}</span>
+                  <span class="font-mono font-bold text-navy-900">${s.km_actual ? s.km_actual + ' KM' : (s.km_inicial ? s.km_inicial + ' KM' : 'Km inicial')}</span>
+                </div>
+              </div>
+
+              <!-- Botón Ficha Completa (Imagen 6) -->
+              <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
+                <button onclick="abrirModalDetalleServicioOficial('${s.cod_servicio}')" class="w-full py-2 bg-navy-900 hover:bg-navy-800 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-2 transition cursor-pointer">
+                  <i data-lucide="file-text" class="w-3.5 h-3.5 text-turquoise-400"></i>
+                  <span>Ver Ficha de Servicio y GPS</span>
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function cambiarFiltroEstadoServiciosEmpresa(estado) {
+  filtroEstadoServiciosEmpresa = estado;
+  const main = document.getElementById("main-stage-area");
+  renderizarModulo04Servicios(main, sesionActual.id_empresa);
+  lucide.createIcons();
+}
+
+function filtrarBusquedaServiciosEmpresa(val) {
+  filtroBusquedaServiciosEmpresa = val;
+  const main = document.getElementById("main-stage-area");
+  renderizarModulo04Servicios(main, sesionActual.id_empresa);
+  lucide.createIcons();
+}
+
+// Modal Ficha Completa de Servicio (Imagen 6)
+function abrirModalDetalleServicioOficial(codServicio) {
+  const s = (DB_LOCAL.servicios || []).find(x => x.cod_servicio === codServicio);
+  if (!s) return;
+
+  const modalHtml = `
+    <div id="modal-detalle-servicio-dialog" class="fixed inset-0 bg-navy-950/80 backdrop-blur-2xs z-50 flex items-center justify-center p-3 animate-in fade-in duration-150">
+      <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 overflow-y-auto max-h-[92vh] space-y-5">
+        <!-- Header -->
+        <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+          <div class="flex items-center space-x-2">
+            <span class="font-mono font-black text-sm text-navy-900 bg-slate-100 px-2.5 py-1 rounded-xl">${s.cod_servicio}</span>
+            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">${s.estado}</span>
+          </div>
+          <button onclick="document.getElementById('modal-detalle-servicio-dialog').remove()" class="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <!-- Información General (Imagen 6) -->
+        <div class="grid grid-cols-2 gap-3 text-xs">
+          <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100">
+            <span class="text-[10px] font-bold text-slate-400 block uppercase">Cliente y RUC</span>
+            <strong class="text-sm font-black text-navy-900 block">${s.cliente}</strong>
+            <span class="text-[10px] text-slate-500">RUC: ${s.ruc_cliente || '20100070970'}</span>
+          </div>
+          <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100">
+            <span class="text-[10px] font-bold text-slate-400 block uppercase">Horarios Operativos</span>
+            <span class="block font-semibold text-slate-800">Prog: ${s.fecha_programada || 'Hoy'} ${s.hora_programada || ''}</span>
+            <span class="text-[10px] text-slate-500">Inicio: ${s.hora_inicio || '06:15'} • Fin: ${s.hora_fin || 'En curso'}</span>
+          </div>
+        </div>
+
+        <!-- Ruta y Placas (Imagen 6) -->
+        <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100 text-xs space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-700">Origen y Destino:</span>
+            <span class="text-navy-900 font-bold">${s.origen} → ${s.destino || s.parada_actual || 'Destino'}</span>
+          </div>
+          <div class="flex items-center justify-between text-[11px] text-slate-500">
+            <span>Tracto: <strong class="font-mono text-navy-900">${s.placa_tracto}</strong> • Carreta: <strong class="font-mono text-navy-900">${s.placa_carreta}</strong></span>
+            <span>Chofer: <strong class="text-navy-900">${s.conductor_nombre}</strong> (Aux: ${s.auxiliar || 'Sin aux'})</span>
+          </div>
+        </div>
+
+        <!-- Ubicación GPS (Imagen 6) -->
+        <div class="space-y-1.5">
+          <span class="text-xs font-black text-navy-900 flex items-center space-x-1.5">
+            <i data-lucide="map-pin" class="w-4 h-4 text-rose-500"></i>
+            <span>Ubicación Satelital GPS en Tiempo Real</span>
+          </span>
+          <div class="h-44 w-full rounded-2xl border border-slate-200 overflow-hidden relative bg-slate-100 flex items-center justify-center">
+            <iframe width="100%" height="100%" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?q=-11.9542,-77.1245&hl=es&z=13&output=embed"></iframe>
+          </div>
+        </div>
+
+        <!-- Evidencias Fotográficas y Documentos (Imagen 6) -->
+        <div class="space-y-2">
+          <span class="text-xs font-black text-navy-900 flex items-center space-x-1.5">
+            <i data-lucide="camera" class="w-4 h-4 text-turquoise-600"></i>
+            <span>Evidencias Fotográficas y Guías de Remisión</span>
+          </span>
+          <div class="grid grid-cols-3 gap-2">
+            <div class="p-2 bg-slate-50 rounded-xl border border-slate-200 text-center text-[10px]">
+              <div class="h-20 bg-slate-200 rounded-lg mb-1 overflow-hidden flex items-center justify-center text-slate-400">
+                <i data-lucide="image" class="w-6 h-6"></i>
+              </div>
+              <span class="font-bold block text-slate-700">Precinto de Seguridad</span>
+            </div>
+            <div class="p-2 bg-slate-50 rounded-xl border border-slate-200 text-center text-[10px]">
+              <div class="h-20 bg-slate-200 rounded-lg mb-1 overflow-hidden flex items-center justify-center text-slate-400">
+                <i data-lucide="image" class="w-6 h-6"></i>
+              </div>
+              <span class="font-bold block text-slate-700">Carga en Tolva</span>
+            </div>
+            <div class="p-2 bg-slate-50 rounded-xl border border-slate-200 text-center text-[10px]">
+              <div class="h-20 bg-slate-200 rounded-lg mb-1 overflow-hidden flex items-center justify-center text-slate-400">
+                <i data-lucide="file-check-2" class="w-6 h-6"></i>
+              </div>
+              <span class="font-bold block text-slate-700">Guía Firmada SUTRAN</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Incidencias e Historial del Servicio (Imagen 6) -->
+        <div class="p-3 bg-amber-50 rounded-2xl border border-amber-200 text-xs text-amber-900 space-y-1">
+          <strong class="font-bold flex items-center space-x-1">
+            <i data-lucide="alert-circle" class="w-4 h-4 text-amber-600"></i>
+            <span>Incidencias y Observaciones:</span>
+          </strong>
+          <p class="text-[11px] text-amber-800">${s.instrucciones || 'Sin incidencias mecánicas reportadas. Tránsito en autopista regular.'}</p>
+        </div>
+
+        <div class="pt-2 flex justify-end">
+          <button onclick="document.getElementById('modal-detalle-servicio-dialog').remove()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold">
+            Cerrar Ficha
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const div = document.createElement("div");
+  div.innerHTML = modalHtml;
+  document.body.appendChild(div.firstElementChild);
+  lucide.createIcons();
+}
+
+// =========================================================================
+// 05. CONDUCTORES - REGISTRO E INFORMACIÓN (Image 7)
+// =========================================================================
+function renderizarModulo05Conductores(main, empId) {
+  const conductoresEmp = (DB_LOCAL.conductores || []).filter(c => !empId || empId === 'TODAS' || c.id_empresa === empId || c.id_empresa === 'TODAS');
+
+  let filtrados = conductoresEmp.filter(c => {
+    if (filtroConductoresEmpresa !== 'TODOS') {
+      const est = (c.estado || '').toLowerCase();
+      if (filtroConductoresEmpresa === 'EN_RUTA' && !est.includes('ruta') && !est.includes('camino')) return false;
+      if (filtroConductoresEmpresa === 'DISPONIBLE' && !est.includes('disponible') && !est.includes('activo')) return false;
+      if (filtroConductoresEmpresa === 'DESCANSO' && !est.includes('descanso')) return false;
+    }
+    if (filtroBusquedaConductoresEmpresa) {
+      const q = filtroBusquedaConductoresEmpresa.toLowerCase();
+      const matchNom = (c.nombre || '').toLowerCase().includes(q);
+      const matchDni = String(c.dni || '').includes(q);
+      const matchLic = (c.licencia || '').toLowerCase().includes(q);
+      return matchNom || matchDni || matchLic;
+    }
+    return true;
+  });
+
+  main.innerHTML = `
+    <div class="p-4 sm:p-6 space-y-6 animate-in fade-in duration-150">
+      <!-- Encabezado 05 Conductores -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-slate-200">
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="px-2 py-0.5 rounded-md bg-navy-900 text-turquoise-400 font-mono text-xs font-black">05</span>
+            <h1 class="text-xl font-black text-navy-900 tracking-tight">CONDUCTORES — Registro e Información</h1>
+          </div>
+          <p class="text-xs text-slate-500 mt-0.5">${obtenerNombreEmpresa(empId)} • Base de datos de choferes, licencias de conducir y administración de cuentas móviles</p>
+        </div>
+        <button onclick="abrirModalCrearConductor()" class="px-4 py-2 bg-turquoise-600 hover:bg-turquoise-500 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-sm transition cursor-pointer">
+          <i data-lucide="user-plus" class="w-4 h-4"></i>
+          <span>+ Registrar Conductor</span>
+        </button>
+      </div>
+
+      <!-- Filtros y Búsqueda -->
+      <div class="space-y-3">
+        <div class="flex items-center flex-wrap gap-1.5 text-xs">
+          <button onclick="cambiarFiltroConductoresEmpresa('TODOS')" class="px-3 py-1.5 rounded-xl font-bold transition cursor-pointer ${filtroConductoresEmpresa === 'TODOS' ? 'bg-navy-900 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}">
+            Todos (${conductoresEmp.length})
+          </button>
+          <button onclick="cambiarFiltroConductoresEmpresa('EN_RUTA')" class="px-3 py-1.5 rounded-xl font-bold transition cursor-pointer ${filtroConductoresEmpresa === 'EN_RUTA' ? 'bg-navy-900 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}">
+            En Ruta
+          </button>
+          <button onclick="cambiarFiltroConductoresEmpresa('DISPONIBLE')" class="px-3 py-1.5 rounded-xl font-bold transition cursor-pointer ${filtroConductoresEmpresa === 'DISPONIBLE' ? 'bg-navy-900 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}">
+            Disponibles en Base
+          </button>
+        </div>
+
+        <div class="relative max-w-md">
+          <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+          <input type="text" id="input-buscar-conductores-empresa" value="${filtroBusquedaConductoresEmpresa}" oninput="filtrarBusquedaConductoresEmpresa(this.value)" placeholder="Buscar por conductor, DNI o brevete..." class="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-700 outline-none focus:ring-1 focus:ring-turquoise-500">
+        </div>
+      </div>
+
+      <!-- Tarjetas de Conductores con Administración de Cuenta Móvil (Imagen 7) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        ${filtrados.map(c => {
+          const usrMovil = (DB_LOCAL.usuarios || []).find(u => u.dni === c.dni || u.usuario === 'conductor1' || (u.rol === 'CONDUCTOR' && u.nombre === c.nombre));
+          const tieneCuenta = !!usrMovil;
+          const cuentaActiva = usrMovil ? usrMovil.estado === 'ACTIVO' : true;
+
+          return `
+            <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-2xs space-y-4 flex flex-col justify-between hover:shadow-md transition">
+              <div class="space-y-3">
+                <div class="flex items-center space-x-3">
+                  <img src="${c.foto || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'}" alt="${c.nombre}" class="w-12 h-12 rounded-2xl object-cover border border-slate-200 shadow-2xs">
+                  <div>
+                    <h4 class="font-black text-navy-900 text-sm leading-tight">${c.nombre}</h4>
+                    <span class="text-xs text-slate-500">DNI: ${c.dni || '-'} • Tel: ${c.telefono || '-'}</span>
+                    <span class="block text-[10px] text-emerald-700 font-bold mt-0.5">${c.estado || 'Disponible'}</span>
+                  </div>
+                </div>
+
+                <!-- Licencia de Conducir (Imagen 7) -->
+                <div class="p-2.5 bg-slate-50 rounded-2xl border border-slate-100 text-xs space-y-1">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] text-slate-400 font-bold uppercase">Brevete / Categoría:</span>
+                    <span class="font-mono font-bold text-navy-900">${c.licencia || 'Q' + c.dni} (${c.categoria || 'A-IIIc'})</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] text-slate-400 font-bold uppercase">Vencimiento:</span>
+                    <span class="text-emerald-700 font-bold text-[11px]">${c.vencimiento || '15/12/2027'} (Vigente)</span>
+                  </div>
+                </div>
+
+                <!-- Bloque Oficial: Administración de Cuenta Móvil (Imagen 7) -->
+                <div class="p-3 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl border border-emerald-200/80 text-xs space-y-2">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-1.5 text-emerald-900 font-black text-[11px]">
+                      <i data-lucide="smartphone" class="w-3.5 h-3.5 text-emerald-700"></i>
+                      <span>Cuenta App Móvil</span>
+                    </div>
+                    <span class="px-2 py-0.5 rounded-full text-[9px] font-bold ${cuentaActiva ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+                      ${cuentaActiva ? 'Acceso Activo' : 'Acceso Desactivado'}
+                    </span>
+                  </div>
+
+                  <div class="flex items-center justify-between text-[10px] text-slate-600">
+                    <span>Usuario: <strong class="font-mono text-navy-900">${usrMovil ? usrMovil.usuario : 'conductor_' + c.dni}</strong></span>
+                    <span>Último acceso: ${usrMovil ? (usrMovil.ultimo_acceso || 'Hoy 08:30') : 'Nunca'}</span>
+                  </div>
+
+                  <div class="flex items-center space-x-1.5 pt-1">
+                    <button onclick="alternarAccesoMovilConductor('${c.dni}')" class="flex-1 py-1 px-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-lg text-[10px] font-bold transition text-center cursor-pointer">
+                      ${cuentaActiva ? 'Desactivar Acceso' : 'Activar Acceso'}
+                    </button>
+                    <button onclick="restablecerClaveMovilConductor('${c.dni}')" class="py-1 px-2 bg-white hover:bg-slate-50 border border-slate-200 text-amber-700 rounded-lg text-[10px] font-bold transition cursor-pointer" title="Restablecer Contraseña Móvil">
+                      <i data-lucide="key" class="w-3 h-3 inline"></i> Clave
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
+                <button onclick="abrirModalEditarConductorSupervisor('${c.id_conductor}')" class="w-full py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition text-center cursor-pointer">
+                  Editar Datos del Conductor
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function cambiarFiltroConductoresEmpresa(filtro) {
+  filtroConductoresEmpresa = filtro;
+  const main = document.getElementById("main-stage-area");
+  renderizarModulo05Conductores(main, sesionActual.id_empresa);
+  lucide.createIcons();
+}
+
+function filtrarBusquedaConductoresEmpresa(val) {
+  filtroBusquedaConductoresEmpresa = val;
+  const main = document.getElementById("main-stage-area");
+  renderizarModulo05Conductores(main, sesionActual.id_empresa);
+  lucide.createIcons();
+}
+
+function alternarAccesoMovilConductor(dni) {
+  const usr = (DB_LOCAL.usuarios || []).find(u => u.dni === dni || (u.rol === 'CONDUCTOR' && u.dni === dni));
+  if (usr) {
+    usr.estado = usr.estado === 'ACTIVO' ? 'INACTIVO' : 'ACTIVO';
+    guardarBaseDatosLocal();
+    mostrarToast(`Acceso móvil de ${usr.nombre || usr.usuario} ahora está ${usr.estado}`, usr.estado === 'ACTIVO' ? 'success' : 'warning');
+  } else {
+    // Si no existía, creamos la cuenta móvil automáticamente (Imagen 7)
+    const c = (DB_LOCAL.conductores || []).find(x => x.dni === dni);
+    if (c) {
+      const nuevoUsr = {
+        id: "USR-" + Date.now(),
+        usuario: "cond." + c.dni,
+        pass: "Nexa2026!",
+        rol: "CONDUCTOR",
+        id_empresa: sesionActual.id_empresa,
+        id_conductor: c.id_conductor,
+        nombre: c.nombre,
+        dni: c.dni,
+        telefono: c.telefono,
+        estado: "ACTIVO",
+        ultimo_acceso: "Creado recientemente"
+      };
+      DB_LOCAL.usuarios.push(nuevoUsr);
+      guardarBaseDatosLocal();
+      mostrarToast(`Cuenta móvil creada para ${c.nombre}: Usuario: cond.${c.dni} / Clave: Nexa2026!`, 'success');
+    }
+  }
+  const main = document.getElementById("main-stage-area");
+  renderizarModulo05Conductores(main, sesionActual.id_empresa);
+  lucide.createIcons();
+}
+
+function restablecerClaveMovilConductor(dni) {
+  const usr = (DB_LOCAL.usuarios || []).find(u => u.dni === dni);
+  const nuevaClave = prompt("Ingrese la nueva clave móvil para el conductor:", "Nexa2026!");
+  if (!nuevaClave) return;
+  if (usr) {
+    usr.pass = nuevaClave;
+    guardarBaseDatosLocal();
+    mostrarToast("Clave móvil actualizada exitosamente", "success");
+  } else {
+    mostrarToast("Cree la cuenta móvil primero", "info");
+  }
+}
+
+// =========================================================================
+// 06. UNIDADES - REGISTRO DE TRANSPORTES (Image 8)
+// =========================================================================
+function renderizarModulo06Unidades(main, empId) {
+  const unidadesEmp = (DB_LOCAL.unidades || []).filter(u => !empId || empId === 'TODAS' || u.id_empresa === empId || u.id_empresa === 'TODAS');
+
+  let filtrados = unidadesEmp.filter(u => {
+    if (filtroUnidadesEmpresa !== 'TODAS') {
+      if (filtroUnidadesEmpresa === 'TRACTOS' && u.tipo !== 'Tracto') return false;
+      if (filtroUnidadesEmpresa === 'CARRETAS' && u.tipo !== 'Semirremolque') return false;
+      if (filtroUnidadesEmpresa === 'OPERATIVAS' && u.estado !== 'OPERATIVO') return false;
+      if (filtroUnidadesEmpresa === 'MANTENIMIENTO' && u.estado !== 'EN MANTENIMIENTO') return false;
+    }
+    return true;
+  });
+
+  main.innerHTML = `
+    <div class="p-4 sm:p-6 space-y-6 animate-in fade-in duration-150">
+      <!-- Encabezado 06 Unidades -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-slate-200">
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="px-2 py-0.5 rounded-md bg-navy-900 text-turquoise-400 font-mono text-xs font-black">06</span>
+            <h1 class="text-xl font-black text-navy-900 tracking-tight">UNIDADES — Registro de Transportes</h1>
+          </div>
+          <p class="text-xs text-slate-500 mt-0.5">${obtenerNombreEmpresa(empId)} • Base de datos de toda la flota de tractos, carretas, SOAT y revisión técnica</p>
+        </div>
+        <button onclick="abrirModalRegistrarUnidad()" class="px-4 py-2 bg-turquoise-600 hover:bg-turquoise-500 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-sm transition cursor-pointer">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i>
+          <span>+ Registrar Unidad</span>
+        </button>
+      </div>
+
+      <!-- Filtros por tipo de flota -->
+      <div class="flex items-center flex-wrap gap-1.5 text-xs">
+        <button onclick="cambiarFiltroUnidadesEmpresa('TODAS')" class="px-3 py-1.5 rounded-xl font-bold transition cursor-pointer ${filtroUnidadesEmpresa === 'TODAS' ? 'bg-navy-900 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}">
+          Toda la Flota (${unidadesEmp.length})
+        </button>
+        <button onclick="cambiarFiltroUnidadesEmpresa('TRACTOS')" class="px-3 py-1.5 rounded-xl font-bold transition cursor-pointer ${filtroUnidadesEmpresa === 'TRACTOS' ? 'bg-navy-900 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}">
+          Tractos (${unidadesEmp.filter(u => u.tipo === 'Tracto').length})
+        </button>
+        <button onclick="cambiarFiltroUnidadesEmpresa('CARRETAS')" class="px-3 py-1.5 rounded-xl font-bold transition cursor-pointer ${filtroUnidadesEmpresa === 'CARRETAS' ? 'bg-navy-900 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}">
+          Semirremolques / Carretas (${unidadesEmp.filter(u => u.tipo === 'Semirremolque').length})
+        </button>
+        <button onclick="cambiarFiltroUnidadesEmpresa('OPERATIVAS')" class="px-3 py-1.5 rounded-xl font-bold transition cursor-pointer ${filtroUnidadesEmpresa === 'OPERATIVAS' ? 'bg-navy-900 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}">
+          Operativas
+        </button>
+        <button onclick="cambiarFiltroUnidadesEmpresa('MANTENIMIENTO')" class="px-3 py-1.5 rounded-xl font-bold transition cursor-pointer ${filtroUnidadesEmpresa === 'MANTENIMIENTO' ? 'bg-navy-900 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}">
+          En Mantenimiento
+        </button>
+      </div>
+
+      <!-- Grid de Unidades (Imagen 8) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        ${filtrados.map(u => {
+          const badgeEstado = u.estado === 'OPERATIVO' ? 'bg-emerald-100 text-emerald-800' :
+            u.estado === 'EN MANTENIMIENTO' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-800';
+
+          return `
+            <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-2xs space-y-4 flex flex-col justify-between hover:shadow-md transition">
+              <div class="space-y-3">
+                <!-- Placa y Estado -->
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-2">
+                    <span class="px-2.5 py-1 rounded-lg border-2 border-slate-800 bg-white text-navy-950 font-mono font-black text-xs tracking-wider shadow-2xs">
+                      ${u.placa}
+                    </span>
+                    <span class="text-[10px] font-bold text-slate-500 uppercase">${u.tipo}</span>
+                  </div>
+                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${badgeEstado}">${u.estado}</span>
+                </div>
+
+                <!-- Marca, Modelo, Año, Configuración vehicular (Imagen 8) -->
+                <div>
+                  <h4 class="font-black text-navy-900 text-sm">${u.marca} ${u.modelo} (${u.anio})</h4>
+                  <div class="text-xs text-slate-500 mt-0.5 flex items-center space-x-2">
+                    <span>Config: <strong>${u.config}</strong></span>
+                    <span>•</span>
+                    <span>${u.ejes} Ejes</span>
+                    <span>•</span>
+                    <span>Cap: <strong>${u.capacidad_tn} Tn</strong></span>
+                  </div>
+                </div>
+
+                <!-- Documentación: SOAT y Revisión Técnica (Imagen 8) -->
+                <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100 text-xs space-y-1.5">
+                  <div class="flex items-center justify-between text-[11px]">
+                    <span class="text-slate-500 font-medium">SOAT:</span>
+                    <span class="font-bold text-emerald-700">${u.soat_vencimiento} (Vigente)</span>
+                  </div>
+                  <div class="text-[10px] text-slate-400 truncate">${u.soat_nro}</div>
+
+                  <div class="flex items-center justify-between text-[11px] pt-1 border-t border-slate-200/60">
+                    <span class="text-slate-500 font-medium">Rev. Técnica (CITV):</span>
+                    <span class="font-bold text-emerald-700">${u.citv_vencimiento} (Vigente)</span>
+                  </div>
+                  <div class="text-[10px] text-slate-400 truncate">${u.citv_nro}</div>
+                </div>
+
+                <div class="flex items-center justify-between text-[11px] text-slate-400 pt-0.5">
+                  <span>Historial: ${u.total_servicios || 12} viajes</span>
+                  <span class="text-emerald-600 font-bold">100% Operativa</span>
+                </div>
+              </div>
+
+              <!-- Acciones de Unidad (Imagen 8) -->
+              <div class="pt-2 border-t border-slate-100 flex items-center space-x-2 text-xs">
+                <button onclick="alternarEstadoUnidad('${u.placa}')" class="flex-1 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition cursor-pointer text-center text-[11px]">
+                  Cambiar Estado
+                </button>
+                <button onclick="editarUnidadModal('${u.placa}')" class="px-3 py-1.5 bg-navy-900 hover:bg-navy-800 text-white font-bold rounded-xl transition cursor-pointer text-[11px]">
+                  Editar
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function cambiarFiltroUnidadesEmpresa(filtro) {
+  filtroUnidadesEmpresa = filtro;
+  const main = document.getElementById("main-stage-area");
+  renderizarModulo06Unidades(main, sesionActual.id_empresa);
+  lucide.createIcons();
+}
+
+function alternarEstadoUnidad(placa) {
+  const u = (DB_LOCAL.unidades || []).find(x => x.placa === placa);
+  if (!u) return;
+  u.estado = u.estado === 'OPERATIVO' ? 'EN MANTENIMIENTO' : 'OPERATIVO';
+  guardarBaseDatosLocal();
+  mostrarToast(`Unidad ${u.placa} ahora está ${u.estado}`, 'info');
+  const main = document.getElementById("main-stage-area");
+  renderizarModulo06Unidades(main, sesionActual.id_empresa);
+  lucide.createIcons();
+}
+
+function editarUnidadModal(placa) {
+  const u = (DB_LOCAL.unidades || []).find(x => x.placa === placa);
+  if (!u) return;
+  const nuevaMarca = prompt(`Editar marca de la unidad ${placa}:`, u.marca);
+  if (nuevaMarca) {
+    u.marca = nuevaMarca;
+    guardarBaseDatosLocal();
+    mostrarToast("Unidad actualizada", "success");
+    const main = document.getElementById("main-stage-area");
+    renderizarModulo06Unidades(main, sesionActual.id_empresa);
+    lucide.createIcons();
+  }
+}
+
+function abrirModalRegistrarUnidad() {
+  const placa = prompt("Registrar nueva unidad de flota.\nIngrese placa (ej. V8P-920):");
+  if (!placa) return;
+  const tipo = confirm("¿Es Tracto? Clic Aceptar para Tracto, Cancelar para Semirremolque / Carreta") ? "Tracto" : "Semirremolque";
+  const marca = prompt("Marca (ej. Volvo, Scania, Randon):", "Volvo");
+  const modelo = prompt("Modelo (ej. FH 540, Plataforma Baranda):", "FH 540");
+  const cap = prompt("Capacidad de carga en Toneladas (ej. 48):", "48");
+
+  const nuevaUni = {
+    id: "UNI-" + Date.now(),
+    tipo: tipo,
+    placa: placa.toUpperCase().trim(),
+    id_empresa: sesionActual.id_empresa,
+    marca: marca || "Volvo",
+    modelo: modelo || "FH 540",
+    anio: 2023,
+    config: tipo === 'Tracto' ? "6x4 - T3S3" : "Plataforma 3 Ejes",
+    ejes: 3,
+    capacidad_tn: Number(cap) || 45,
+    soat_nro: "9820141 Pacífico Seguros",
+    soat_vencimiento: "15/12/2027",
+    soat_vigente: true,
+    citv_nro: "CITV-99104 SUTRAN",
+    citv_vencimiento: "20/11/2027",
+    citv_vigente: true,
+    estado: "OPERATIVO",
+    total_servicios: 0
+  };
+
+  if (!DB_LOCAL.unidades) DB_LOCAL.unidades = [];
+  DB_LOCAL.unidades.push(nuevaUni);
+  guardarBaseDatosLocal();
+  mostrarToast(`Unidad ${nuevaUni.placa} registrada exitosamente`, "success");
+  const main = document.getElementById("main-stage-area");
+  renderizarModulo06Unidades(main, sesionActual.id_empresa);
+  lucide.createIcons();
+}
+
+// =========================================================================
+// 07. CONFIGURACIÓN - PARÁMETROS Y PERMISOS DEL SISTEMA (Images 9 & 10)
+// =========================================================================
+function renderizarModulo07Configuracion(main, empId) {
+  // Los cuatro apartados seleccionados en Imágenes 9 y 10:
+  // A. Notificaciones y alertas
+  // B. Configuración de servicios
+  // C. Control de accesos y permisos (Control de permisos de la app desde la web)
+  // D. Configuración general
+  
+  const cfg = (DB_LOCAL.configuracion || {
+    notificaciones: { serviciosPendientes: true, cambiosProgramacion: true, vencimientoLicencias: true, vencimientoDocumentos: true, alertasOperativas: true },
+    servicios: {
+      estados: ["Programado", "Pendiente", "En ruta", "En destino", "Finalizado", "Observado", "Cancelado"],
+      tipos: ["Carga Pesada General", "Carga Refrigerada", "Materiales Peligrosos (MATPEL)", "Granel Seco", "Contenedores Marítimos"],
+      clientes: ["Aceros Arequipa S.A.", "Minera Chinalco Perú S.A.", "Alicorp S.A.A.", "Gloria S.A."],
+      puntosCargaDescarga: ["Puerto del Callao (APM Terminals)", "Almacén Central Ate - Lima", "Mina Las Bambas - Apurímac"],
+      motivosCancelacion: ["Desistimiento del cliente", "Unidad averiada sin reemplazo", "Bloqueo de carreteras / Huelga"],
+      motivosReprogramacion: ["Retraso en almacén de carga", "Falla mecánica leve reprogramada", "Tráfico denso en carretera troncal"]
+    },
+    permisosAppMovil: {
+      consultarServicios: true,
+      iniciarFinalizar: true,
+      pausarServicios: true,
+      registrarIncidencias: true,
+      subirFotos: true,
+      adjuntarDocumentos: true,
+      registrarEntregas: true,
+      consultarHistorial: true,
+      actualizarDatosPersonales: false,
+      recibirNotificaciones: true
+    },
+    general: {
+      logo: "",
+      nombre: obtenerNombreEmpresa(empId),
+      ruc: "20601234567",
+      direccion: "Av. Industrial 450, Callao",
+      telefono: "(01) 450-8900",
+      correo: "operaciones@empresa.com",
+      zonaHoraria: "America/Lima (UTC-5)"
+    }
+  });
+
+  main.innerHTML = `
+    <div class="p-4 sm:p-6 space-y-6 animate-in fade-in duration-150">
+      <!-- Encabezado 07 Configuración -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-slate-200">
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="px-2 py-0.5 rounded-md bg-navy-900 text-turquoise-400 font-mono text-xs font-black">07</span>
+            <h1 class="text-xl font-black text-navy-900 tracking-tight">CONFIGURACIÓN — Parámetros y Permisos del Sistema</h1>
+          </div>
+          <p class="text-xs text-slate-500 mt-0.5">${obtenerNombreEmpresa(empId)} • Administración del sistema en los cuatro apartados oficiales</p>
+        </div>
+        <button onclick="guardarConfiguracionEmpresaWeb()" class="px-4 py-2 bg-turquoise-600 hover:bg-turquoise-500 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-sm transition cursor-pointer">
+          <i data-lucide="save" class="w-4 h-4"></i>
+          <span>Guardar Configuración</span>
+        </button>
+      </div>
+
+      <!-- Selector de los 4 Apartados Oficiales (A, B, C, D) (Imagen 9) -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+        <button onclick="cambiarPestanaConfigEmpresa('A')" class="p-3 rounded-2xl font-bold border transition text-left cursor-pointer ${pestanaConfiguracionEmpresa === 'A' ? 'bg-navy-900 text-white border-navy-900 shadow-sm' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'}">
+          <span class="text-[10px] text-turquoise-400 font-mono block">Apartado A</span>
+          <span class="text-xs font-black block mt-0.5">Notificaciones y Alertas</span>
+        </button>
+        <button onclick="cambiarPestanaConfigEmpresa('B')" class="p-3 rounded-2xl font-bold border transition text-left cursor-pointer ${pestanaConfiguracionEmpresa === 'B' ? 'bg-navy-900 text-white border-navy-900 shadow-sm' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'}">
+          <span class="text-[10px] text-turquoise-400 font-mono block">Apartado B</span>
+          <span class="text-xs font-black block mt-0.5">Configuración de Servicios</span>
+        </button>
+        <button onclick="cambiarPestanaConfigEmpresa('C')" class="p-3 rounded-2xl font-bold border transition text-left cursor-pointer ${pestanaConfiguracionEmpresa === 'C' ? 'bg-navy-900 text-white border-navy-900 shadow-sm' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'}">
+          <span class="text-[10px] text-turquoise-400 font-mono block">Apartado C</span>
+          <span class="text-xs font-black block mt-0.5">Control de App desde Web</span>
+        </button>
+        <button onclick="cambiarPestanaConfigEmpresa('D')" class="p-3 rounded-2xl font-bold border transition text-left cursor-pointer ${pestanaConfiguracionEmpresa === 'D' ? 'bg-navy-900 text-white border-navy-900 shadow-sm' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'}">
+          <span class="text-[10px] text-turquoise-400 font-mono block">Apartado D</span>
+          <span class="text-xs font-black block mt-0.5">Configuración General</span>
+        </button>
+      </div>
+
+      <!-- Contenido de cada Apartado (Imágenes 9 y 10) -->
+      <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-2xs space-y-6">
+        ${pestanaConfiguracionEmpresa === 'A' ? `
+          <!-- A. Notificaciones y alertas (Imagen 9) -->
+          <div class="space-y-4">
+            <div>
+              <h3 class="text-sm font-black text-navy-900">A. Notificaciones y Alertas del Sistema</h3>
+              <p class="text-xs text-slate-500">Parámetros de aviso y monitoreo preventivo de la operación</p>
+            </div>
+            <div class="divide-y divide-slate-100 text-xs">
+              <div class="py-3 flex items-center justify-between">
+                <div>
+                  <strong class="font-bold text-slate-800 block">Servicios pendientes de inicio</strong>
+                  <span class="text-slate-400 text-[11px]">Alertar si un servicio programado no inicia dentro de su ventana horaria</span>
+                </div>
+                <input type="checkbox" id="cfg-notif-pendientes" ${cfg.notificaciones.serviciosPendientes ? 'checked' : ''} class="w-5 h-5 accent-turquoise-600 rounded">
+              </div>
+              <div class="py-3 flex items-center justify-between">
+                <div>
+                  <strong class="font-bold text-slate-800 block">Cambios de programación y asignaciones</strong>
+                  <span class="text-slate-400 text-[11px]">Notificar a chofer y personal cuando se modifique un tracto o ruta</span>
+                </div>
+                <input type="checkbox" id="cfg-notif-cambios" ${cfg.notificaciones.cambiosProgramacion ? 'checked' : ''} class="w-5 h-5 accent-turquoise-600 rounded">
+              </div>
+              <div class="py-3 flex items-center justify-between">
+                <div>
+                  <strong class="font-bold text-slate-800 block">Vencimiento de licencias de conducir</strong>
+                  <span class="text-slate-400 text-[11px]">Aviso preventivo con 30 días de anticipación antes de expirar el brevete</span>
+                </div>
+                <input type="checkbox" id="cfg-notif-licencias" ${cfg.notificaciones.vencimientoLicencias ? 'checked' : ''} class="w-5 h-5 accent-turquoise-600 rounded">
+              </div>
+              <div class="py-3 flex items-center justify-between">
+                <div>
+                  <strong class="font-bold text-slate-800 block">Vencimiento de documentos vehiculares (SOAT / CITV)</strong>
+                  <span class="text-slate-400 text-[11px]">Bloquear asignación de unidades con SOAT o revisión técnica vencida</span>
+                </div>
+                <input type="checkbox" id="cfg-notif-docs" ${cfg.notificaciones.vencimientoDocumentos ? 'checked' : ''} class="w-5 h-5 accent-turquoise-600 rounded">
+              </div>
+              <div class="py-3 flex items-center justify-between">
+                <div>
+                  <strong class="font-bold text-slate-800 block">Alertas operativas en carretera</strong>
+                  <span class="text-slate-400 text-[11px]">Notificación sonora y visual ante reporte de paradas no autorizadas</span>
+                </div>
+                <input type="checkbox" id="cfg-notif-operativas" ${cfg.notificaciones.alertasOperativas ? 'checked' : ''} class="w-5 h-5 accent-turquoise-600 rounded">
+              </div>
+            </div>
+          </div>
+        ` : pestanaConfiguracionEmpresa === 'B' ? `
+          <!-- B. Configuración de servicios (Imagen 9) -->
+          <div class="space-y-4">
+            <div>
+              <h3 class="text-sm font-black text-navy-900">B. Configuración de Servicios y Operaciones</h3>
+              <p class="text-xs text-slate-500">Catálogos de estados, tipos de servicio, clientes y puntos de carga</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+              <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-2">
+                <strong class="font-bold text-slate-800 block">Estados Oficiales de Servicios (7 Estados):</strong>
+                <div class="flex flex-wrap gap-1.5">
+                  ${cfg.servicios.estados.map(e => `<span class="px-2 py-1 bg-white border border-slate-200 rounded-lg font-bold text-navy-900 text-[11px]">${e}</span>`).join('')}
+                </div>
+              </div>
+              <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-2">
+                <strong class="font-bold text-slate-800 block">Tipos de Servicios de Transporte:</strong>
+                <div class="flex flex-wrap gap-1.5">
+                  ${cfg.servicios.tipos.map(t => `<span class="px-2 py-1 bg-white border border-slate-200 rounded-lg font-bold text-slate-700 text-[11px]">${t}</span>`).join('')}
+                </div>
+              </div>
+              <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-2">
+                <strong class="font-bold text-slate-800 block">Motivos Estándar de Cancelación:</strong>
+                <ul class="list-disc list-inside text-slate-600 text-[11px] space-y-1">
+                  ${cfg.servicios.motivosCancelacion.map(m => `<li>${m}</li>`).join('')}
+                </ul>
+              </div>
+              <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-2">
+                <strong class="font-bold text-slate-800 block">Motivos Estándar de Reprogramación:</strong>
+                <ul class="list-disc list-inside text-slate-600 text-[11px] space-y-1">
+                  ${cfg.servicios.motivosReprogramacion.map(m => `<li>${m}</li>`).join('')}
+                </ul>
+              </div>
+            </div>
+          </div>
+        ` : pestanaConfiguracionEmpresa === 'C' ? `
+          <!-- C. Control de accesos y permisos (Control de permisos de la app desde la web) (Imágenes 9 y 10) -->
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-sm font-black text-navy-900">C. Control de Permisos de la App Móvil desde la Web</h3>
+                <p class="text-xs text-slate-500">El administrador activa o desactiva qué funciones tienen permitidas los conductores y auxiliares en su celular</p>
+              </div>
+              <span class="px-2.5 py-1 bg-turquoise-100 text-turquoise-800 rounded-xl text-xs font-bold">Control Remoto Web → Móvil</span>
+            </div>
+
+            <!-- Regla Oficial Destacada (Imagen 10) -->
+            <div class="p-3 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-900 flex items-start space-x-2">
+              <i data-lucide="lock" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+              <div>
+                <strong class="font-black">Regla Oficial de Exclusividad:</strong>
+                <span>Los cambios de placa, conductor, auxiliar y ruta serán <strong>exclusivos de PROGRAMACIÓN</strong>; la app móvil solo ejecuta y reporta.</span>
+              </div>
+            </div>
+
+            <!-- Lista de Permisos Configurables (Imagen 10) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+              <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
+                <div>
+                  <strong class="font-bold text-slate-800 block">Consultar servicios asignados</strong>
+                  <span class="text-[10px] text-slate-400">Ver lista de órdenes de viaje en la app</span>
+                </div>
+                <input type="checkbox" id="perm-consultar" ${cfg.permisosAppMovil.consultarServicios ? 'checked' : ''} class="w-5 h-5 accent-turquoise-600 rounded">
+              </div>
+
+              <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
+                <div>
+                  <strong class="font-bold text-slate-800 block">Iniciar y finalizar servicios</strong>
+                  <span class="text-[10px] text-slate-400">Botón de inicio con odómetro y entrega</span>
+                </div>
+                <input type="checkbox" id="perm-iniciar-fin" ${cfg.permisosAppMovil.iniciarFinalizar ? 'checked' : ''} class="w-5 h-5 accent-turquoise-600 rounded">
+              </div>
+
+              <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
+                <div>
+                  <strong class="font-bold text-slate-800 block">Pausar servicios</strong>
+                  <span class="text-[10px] text-slate-400">Pausa para descanso, alimentación o espera</span>
+                </div>
+                <input type="checkbox" id="perm-pausar" ${cfg.permisosAppMovil.pausarServicios ? 'checked' : ''} class="w-5 h-5 accent-turquoise-600 rounded">
+              </div>
+
+              <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
+                <div>
+                  <strong class="font-bold text-slate-800 block">Registrar incidencias</strong>
+                  <span class="text-[10px] text-slate-400">Reporte de tráfico, mecánica o demora</span>
+                </div>
+                <input type="checkbox" id="perm-incidencias" ${cfg.permisosAppMovil.registrarIncidencias ? 'checked' : ''} class="w-5 h-5 accent-turquoise-600 rounded">
+              </div>
+
+              <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
+                <div>
+                  <strong class="font-bold text-slate-800 block">Subir fotografías</strong>
+                  <span class="text-[10px] text-slate-400">Cámara para precinto y carga</span>
+                </div>
+                <input type="checkbox" id="perm-fotos" ${cfg.permisosAppMovil.subirFotos ? 'checked' : ''} class="w-5 h-5 accent-turquoise-600 rounded">
+              </div>
+
+              <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
+                <div>
+                  <strong class="font-bold text-slate-800 block">Adjuntar documentos</strong>
+                  <span class="text-[10px] text-slate-400">Guías de remisión y constancias selladas</span>
+                </div>
+                <input type="checkbox" id="perm-documentos" ${cfg.permisosAppMovil.adjuntarDocumentos ? 'checked' : ''} class="w-5 h-5 accent-turquoise-600 rounded">
+              </div>
+
+              <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
+                <div>
+                  <strong class="font-bold text-slate-800 block">Registrar entregas</strong>
+                  <span class="text-[10px] text-slate-400">Confirmación y firma de conformidad</span>
+                </div>
+                <input type="checkbox" id="perm-entregas" ${cfg.permisosAppMovil.registrarEntregas ? 'checked' : ''} class="w-5 h-5 accent-turquoise-600 rounded">
+              </div>
+
+              <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
+                <div>
+                  <strong class="font-bold text-slate-800 block">Consultar historial</strong>
+                  <span class="text-[10px] text-slate-400">Revisión de servicios completados anteriores</span>
+                </div>
+                <input type="checkbox" id="perm-historial" ${cfg.permisosAppMovil.consultarHistorial ? 'checked' : ''} class="w-5 h-5 accent-turquoise-600 rounded">
+              </div>
+
+              <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
+                <div>
+                  <strong class="font-bold text-slate-800 block">Actualizar datos personales autorizados</strong>
+                  <span class="text-[10px] text-slate-400">Teléfono y contacto de emergencia</span>
+                </div>
+                <input type="checkbox" id="perm-datos-pers" ${cfg.permisosAppMovil.actualizarDatosPersonales ? 'checked' : ''} class="w-5 h-5 accent-turquoise-600 rounded">
+              </div>
+
+              <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
+                <div>
+                  <strong class="font-bold text-slate-800 block">Recibir notificaciones móviles</strong>
+                  <span class="text-[10px] text-slate-400">Avisos push de nuevas rutas asignadas</span>
+                </div>
+                <input type="checkbox" id="perm-notif" ${cfg.permisosAppMovil.recibirNotificaciones ? 'checked' : ''} class="w-5 h-5 accent-turquoise-600 rounded">
+              </div>
+            </div>
+          </div>
+        ` : `
+          <!-- D. Configuración general (Imagen 9) -->
+          <div class="space-y-4">
+            <div>
+              <h3 class="text-sm font-black text-navy-900">D. Configuración General de la Empresa</h3>
+              <p class="text-xs text-slate-500">Datos fiscales, identidad corporativa y parámetros del sistema</p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">Nombre / Razón Social:</label>
+                <input type="text" id="cfg-gen-nombre" value="${cfg.general.nombre}" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-navy-900 outline-none">
+              </div>
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">RUC Fiscal:</label>
+                <input type="text" id="cfg-gen-ruc" value="${cfg.general.ruc}" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-navy-900 outline-none">
+              </div>
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">Dirección Legal / Base Operativa:</label>
+                <input type="text" id="cfg-gen-dir" value="${cfg.general.direccion}" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 outline-none">
+              </div>
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">Teléfono Central:</label>
+                <input type="text" id="cfg-gen-tel" value="${cfg.general.telefono}" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 outline-none">
+              </div>
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">Correo de Operaciones:</label>
+                <input type="email" id="cfg-gen-correo" value="${cfg.general.correo || 'operaciones@empresa.com'}" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 outline-none">
+              </div>
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">Zona Horaria Oficial:</label>
+                <input type="text" id="cfg-gen-zona" value="${cfg.general.zonaHoraria}" disabled class="w-full p-2.5 bg-slate-100 border border-slate-200 rounded-xl text-xs text-slate-500 font-mono">
+              </div>
+            </div>
+          </div>
+        `}
+      </div>
+    </div>
+  `;
+}
+
+function cambiarPestanaConfigEmpresa(tab) {
+  pestanaConfiguracionEmpresa = tab;
+  const main = document.getElementById("main-stage-area");
+  renderizarModulo07Configuracion(main, sesionActual.id_empresa);
+  lucide.createIcons();
+}
+
+function guardarConfiguracionEmpresaWeb() {
+  if (!DB_LOCAL.configuracion) DB_LOCAL.configuracion = {};
+
+  // Guardar switches si estamos en pestaña C
+  const chkConsultar = document.getElementById("perm-consultar");
+  if (chkConsultar) {
+    DB_LOCAL.configuracion.permisosAppMovil = {
+      consultarServicios: chkConsultar.checked,
+      iniciarFinalizar: !!(document.getElementById("perm-iniciar-fin") && document.getElementById("perm-iniciar-fin").checked),
+      pausarServicios: !!(document.getElementById("perm-pausar") && document.getElementById("perm-pausar").checked),
+      registrarIncidencias: !!(document.getElementById("perm-incidencias") && document.getElementById("perm-incidencias").checked),
+      subirFotos: !!(document.getElementById("perm-fotos") && document.getElementById("perm-fotos").checked),
+      adjuntarDocumentos: !!(document.getElementById("perm-documentos") && document.getElementById("perm-documentos").checked),
+      registrarEntregas: !!(document.getElementById("perm-entregas") && document.getElementById("perm-entregas").checked),
+      consultarHistorial: !!(document.getElementById("perm-historial") && document.getElementById("perm-historial").checked),
+      actualizarDatosPersonales: !!(document.getElementById("perm-datos-pers") && document.getElementById("perm-datos-pers").checked),
+      recibirNotificaciones: !!(document.getElementById("perm-notif") && document.getElementById("perm-notif").checked)
+    };
+  }
+
+  // Guardar datos generales si estamos en pestaña D
+  const inpNom = document.getElementById("cfg-gen-nombre");
+  if (inpNom) {
+    if (!DB_LOCAL.configuracion.general) DB_LOCAL.configuracion.general = {};
+    DB_LOCAL.configuracion.general.nombre = inpNom.value.trim();
+    DB_LOCAL.configuracion.general.ruc = (document.getElementById("cfg-gen-ruc") ? document.getElementById("cfg-gen-ruc").value : '').trim();
+    DB_LOCAL.configuracion.general.direccion = (document.getElementById("cfg-gen-dir") ? document.getElementById("cfg-gen-dir").value : '').trim();
+    DB_LOCAL.configuracion.general.telefono = (document.getElementById("cfg-gen-tel") ? document.getElementById("cfg-gen-tel").value : '').trim();
+  }
+
+  guardarBaseDatosLocal();
+  mostrarToast("Configuración guardada exitosamente", "success");
+}
+
+// =========================================================================
+// 08. REPORTES - INFORMACIÓN Y DESCARGAS (Image 11)
+// =========================================================================
+function renderizarModulo08Reportes(main, empId) {
+  // Opciones de reporte de Imagen 11:
+  // - Reporte general de servicios
+  // - Reporte por conductor
+  // - Reporte por auxiliar
+  // - Reporte por unidad
+  // - Reporte por cliente
+  // - Reporte por fechas
+  // - Reporte de servicios finalizados
+  // - Reporte de servicios pendientes
+  // - Historial de modificaciones
+  // - Exportación Excel
+  // - Exportación PDF
+  // - Descarga de bases de datos autorizadas
+
+  const serviciosEmp = (DB_LOCAL.servicios || []).filter(s => !empId || empId === 'TODAS' || s.id_empresa === empId || s.id_empresa === 'TODAS');
+  const conductoresEmp = (DB_LOCAL.conductores || []).filter(c => !empId || empId === 'TODAS' || c.id_empresa === empId || c.id_empresa === 'TODAS');
+  const unidadesEmp = (DB_LOCAL.unidades || []).filter(u => !empId || empId === 'TODAS' || u.id_empresa === empId || u.id_empresa === 'TODAS');
+  const clientesUnicos = [...new Set(serviciosEmp.map(s => s.cliente).filter(Boolean))];
+
+  main.innerHTML = `
+    <div class="p-4 sm:p-6 space-y-6 animate-in fade-in duration-150">
+      <!-- Encabezado 08 Reportes -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-slate-200">
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="px-2 py-0.5 rounded-md bg-navy-900 text-turquoise-400 font-mono text-xs font-black">08</span>
+            <h1 class="text-xl font-black text-navy-900 tracking-tight">REPORTES — Información y Descarga de Bases de Datos</h1>
+          </div>
+          <p class="text-xs text-slate-500 mt-0.5">${obtenerNombreEmpresa(empId)} • Generación de informes analíticos y exportación a Excel y PDF</p>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button onclick="exportarReporteExcelOficial()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-sm transition cursor-pointer">
+            <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+            <span>Exportar Excel (.xlsx)</span>
+          </button>
+          <button onclick="exportarReportePdfOficial()" class="px-3.5 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-sm transition cursor-pointer">
+            <i data-lucide="file-text" class="w-4 h-4"></i>
+            <span>Exportar PDF</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Panel de Selección de Reporte (Imagen 11) -->
+      <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-2xs space-y-4">
+        <h3 class="text-xs font-black text-navy-900 flex items-center space-x-2">
+          <i data-lucide="filter" class="w-4 h-4 text-turquoise-600"></i>
+          <span>Seleccionar Tipo de Reporte e Informes a Descargar</span>
+        </h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Tipo de Reporte: *</label>
+            <select id="select-tipo-reporte" onchange="actualizarFiltrosReporteOficial(this.value)" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-navy-900 outline-none">
+              <option value="general">Reporte General de Servicios</option>
+              <option value="conductor">Reporte por Conductor</option>
+              <option value="auxiliar">Reporte por Auxiliar</option>
+              <option value="unidad">Reporte por Unidad / Placa</option>
+              <option value="cliente">Reporte por Cliente</option>
+              <option value="fechas">Reporte por Rango de Fechas</option>
+              <option value="finalizados">Reporte de Servicios Finalizados</option>
+              <option value="pendientes">Reporte de Servicios Pendientes</option>
+              <option value="historial">Historial de Modificaciones (Auditoría)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Filtrar por Conductor:</label>
+            <select id="select-rep-conductor" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 outline-none">
+              <option value="">Todos los conductores</option>
+              ${conductoresEmp.map(c => `<option value="${c.nombre}">${c.nombre}</option>`).join('')}
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Filtrar por Unidad:</label>
+            <select id="select-rep-unidad" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 outline-none">
+              <option value="">Todas las unidades</option>
+              ${unidadesEmp.map(u => `<option value="${u.placa}">${u.placa} (${u.marca} ${u.tipo})</option>`).join('')}
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Filtrar por Cliente:</label>
+            <select id="select-rep-cliente" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 outline-none">
+              <option value="">Todos los clientes</option>
+              ${clientesUnicos.map(c => `<option value="${c}">${c}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
+          <div class="flex items-center space-x-2">
+            <span class="text-slate-500 font-semibold">Fechas:</span>
+            <input type="date" id="rep-fecha-desde" class="p-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs">
+            <span class="text-slate-400">al</span>
+            <input type="date" id="rep-fecha-hasta" class="p-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs">
+          </div>
+          <button onclick="generarReporteOficialEmpresa()" class="px-4 py-2 bg-navy-900 hover:bg-navy-800 text-white font-bold rounded-xl text-xs transition cursor-pointer">
+            Generar Vista de Reporte
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabla Previa del Reporte Generado -->
+      <div id="contenedor-tabla-reporte" class="bg-white rounded-3xl border border-slate-200 shadow-2xs overflow-hidden">
+        <div class="p-4 border-b border-slate-200 flex items-center justify-between">
+          <div>
+            <h4 class="font-black text-navy-900 text-xs">Vista Previa del Reporte de Operaciones</h4>
+            <span class="text-[11px] text-slate-500">${serviciosEmp.length} registros listos para exportar</span>
+          </div>
+          <button onclick="descargarBaseDatosAutorizadaJSON()" class="text-xs font-bold text-turquoise-700 hover:text-turquoise-800 flex items-center space-x-1 cursor-pointer">
+            <i data-lucide="database" class="w-3.5 h-3.5"></i>
+            <span>Descargar Base de Datos Completa (JSON)</span>
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 text-slate-500 uppercase text-[10px] font-black border-b border-slate-200">
+              <tr>
+                <th class="py-2.5 px-3">Código</th>
+                <th class="py-2.5 px-3">Cliente</th>
+                <th class="py-2.5 px-3">Origen y Destino</th>
+                <th class="py-2.5 px-3">Placa Tracto / Carreta</th>
+                <th class="py-2.5 px-3">Conductor</th>
+                <th class="py-2.5 px-3">Fecha Prog</th>
+                <th class="py-2.5 px-3">Estado</th>
+                <th class="py-2.5 px-3 text-right">Km Recorridos</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-reporte-previa" class="divide-y divide-slate-100 text-slate-700">
+              ${serviciosEmp.map(s => {
+                const km = (s.km_actual || s.km_final || s.km_inicial) ? Math.max(0, (s.km_actual || s.km_final || s.km_inicial) - (s.km_inicial || 0)) : 0;
+                return `
+                  <tr class="hover:bg-slate-50/70 transition">
+                    <td class="py-2.5 px-3 font-mono font-bold text-navy-900">${s.cod_servicio}</td>
+                    <td class="py-2.5 px-3 font-semibold text-slate-800">${s.cliente}</td>
+                    <td class="py-2.5 px-3 text-slate-600">${s.origen} → ${s.destino || s.parada_actual || 'Destino'}</td>
+                    <td class="py-2.5 px-3 font-mono text-[11px]">${s.placa_tracto} / ${s.placa_carreta}</td>
+                    <td class="py-2.5 px-3">${s.conductor_nombre}</td>
+                    <td class="py-2.5 px-3 font-mono text-[11px]">${s.fecha_programada || '21/11/2026'}</td>
+                    <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-800">${s.estado}</span></td>
+                    <td class="py-2.5 px-3 text-right font-mono font-bold text-navy-900">${km} KM</td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function actualizarFiltrosReporteOficial(tipo) {
+  tipoReporteSeleccionado = tipo;
+}
+
+function generarReporteOficialEmpresa() {
+  const tipo = document.getElementById("select-tipo-reporte") ? document.getElementById("select-tipo-reporte").value : 'general';
+  const cnd = document.getElementById("select-rep-conductor") ? document.getElementById("select-rep-conductor").value : '';
+  const uni = document.getElementById("select-rep-unidad") ? document.getElementById("select-rep-unidad").value : '';
+  const cli = document.getElementById("select-rep-cliente") ? document.getElementById("select-rep-cliente").value : '';
+
+  const empId = sesionActual.id_empresa;
+  const serviciosEmp = (DB_LOCAL.servicios || []).filter(s => !empId || empId === 'TODAS' || s.id_empresa === empId || s.id_empresa === 'TODAS');
+
+  let resultados = serviciosEmp.filter(s => {
+    if (tipo === 'finalizados' && s.estado !== 'Finalizado' && s.estado !== 'Completado') return false;
+    if (tipo === 'pendientes' && s.estado !== 'Pendiente' && s.estado !== 'Programado') return false;
+    if (cnd && s.conductor_nombre !== cnd) return false;
+    if (uni && s.placa_tracto !== uni && s.placa_carreta !== uni) return false;
+    if (cli && s.cliente !== cli) return false;
+    return true;
+  });
+
+  const tbody = document.getElementById("tbody-reporte-previa");
+  if (!tbody) return;
+
+  if (resultados.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" class="py-6 text-center text-slate-400">No se encontraron servicios para los filtros seleccionados.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = resultados.map(s => {
+    const km = (s.km_actual || s.km_final || s.km_inicial) ? Math.max(0, (s.km_actual || s.km_final || s.km_inicial) - (s.km_inicial || 0)) : 0;
+    return `
+      <tr class="hover:bg-slate-50/70 transition">
+        <td class="py-2.5 px-3 font-mono font-bold text-navy-900">${s.cod_servicio}</td>
+        <td class="py-2.5 px-3 font-semibold text-slate-800">${s.cliente}</td>
+        <td class="py-2.5 px-3 text-slate-600">${s.origen} → ${s.destino || s.parada_actual || 'Destino'}</td>
+        <td class="py-2.5 px-3 font-mono text-[11px]">${s.placa_tracto} / ${s.placa_carreta}</td>
+        <td class="py-2.5 px-3">${s.conductor_nombre}</td>
+        <td class="py-2.5 px-3 font-mono text-[11px]">${s.fecha_programada || '21/11/2026'}</td>
+        <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-800">${s.estado}</span></td>
+        <td class="py-2.5 px-3 text-right font-mono font-bold text-navy-900">${km} KM</td>
+      </tr>
+    `;
+  }).join('');
+
+  mostrarToast(`Reporte generado con ${resultados.length} registros`, "success");
+}
+
+function exportarReporteExcelOficial() {
+  if (typeof XLSX === 'undefined') {
+    mostrarToast("Librería Excel cargando...", "warning");
+    return;
+  }
+  const empId = sesionActual.id_empresa;
+  const serviciosEmp = (DB_LOCAL.servicios || []).filter(s => !empId || empId === 'TODAS' || s.id_empresa === empId || s.id_empresa === 'TODAS');
+
+  const dataExcel = [
+    ["NEXA RUTA - REPORTE OFICIAL DE OPERACIONES DE TRANSPORTE"],
+    ["Empresa:", obtenerNombreEmpresa(empId)],
+    ["Fecha de Generación:", new Date().toLocaleString('es-PE')],
+    ["Usuario:", (sesionActual && (sesionActual.nombre || sesionActual.usuario)) || 'Administrador'],
+    [],
+    ["CÓDIGO", "CLIENTE", "ORIGEN", "DESTINO", "TRACTO", "CARRETA", "CONDUCTOR", "AUXILIAR", "FECHA PROG", "ESTADO", "KM INICIAL", "KM ACTUAL", "KM FINAL"]
+  ];
+
+  serviciosEmp.forEach(s => {
+    dataExcel.push([
+      s.cod_servicio,
+      s.cliente,
+      s.origen,
+      s.destino || s.parada_actual || '',
+      s.placa_tracto,
+      s.placa_carreta,
+      s.conductor_nombre,
+      s.auxiliar || 'Sin auxiliar',
+      s.fecha_programada || '',
+      s.estado,
+      s.km_inicial || '',
+      s.km_actual || '',
+      s.km_final || ''
+    ]);
+  });
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(dataExcel);
+  XLSX.utils.book_append_sheet(wb, ws, "Servicios");
+  XLSX.writeFile(wb, `NexaRuta_Reporte_${empId}_${Date.now()}.xlsx`);
+  mostrarToast("Reporte Excel descargado exitosamente", "success");
+}
+
+function exportarReportePdfOficial() {
+  if (typeof window.jspdf === 'undefined' && typeof jsPDF === 'undefined') {
+    mostrarToast("Librería PDF cargando...", "warning");
+    return;
+  }
+  try {
+    const { jsPDF } = window.jspdf || window;
+    const doc = new jsPDF();
+    const empId = sesionActual.id_empresa;
+    const empNom = obtenerNombreEmpresa(empId);
+
+    doc.setFontSize(16);
+    doc.text("NEXA RUTA - REPORTE OFICIAL DE OPERACIONES", 14, 18);
+    doc.setFontSize(10);
+    doc.text(`Empresa: ${empNom}`, 14, 25);
+    doc.text(`Generado: ${new Date().toLocaleString('es-PE')}`, 14, 30);
+
+    const serviciosEmp = (DB_LOCAL.servicios || []).filter(s => !empId || empId === 'TODAS' || s.id_empresa === empId || s.id_empresa === 'TODAS');
+    let y = 40;
+    doc.setFontSize(9);
+    doc.text("Código | Cliente | Ruta | Placas | Conductor | Estado", 14, y);
+    y += 4;
+    doc.line(14, y, 195, y);
+    y += 6;
+
+    serviciosEmp.slice(0, 25).forEach(s => {
+      if (y > 280) {
+        doc.addPage();
+        y = 20;
+      }
+      const linea = `${s.cod_servicio} | ${(s.cliente || '').substring(0, 18)} | ${s.placa_tracto} | ${(s.conductor_nombre || '').substring(0, 15)} | ${s.estado}`;
+      doc.text(linea, 14, y);
+      y += 6;
+    });
+
+    doc.save(`NexaRuta_Reporte_${empId}_${Date.now()}.pdf`);
+    mostrarToast("Reporte PDF generado exitosamente", "success");
+  } catch(e) {
+    console.error("Error al generar PDF:", e);
+    mostrarToast("Generando reporte en formato imprimible...", "info");
+    window.print();
+  }
+}
+
+function descargarBaseDatosAutorizadaJSON() {
+  const data = JSON.stringify(DB_LOCAL, null, 2);
+  const blob = new Blob([data], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `NexaRuta_BaseDatos_${sesionActual.id_empresa}_${Date.now()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  mostrarToast("Base de datos descargada correctamente", "success");
+}
+
+// =========================================================================
+// ACCIÓN: ENTRAR A GESTIONAR COMO EMPRESA DESDE SUPER ADMIN (DIRECTORIO)
+// =========================================================================
+function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
+  sesionActual.id_empresa = idEmpresa;
+  abrirPortalSupervisor('ADMINISTRATIVO');
+  mostrarToast(`Ingresaste al Portal de ${obtenerNombreEmpresa(idEmpresa)}`, "info");
+}
+
 
     function inicializarMapaLeaflet(lat, lng, popupHtml) {
       const contMapa = document.getElementById("contenedor-mapa-leaflet");
@@ -6185,6 +8053,11 @@
                         </button>
                       </div>
 
+                      
+                      <button onclick="abrirPortalEmpresaDesdeSuperAdmin('${e.id}')" class="w-full py-2 bg-gradient-to-r from-turquoise-600 to-teal-600 hover:from-turquoise-500 hover:to-teal-500 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 shadow-2xs transition cursor-pointer" title="Entrar al Portal de esta Empresa con menú 01 al 08">
+                        <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                        <span>Entrar a Gestionar como Empresa (01 al 08)</span>
+                      </button>
                       <div class="flex items-center justify-between text-[11px] pt-1 text-slate-400">
                         <button onclick="abrirModalCrearEmpresaAdmin('${e.id}')" class="text-blue-600 hover:underline font-semibold flex items-center space-x-1 cursor-pointer">
                           <i data-lucide="edit-2" class="w-3 h-3"></i><span>Editar Empresa</span>
@@ -8448,6 +10321,10 @@
                 <i data-lucide="user-plus" class="w-4 h-4"></i>
                 <span>+ Crear Usuario para esta Empresa</span>
               </button>
+              <button onclick="abrirPortalEmpresaDesdeSuperAdmin('${emp.id}')" class="px-3.5 py-2 bg-gradient-to-r from-turquoise-600 to-teal-600 hover:from-turquoise-500 hover:to-teal-500 text-white font-bold text-xs rounded-xl flex items-center space-x-1.5 shadow-sm transition cursor-pointer">
+                <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                <span>Gestionar Portal de Empresa (01 al 08)</span>
+              </button>
               <button onclick="mostrarSeccionSupervisor('programacion')" class="px-3.5 py-2 bg-navy-900 hover:bg-navy-800 text-white font-bold text-xs rounded-xl flex items-center space-x-1.5 shadow-sm transition cursor-pointer">
                 <i data-lucide="calendar-plus" class="w-4 h-4 text-turquoise-400"></i>
                 <span>Programar Ruta</span>
@@ -9342,12 +11219,14 @@
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Rol / Perfil del Sistema: *</label>
           <select id="form-usr-rol" onchange="actualizarVisibilidadCamposRol()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-navy-900 focus:ring-2 focus:ring-turquoise-500 outline-none">
-            <option value="ADMINISTRATIVO" selected>💼 Administrativo (Programar y modificar, usuarios y reportes)</option>
-            <option value="PROGRAMADOR">📋 Programador (Asignar rutas, conductor, placas y flota)</option>
-            <option value="SEGUIMIENTO">📡 Operaciones / Seguimiento (Monitoreo satelital en vivo - Solo Lectura)</option>
-            <option value="GERENCIA">📊 Gerencia (Dashboard ejecutivo y KPIs de flota - Solo Lectura)</option>
-            <option value="INVITADO">🏢 Cliente Invitado (Consulta exclusiva de despachos de su empresa)</option>
-            <option value="ADMIN_GENERAL">👑 Administrador General (Control Total del Sistema)</option>
+            <option value="ADMINISTRATIVO" selected>1. Administrador (Web completa - Gestión total de la empresa)</option>
+            <option value="PROGRAMADOR">2. Programación (Web - Asignar servicios, rutas, placas y choferes)</option>
+            <option value="OPERACIONES">3. Operaciones (Web - Control y seguimiento de operaciones en ruta)</option>
+            <option value="CONSULTA">4. Consulta (Web - Visualización ejecutiva y monitoreo solo lectura)</option>
+            <option value="MANTENIMIENTO">5. Mantenimiento (Web - Control mecánico, odómetros y flota)</option>
+            <option value="CONDUCTOR">6. Conductor (App móvil - Odómetro, GPS satelital y fotos de entrega)</option>
+            <option value="AUXILIAR">7. Auxiliar (App móvil - Asistente de ruta y carga)</option>
+            <option value="ADMIN_GENERAL">👑 Administrador General (Máxima Autoridad - Control Supremo)</option>
           </select>
         </div>
 
