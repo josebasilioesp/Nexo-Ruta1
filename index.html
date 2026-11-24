@@ -386,7 +386,7 @@
         <!-- Opción de Consentimiento de Privacidad Obligatoria (Ley 29733 de Perú) -->
         <div class="pt-1">
           <label class="flex items-start space-x-2.5 text-[11px] text-slate-600 cursor-pointer">
-            <input type="checkbox" id="chk-privacidad" required checked class="mt-0.5 rounded text-turquoise-600 focus:ring-turquoise-500 border-slate-300">
+            <input type="checkbox" id="chk-privacidad" required class="mt-0.5 rounded text-turquoise-600 focus:ring-turquoise-500 border-slate-300">
             <span>
               He leído y acepto la 
               <a href="javascript:void(0)" onclick="abrirModalPrivacidad()" class="text-turquoise-700 hover:text-turquoise-800 font-bold underline">Política de Privacidad y Tratamiento de Datos Personales</a> (Ley N° 29733 de Protección de Datos Personales del Perú).
@@ -1513,15 +1513,22 @@
         <button onclick="cerrarModal('modal-registrar-km')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
       </div>
       <div class="space-y-3 text-xs">
-        <div><span class="text-[10px] text-slate-500 uppercase font-bold block">Tracto:</span><strong class="text-navy-900 font-mono" id="km-lbl-tracto">-</strong></div>
-        <div class="grid grid-cols-2 gap-2">
-          <label class="p-2 border border-slate-200 rounded-xl flex items-center space-x-2 cursor-pointer bg-slate-50">
+        <div class="flex items-center justify-between">
+          <div><span class="text-[10px] text-slate-500 uppercase font-bold block">Tracto:</span><strong class="text-navy-900 font-mono" id="km-lbl-tracto">-</strong></div>
+          <div id="km-lbl-resumen" class="text-[10px] text-slate-500 font-mono text-right"></div>
+        </div>
+        <div class="grid grid-cols-3 gap-1.5">
+          <label class="p-2 border border-slate-200 rounded-xl flex items-center space-x-1.5 cursor-pointer bg-slate-50 hover:border-turquoise-500">
             <input type="radio" name="km-tipo" value="INICIAL" checked class="text-turquoise-600">
-            <span class="font-bold text-slate-800">Inicial (Salida)</span>
+            <span class="font-bold text-slate-800 text-[11px]">Inicial</span>
           </label>
-          <label class="p-2 border border-slate-200 rounded-xl flex items-center space-x-2 cursor-pointer bg-slate-50">
+          <label class="p-2 border border-slate-200 rounded-xl flex items-center space-x-1.5 cursor-pointer bg-slate-50 hover:border-turquoise-500">
+            <input type="radio" name="km-tipo" value="ACTUAL" class="text-turquoise-600">
+            <span class="font-bold text-slate-800 text-[11px]">Actual</span>
+          </label>
+          <label class="p-2 border border-slate-200 rounded-xl flex items-center space-x-1.5 cursor-pointer bg-slate-50 hover:border-turquoise-500">
             <input type="radio" name="km-tipo" value="FINAL" class="text-turquoise-600">
-            <span class="font-bold text-slate-800">Final (Cierre)</span>
+            <span class="font-bold text-slate-800 text-[11px]">Final</span>
           </label>
         </div>
         <div>
@@ -1551,6 +1558,7 @@
             <option value="Avería">Avería mecánica del tracto o carreta</option>
             <option value="Problema con la carga">Problema con la carga / Daño</option>
             <option value="Dificultad de acceso">Dificultad de acceso al punto de descarga</option>
+            <option value="Observación de Ruta">Observación / Novedad de Ruta</option>
             <option value="Otro">Otro problema operativo</option>
           </select>
         </div>
@@ -2390,6 +2398,20 @@
           });
         }
       }
+
+      // 9. Restaurar incidencias y observaciones reportadas
+      const incGuardadas = localStorage.getItem("NEXA_RUTA_INCIDENCIAS_CUSTOM");
+      if (incGuardadas) {
+        const parsedInc = JSON.parse(incGuardadas);
+        if (Array.isArray(parsedInc) && parsedInc.length > 0) {
+          DB_LOCAL.incidencias = DB_LOCAL.incidencias || [];
+          parsedInc.forEach(inc => {
+            if (!DB_LOCAL.incidencias.some(x => x.id_incidencia === inc.id_incidencia)) {
+              DB_LOCAL.incidencias.unshift(inc);
+            }
+          });
+        }
+      }
     } catch(e) {
       console.warn("Aviso al restaurar base de datos local:", e);
     }
@@ -2409,6 +2431,9 @@
         }
         if (DB_LOCAL.servicios) {
           localStorage.setItem("NEXA_RUTA_SERVICIOS_CUSTOM", JSON.stringify(DB_LOCAL.servicios));
+        }
+        if (DB_LOCAL.incidencias) {
+          localStorage.setItem("NEXA_RUTA_INCIDENCIAS_CUSTOM", JSON.stringify(DB_LOCAL.incidencias.slice(0, 100)));
         }
       } catch(e) {}
     }
@@ -2486,14 +2511,64 @@
           });
         }
 
-        // Purgar también cualquier residuo en NEXA_RUTA_USUARIOS_CUSTOM
+        // Restaurar usuarios creados manualmente desde localStorage
         if (localStorage.getItem("NEXA_RUTA_USUARIOS_CUSTOM")) {
           try {
             let customU = JSON.parse(localStorage.getItem("NEXA_RUTA_USUARIOS_CUSTOM") || "[]");
             customU = customU.filter(u => !uEliminados.includes((u.usuario || "").toLowerCase()));
+            customU.forEach(u => {
+              const uNom = (u.usuario || "").toLowerCase();
+              const esOficial = CUENTAS_AUTORIZADAS_OFICIALES.some(c => c.toLowerCase() === uNom || c.toLowerCase().split('@')[0] === uNom);
+              if (esOficial || u.creado_manualmente === true) {
+                const idxU = (DB_LOCAL.usuarios || []).findIndex(x => (x.usuario || "").toLowerCase() === uNom);
+                if (idxU >= 0) DB_LOCAL.usuarios[idxU] = { ...DB_LOCAL.usuarios[idxU], ...u };
+                else DB_LOCAL.usuarios.push(u);
+              }
+            });
             localStorage.setItem("NEXA_RUTA_USUARIOS_CUSTOM", JSON.stringify(customU));
           } catch(e) {}
         }
+
+        // Restaurar conductores, ubicaciones, evidencias, servicios e incidencias actualizados entre pestañas
+        try {
+          const cGuard = JSON.parse(localStorage.getItem("NEXA_RUTA_CONDUCTORES_CUSTOM") || "[]");
+          if (Array.isArray(cGuard)) {
+            cGuard.forEach(c => {
+              const idx = (DB_LOCAL.conductores || []).findIndex(x => x.id_conductor === c.id_conductor || (x.dni && c.dni && x.dni === c.dni));
+              if (idx >= 0) DB_LOCAL.conductores[idx] = { ...DB_LOCAL.conductores[idx], ...c };
+              else DB_LOCAL.conductores.push(c);
+            });
+          }
+          const evGuard = JSON.parse(localStorage.getItem("NEXA_RUTA_EVIDENCIAS_CUSTOM") || "[]");
+          if (Array.isArray(evGuard)) {
+            DB_LOCAL.evidencias = DB_LOCAL.evidencias || [];
+            evGuard.forEach(ev => {
+              if (!DB_LOCAL.evidencias.some(x => x.id_evidencia === ev.id_evidencia)) DB_LOCAL.evidencias.unshift(ev);
+            });
+          }
+          const ubGuard = JSON.parse(localStorage.getItem("NEXA_RUTA_UBICACIONES_CUSTOM") || "[]");
+          if (Array.isArray(ubGuard)) {
+            DB_LOCAL.ubicaciones = DB_LOCAL.ubicaciones || [];
+            ubGuard.forEach(ub => {
+              if (!DB_LOCAL.ubicaciones.some(x => x.id_ubicacion === ub.id_ubicacion)) DB_LOCAL.ubicaciones.unshift(ub);
+            });
+          }
+          const svGuard = JSON.parse(localStorage.getItem("NEXA_RUTA_SERVICIOS_CUSTOM") || "[]");
+          if (Array.isArray(svGuard)) {
+            svGuard.forEach(s => {
+              const idx = (DB_LOCAL.servicios || []).findIndex(x => x.cod_servicio === s.cod_servicio);
+              if (idx >= 0) DB_LOCAL.servicios[idx] = { ...DB_LOCAL.servicios[idx], ...s };
+              else DB_LOCAL.servicios.unshift(s);
+            });
+          }
+          const incGuard = JSON.parse(localStorage.getItem("NEXA_RUTA_INCIDENCIAS_CUSTOM") || "[]");
+          if (Array.isArray(incGuard)) {
+            DB_LOCAL.incidencias = DB_LOCAL.incidencias || [];
+            incGuard.forEach(inc => {
+              if (!DB_LOCAL.incidencias.some(x => x.id_incidencia === inc.id_incidencia)) DB_LOCAL.incidencias.unshift(inc);
+            });
+          }
+        } catch(e) {}
       } catch(e) {}
     }
 
@@ -2540,7 +2615,18 @@
     function refrescarVistaActualEnVivo(data) {
       if (!sesionActual) return;
 
-      // 1. Si hay un modal abierto (como el de Registrar Conductor), ¡NO TOCAR LA PANTALLA!
+      // 1. Si está abierto el modal de Ver Ficha de Servicio, actualizar su contenido en vivo con el último GPS/KM/Incidencias
+      const modalFicha = document.getElementById("modal-detalle-servicio-dialog");
+      if (modalFicha) {
+        const codAbierto = modalFicha.getAttribute("data-cod-servicio");
+        if (codAbierto && typeof abrirModalDetalleServicioOficial === "function") {
+          modalFicha.remove();
+          abrirModalDetalleServicioOficial(codAbierto);
+          return;
+        }
+      }
+
+      // Si hay otro modal abierto (como el de Registrar Conductor), ¡NO TOCAR LA PANTALLA!
       const algunModalAbierto = document.querySelector(".fixed.inset-0:not(.hidden)");
       if (algunModalAbierto) return;
 
@@ -2723,11 +2809,12 @@
                 pass: passEnNube,
                 rol: uCloud.ROL || uCloud.rol || "CONDUCTOR",
                 id_empresa: uCloud.ID_EMPRESA || uCloud.id_empresa || "TRP-001",
-                id_conductor: uCloud.ID_CONDUCTOR || uCloud.id_conductor || "",
+                id_conductor: uCloud.ID_CONDUCTOR || uCloud.id_conductor || (idx >= 0 ? DB_LOCAL.usuarios[idx].id_conductor : "") || "",
                 nombre: uCloud.NOMBRE_COMPLETO || uCloud.nombre || uKey,
                 dni: String(uCloud.DNI || uCloud.dni || ""),
                 telefono: String(uCloud.TELEFONO || uCloud.telefono || ""),
-                estado: uCloud.ESTADO || uCloud.estado || "ACTIVO"
+                estado: uCloud.ESTADO || uCloud.estado || "ACTIVO",
+                creado_manualmente: (idx >= 0 && DB_LOCAL.usuarios[idx].creado_manualmente) || uCloud.creado_manualmente || false
               };
               if (idx >= 0) {
                 DB_LOCAL.usuarios[idx] = { ...DB_LOCAL.usuarios[idx], ...uNorm };
@@ -2894,7 +2981,16 @@
               if (idxU >= 0) {
                 DB_LOCAL.ubicaciones[idxU] = { ...DB_LOCAL.ubicaciones[idxU], ...uNorm };
               } else {
-                DB_LOCAL.ubicaciones.push(uNorm);
+                DB_LOCAL.ubicaciones.unshift(uNorm);
+              }
+              if (uNorm.cod_servicio && uNorm.latitud && Math.abs(uNorm.latitud) > 0.01) {
+                const srvU = (DB_LOCAL.servicios || []).find(sx => sx.cod_servicio === uNorm.cod_servicio);
+                if (srvU && !srvU.gps_timestamp) {
+                  srvU.latitud = uNorm.latitud;
+                  srvU.longitud = uNorm.longitud;
+                  if (uNorm.parada) srvU.parada_actual = uNorm.parada;
+                  if (uNorm.fecha_hora_captura) srvU.gps_ultima_fecha = uNorm.fecha_hora_captura;
+                }
               }
 
               // Actualizar posición del conductor si tiene coordenadas válidas
@@ -2946,6 +3042,7 @@
                 if (sCloud.ESTADO_OPERATIVO) DB_LOCAL.servicios[idx].estado = sCloud.ESTADO_OPERATIVO;
                 if (sCloud.PARADA_ACTUAL) DB_LOCAL.servicios[idx].parada_actual = sCloud.PARADA_ACTUAL;
                 if (sCloud.KM_INICIAL) DB_LOCAL.servicios[idx].km_inicial = sCloud.KM_INICIAL;
+                if (sCloud.KM_ACTUAL) DB_LOCAL.servicios[idx].km_actual = sCloud.KM_ACTUAL;
                 if (sCloud.KM_FINAL) DB_LOCAL.servicios[idx].km_final = sCloud.KM_FINAL;
                 if (sCloud.ID_CONDUCTOR) DB_LOCAL.servicios[idx].id_conductor = sCloud.ID_CONDUCTOR;
                 if (sCloud.PLACA_TRACTO) DB_LOCAL.servicios[idx].placa_tracto = sCloud.PLACA_TRACTO;
@@ -2989,6 +3086,33 @@
           if (data.spreadsheetUrl) {
             GOOGLE_SPREADSHEET_URL = data.spreadsheetUrl;
             DB_LOCAL.spreadsheetUrl = data.spreadsheetUrl;
+          }
+
+          // 7. SINCRONIZAR INCIDENCIAS DESDE GOOGLE SHEETS
+          if (Array.isArray(data.incidencias) && data.incidencias.length > 0) {
+            DB_LOCAL.incidencias = DB_LOCAL.incidencias || [];
+            data.incidencias.forEach(incCloud => {
+              const idInc = incCloud.ID_INCIDENCIA || incCloud.id_incidencia;
+              if (!idInc) return;
+              const incNorm = {
+                id_incidencia: idInc,
+                cod_servicio: incCloud.COD_SERVICIO || incCloud.cod_servicio || "",
+                id_empresa: incCloud.ID_EMPRESA || incCloud.id_empresa || "TRP-001",
+                conductor: incCloud.CONDUCTOR || incCloud.ID_CONDUCTOR || incCloud.conductor || "Conductor",
+                parada: incCloud.PARADA || incCloud.parada || "En ruta",
+                tipo: incCloud.TIPO_INCIDENCIA || incCloud.tipo || "Incidencia",
+                descripcion: incCloud.DESCRIPCION || incCloud.descripcion || "",
+                estado: incCloud.ESTADO_INCIDENCIA || incCloud.estado || "ABIERTA",
+                accion_admin: incCloud.ACCION_ADMIN || incCloud.accion_admin || "Pendiente",
+                fecha: incCloud.FECHA_HORA_REPORTE || incCloud.fecha || ""
+              };
+              const idxInc = DB_LOCAL.incidencias.findIndex(x => x.id_incidencia === idInc);
+              if (idxInc >= 0) {
+                DB_LOCAL.incidencias[idxInc] = { ...DB_LOCAL.incidencias[idxInc], ...incNorm };
+              } else {
+                DB_LOCAL.incidencias.unshift(incNorm);
+              }
+            });
           }
 
           sincronizarUsuariosYConductoresUnificados();
@@ -3220,11 +3344,12 @@
         return;
       }
 
-      // 10. Búsqueda de usuarios en DB_LOCAL.usuarios (por Usuario o por DNI)
+      // 10. Búsqueda de usuarios en DB_LOCAL.usuarios (por Usuario, alias sin @ o DNI)
       const usuarioCreado = (DB_LOCAL.usuarios || []).find(u => {
         const uNom = (u.usuario || "").trim().toLowerCase();
+        const uAlias = uNom.includes("@") ? uNom.split("@")[0] : "";
         const uDni = String(u.dni || "").trim();
-        const coincideUsuario = (uNom === uUser || uDni === uUser);
+        const coincideUsuario = (uNom === uUser || uDni === uUser || (uAlias && uAlias === uUser));
         if (!coincideUsuario) return false;
 
         const uPass = (u.pass || "").trim();
@@ -3242,7 +3367,7 @@
       });
 
       if (usuarioCreado) {
-        if (usuarioCreado.estado !== "ACTIVO") {
+        if (String(usuarioCreado.estado || "ACTIVO").trim().toUpperCase() !== "ACTIVO") {
           if (btnSubmit) {
             btnSubmit.disabled = false;
             btnSubmit.innerHTML = '<span>Ingresar</span><i data-lucide="arrow-right" class="w-4 h-4"></i>';
@@ -3258,8 +3383,9 @@
         return;
       }
 
-      // 11. Búsqueda directa en Conductores de Flota (por DNI, ID_CONDUCTOR o Nombre)
+      // 11. Búsqueda directa en Conductores de Flota (por Usuario Login, DNI, ID_CONDUCTOR, Licencia o Nombre)
       const cndMatch = (DB_LOCAL.conductores || []).find(c => 
+        (c.usuario_login || "").trim().toLowerCase() === uUser ||
         String(c.dni || "").trim() === uUser || 
         (c.id_conductor || "").trim().toLowerCase() === uUser || 
         (c.licencia || "").trim().toLowerCase() === uUser ||
@@ -3276,14 +3402,14 @@
           passLimpia === "conductor" ||
           passLimpia === String(cndMatch.dni).trim() || 
           passLimpia === "RutaAndinos!3658" || 
-          (cndMatch.pass && (cndMatch.pass === passLimpia || cndMatch.pass === pass))
+          (cndMatch.pass && (cndMatch.pass.trim() === passLimpia || cndMatch.pass === pass))
         );
 
         if (passValidaCnd) {
           const sesionCnd = {
             id: cndMatch.id_usuario || ("USR-" + cndMatch.id_conductor),
-            usuario: cndMatch.dni || cndMatch.id_conductor,
-            rol: "CONDUCTOR",
+            usuario: cndMatch.usuario_login || cndMatch.dni || cndMatch.id_conductor,
+            rol: String(cndMatch.rol || "CONDUCTOR").toUpperCase(),
             id_empresa: cndMatch.id_empresa || "TRP-001",
             id_conductor: cndMatch.id_conductor,
             nombre: cndMatch.nombre,
@@ -3307,15 +3433,23 @@
           if (data && data.status === "OK" && data.usuario) {
             const usuarioAutenticado = {
               id: data.usuario.id_usuario || data.usuario.id || ("USR-" + Date.now()),
-              usuario: user,
-              rol: data.usuario.rol,
-              id_empresa: data.usuario.id_empresa,
+              usuario: (data.usuario.usuario || user).toLowerCase(),
+              pass: passLimpia,
+              rol: String(data.usuario.rol || "CONDUCTOR").trim().toUpperCase(),
+              id_empresa: data.usuario.id_empresa || "TRP-001",
               nombre: data.usuario.nombre_completo || data.usuario.nombre || user,
               dni: data.usuario.dni || "",
               telefono: data.usuario.telefono || "",
               id_conductor: data.usuario.id_conductor || "",
-              estado: "ACTIVO"
+              estado: "ACTIVO",
+              creado_manualmente: true
             };
+            DB_LOCAL.usuarios = DB_LOCAL.usuarios || [];
+            const idxAuth = DB_LOCAL.usuarios.findIndex(x => (x.usuario || "").toLowerCase() === usuarioAutenticado.usuario);
+            if (idxAuth >= 0) DB_LOCAL.usuarios[idxAuth] = { ...DB_LOCAL.usuarios[idxAuth], ...usuarioAutenticado };
+            else DB_LOCAL.usuarios.push(usuarioAutenticado);
+            sincronizarUsuariosYConductoresUnificados();
+            persistirUsuariosYEmpresasLocales();
             if (btnSubmit) {
               btnSubmit.disabled = false;
               btnSubmit.innerHTML = '<span>Ingresar</span><i data-lucide="arrow-right" class="w-4 h-4"></i>';
@@ -3364,20 +3498,21 @@
       document.getElementById("lbl-logged-user-sub").textContent = usuario.rol;
       document.getElementById("lbl-avatar-initials").textContent = (usuario.nombre || usuario.usuario).substring(0, 2).toUpperCase();
 
-      if (usuario.rol === "ADMIN_GENERAL") {
+      const rolNorm = String(usuario.rol || "").trim().toUpperCase();
+      if (rolNorm === "ADMIN_GENERAL") {
         abrirPortalAdminGeneral();
-      } else if (usuario.rol === "INVITADO" || usuario.rol === "CLIENTE") {
+      } else if (rolNorm === "INVITADO" || rolNorm === "CLIENTE") {
         abrirPortalInvitado();
-      } else if (usuario.rol === "CONDUCTOR") {
+      } else if (rolNorm === "CONDUCTOR" || rolNorm === "AUXILIAR") {
         abrirPortalConductor();
       } else {
-        abrirPortalSupervisor(usuario.rol);
+        abrirPortalSupervisor(rolNorm || "ADMINISTRATIVO");
       }
 
       // Mostrar botón de menú hamburguesa en móvil para Supervisor y Admin
       const btnMenuMobile = document.getElementById("btn-mobile-menu-toggle");
       if (btnMenuMobile) {
-        if (usuario.rol === "CONDUCTOR") {
+        if (rolNorm === "CONDUCTOR" || rolNorm === "AUXILIAR") {
           btnMenuMobile.classList.add("hidden");
         } else {
           btnMenuMobile.classList.remove("hidden");
@@ -3426,6 +3561,8 @@
       toggleMenuMobile(false);
       document.getElementById("screen-login").classList.remove("hidden");
       document.getElementById("input-login-pass").value = "";
+      const chkPrivReset = document.getElementById("chk-privacidad");
+      if (chkPrivReset) chkPrivReset.checked = false;
       mostrarToast("Sesión finalizada", "info");
       lucide.createIcons();
     }
@@ -3529,11 +3666,39 @@ function abrirPortalConductor() {
       document.getElementById("sidebar-navy").classList.add("hidden");
       const main = document.getElementById("main-stage-area");
       
-      const cndFicha = (DB_LOCAL.conductores || []).find(c => 
+      let cndFicha = (DB_LOCAL.conductores || []).find(c => 
         (sesionActual.id_conductor && c.id_conductor === sesionActual.id_conductor) ||
-        (sesionActual.dni && c.dni === sesionActual.dni) ||
-        (sesionActual.nombre && c.nombre.toLowerCase().includes(sesionActual.nombre.toLowerCase()))
-      ) || DB_LOCAL.conductores[0];
+        (sesionActual.usuario && c.usuario_login && c.usuario_login.toLowerCase() === sesionActual.usuario.toLowerCase()) ||
+        (sesionActual.dni && c.dni && String(c.dni).trim() === String(sesionActual.dni).trim()) ||
+        (sesionActual.nombre && c.nombre && c.nombre.toLowerCase() === sesionActual.nombre.toLowerCase())
+      );
+
+      if (!cndFicha && sesionActual) {
+        cndFicha = {
+          id_conductor: sesionActual.id_conductor || ("CND-" + (sesionActual.id ? String(sesionActual.id).replace(/[^0-9]/g, '').slice(-4) : Date.now().toString().slice(-4))),
+          id_usuario: sesionActual.id || "",
+          id_empresa: sesionActual.id_empresa || "TRP-001",
+          nombre: sesionActual.nombre || sesionActual.usuario || "Conductor",
+          dni: sesionActual.dni || "00000000",
+          licencia: "Q" + (sesionActual.dni || "40000000"),
+          categoria: "A-IIIc",
+          vencimiento: "31/12/2028",
+          telefono: sesionActual.telefono || "999888777",
+          foto: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
+          estado: "Disponible",
+          placa_tracto: sesionActual.placa_tracto || "V7X-890",
+          placa_carreta: sesionActual.placa_carreta || "TC8-120",
+          usuario_login: (sesionActual.usuario || "").toLowerCase(),
+          creado_manualmente: true,
+          latitud: -12.0463,
+          longitud: -77.0427,
+          precision_m: 10,
+          ultima_actualizacion: "Conectado en App Móvil"
+        };
+        DB_LOCAL.conductores = DB_LOCAL.conductores || [];
+        DB_LOCAL.conductores.push(cndFicha);
+        persistirUsuariosYEmpresasLocales();
+      }
 
       let misServicios = (DB_LOCAL.servicios || []).filter(s => 
         (cndFicha && s.id_conductor === cndFicha.id_conductor) || 
@@ -3657,8 +3822,9 @@ function abrirPortalConductor() {
       const cndFicha = (DB_LOCAL.conductores || []).find(c => 
         (srv.id_conductor && c.id_conductor === srv.id_conductor) ||
         (sesionActual && sesionActual.id_conductor && c.id_conductor === sesionActual.id_conductor) ||
-        (sesionActual && sesionActual.dni && String(c.dni) === String(sesionActual.dni)) ||
-        (sesionActual && sesionActual.nombre && c.nombre.toLowerCase().includes(sesionActual.nombre.toLowerCase()))
+        (sesionActual && sesionActual.usuario && c.usuario_login && c.usuario_login.toLowerCase() === sesionActual.usuario.toLowerCase()) ||
+        (sesionActual && sesionActual.dni && c.dni && String(c.dni) === String(sesionActual.dni)) ||
+        (sesionActual && sesionActual.nombre && c.nombre && c.nombre.toLowerCase() === sesionActual.nombre.toLowerCase())
       ) || (DB_LOCAL.conductores && DB_LOCAL.conductores[0]);
 
       const cndNombre = cndFicha ? cndFicha.nombre : (srv.conductor_nombre || (sesionActual ? sesionActual.nombre : 'Conductor'));
@@ -3720,8 +3886,11 @@ function abrirPortalConductor() {
             <div class="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-navy-800 font-mono">
               <div><span class="text-[9px] text-slate-400 block">TRACTO:</span><strong>${srv.placa_tracto}</strong></div>
               <div><span class="text-[9px] text-slate-400 block">CARRETA:</span><strong>${srv.placa_carreta}</strong></div>
-              <div><span class="text-[9px] text-slate-400 block">KM INICIAL:</span><strong>${srv.km_inicial ? srv.km_inicial.toLocaleString() : '148,500'} km</strong></div>
-              <div><span class="text-[9px] text-slate-400 block">KM ACTUAL:</span><strong>${srv.km_actual ? srv.km_actual.toLocaleString() : (srv.km_inicial ? srv.km_inicial.toLocaleString() : '148,500')} km</strong></div>
+            </div>
+            <div class="grid grid-cols-3 gap-2 text-xs pt-2 border-t border-navy-800/70 font-mono">
+              <div><span class="text-[9px] text-slate-400 block">KM INICIAL:</span><strong>${srv.km_inicial ? Number(srv.km_inicial).toLocaleString() : '148,500'} km</strong></div>
+              <div><span class="text-[9px] text-slate-400 block">KM ACTUAL:</span><strong class="text-turquoise-300">${srv.km_actual ? Number(srv.km_actual).toLocaleString() : (srv.km_inicial ? Number(srv.km_inicial).toLocaleString() : '148,500')} km</strong></div>
+              <div><span class="text-[9px] text-slate-400 block">KM FINAL:</span><strong class="text-emerald-300">${srv.km_final ? Number(srv.km_final).toLocaleString() + ' km' : 'En ruta'}</strong></div>
             </div>
 
             ${srv.cantidad_destinos > 1 && srv.estado === "En descarga" ? `
@@ -5229,21 +5398,57 @@ function abrirModalDetalleServicioOficial(codServicio) {
   const s = (DB_LOCAL.servicios || []).find(x => x.cod_servicio === codServicio);
   if (!s) return;
 
-  // 1. RESOLVER COORDENADAS GPS DINÁMICAS EN TIEMPO REAL REGISTRADAS POR EL CONDUCTOR
-  const ultUbi = (DB_LOCAL.ubicaciones || []).find(u => u.cod_servicio === codServicio && u.latitud) 
-    || (DB_LOCAL.evidencias || []).find(e => e.cod_servicio === codServicio && e.latitud)
-    || null;
+  // 1. RESOLVER COORDENADAS GPS MÁS RECIENTES REGISTRADAS POR EL CONDUCTOR
+  const ubicacionesSrv = (DB_LOCAL.ubicaciones || []).filter(u => u.cod_servicio === codServicio && u.latitud && Math.abs(Number(u.latitud)) > 0.01);
+  // Ordenar por timestamp si existe (el más reciente primero)
+  ubicacionesSrv.sort((a, b) => (Number(b.timestamp || 0) - Number(a.timestamp || 0)));
+  const ultUbi = ubicacionesSrv[0] || null;
+
+  const evidenciasGps = (DB_LOCAL.evidencias || []).filter(e => e.cod_servicio === codServicio && e.latitud && Math.abs(Number(e.latitud)) > 0.01);
+  const ultEvGps = evidenciasGps[0] || null;
 
   const cnd = (DB_LOCAL.conductores || []).find(c => 
     c.id_conductor === s.id_conductor || 
-    (s.conductor_nombre && c.nombre.toLowerCase().includes(s.conductor_nombre.toLowerCase()))
+    (s.conductor_nombre && c.nombre && c.nombre.toLowerCase().includes(s.conductor_nombre.toLowerCase()))
   );
 
-  let latReal = (ultUbi && ultUbi.latitud) || s.latitud || (cnd && cnd.latitud);
-  let lngReal = (ultUbi && ultUbi.longitud) || s.longitud || (cnd && cnd.longitud);
-  let lugarReal = (ultUbi && ultUbi.parada) || s.parada_actual || (cnd && cnd.ultima_actualizacion) || s.destino || "En ruta";
-  let fechaGps = (ultUbi && (ultUbi.fecha_hora_captura || ultUbi.fecha_recepcion)) || (cnd && cnd.ultima_actualizacion) || "En tiempo real";
-  let precisionGps = (ultUbi && ultUbi.precision_metros) || (cnd && cnd.precision_m) || 12;
+  let latReal = null;
+  let lngReal = null;
+  let lugarReal = s.parada_actual || s.destino || "En ruta";
+  let fechaGps = s.gps_ultima_fecha || "En tiempo real";
+  let precisionGps = s.gps_precision || 12;
+
+  // Prioridad 1: Si el servicio tiene gps_timestamp más reciente o igual que la última ubicación
+  const tsServicio = Number(s.gps_timestamp || 0);
+  const tsUbi = Number((ultUbi && ultUbi.timestamp) || 0);
+
+  if (tsServicio > 0 && tsServicio >= tsUbi && s.latitud && Math.abs(Number(s.latitud)) > 0.01) {
+    latReal = Number(s.latitud);
+    lngReal = Number(s.longitud);
+    lugarReal = s.parada_actual || lugarReal;
+    fechaGps = s.gps_ultima_fecha || fechaGps;
+    precisionGps = s.gps_precision || 12;
+  } else if (ultUbi) {
+    latReal = Number(ultUbi.latitud);
+    lngReal = Number(ultUbi.longitud);
+    lugarReal = ultUbi.parada || s.parada_actual || lugarReal;
+    fechaGps = ultUbi.fecha_hora_captura || ultUbi.fecha_recepcion || fechaGps;
+    precisionGps = ultUbi.precision_metros || 12;
+  } else if (s.latitud && s.longitud && Math.abs(Number(s.latitud)) > 0.01) {
+    latReal = Number(s.latitud);
+    lngReal = Number(s.longitud);
+  } else if (ultEvGps) {
+    latReal = Number(ultEvGps.latitud);
+    lngReal = Number(ultEvGps.longitud);
+    lugarReal = ultEvGps.parada || lugarReal;
+    fechaGps = ultEvGps.fecha_captura || fechaGps;
+    precisionGps = ultEvGps.precision_metros || 12;
+  } else if (cnd && cnd.latitud && Math.abs(Number(cnd.latitud)) > 0.01) {
+    latReal = Number(cnd.latitud);
+    lngReal = Number(cnd.longitud);
+    fechaGps = cnd.ultima_actualizacion || fechaGps;
+    precisionGps = cnd.precision_m || 12;
+  }
 
   // Fallback inteligente por geocodificación de ciudades del Perú si no hay satélite activo
   if (!latReal || !lngReal || (Math.abs(Number(latReal)) < 0.001)) {
@@ -5258,20 +5463,44 @@ function abrirModalDetalleServicioOficial(codServicio) {
     }
   }
 
-  // Odómetro y kilometrajes registrados
-  const kmIni = s.km_inicial || 148500;
-  const kmAct = s.km_actual || s.km_inicial || 148500;
-  const kmFin = s.km_final || null;
-  const kmRecorrido = Math.max(0, kmAct - kmIni);
+  // Odómetro y kilometrajes registrados (Inicial, Actual y Final)
+  const kmIni = Number(s.km_inicial || 148500);
+  const kmAct = Number(s.km_actual || s.km_inicial || 148500);
+  const kmFin = s.km_final ? Number(s.km_final) : null;
+  const kmBaseCalculo = kmFin || kmAct;
+  const kmRecorrido = Math.max(0, kmBaseCalculo - kmIni);
 
-  // Incidencias reportadas por el conductor para este servicio
-  const incidenciasSrv = (DB_LOCAL.incidencias || []).filter(inc => inc.cod_servicio === s.cod_servicio);
+  // Incidencias y observaciones reportadas por el conductor para este servicio (deduplicadas)
+  const mapaIncidencias = new Map();
+  [...(DB_LOCAL.incidencias || []).filter(inc => inc.cod_servicio === s.cod_servicio), ...(s.incidencias || [])].forEach(inc => {
+    if (inc && inc.id_incidencia && !mapaIncidencias.has(inc.id_incidencia)) {
+      mapaIncidencias.set(inc.id_incidencia, inc);
+    }
+  });
+  // También incluir registros de incidencias/observaciones en eventos_historial si no estuvieran ya
+  const eventosSrv = s.eventos_historial || [];
+  eventosSrv.forEach((ev, idxEv) => {
+    if (ev && ev.evento && (ev.evento.includes('INCIDENCIA') || ev.evento.includes('OBSERVACIÓN')) && !Array.from(mapaIncidencias.values()).some(x => x.descripcion === ev.observacion)) {
+      mapaIncidencias.set('EVT-INC-' + idxEv, {
+        id_incidencia: 'EVT-INC-' + idxEv,
+        tipo: ev.evento.replace('INCIDENCIA:', '').trim() || 'Incidencia / Observación',
+        descripcion: ev.observacion || ev.evento,
+        fecha: ev.fecha_hora || '',
+        conductor: s.conductor_nombre || 'Conductor'
+      });
+    }
+  });
+  const incidenciasSrv = Array.from(mapaIncidencias.values());
 
-  // Fotos de evidencia
-  const fotosSrv = s.evidencias && s.evidencias.length > 0 ? s.evidencias : (DB_LOCAL.evidencias || []).filter(e => e.cod_servicio === s.cod_servicio);
+  // Fotos de evidencia (unir globales + servicio sin duplicar)
+  const mapaFotos = new Map();
+  [...(s.evidencias || []), ...(DB_LOCAL.evidencias || []).filter(e => e.cod_servicio === s.cod_servicio)].forEach(e => {
+    if (e && e.id_evidencia && !mapaFotos.has(e.id_evidencia)) mapaFotos.set(e.id_evidencia, e);
+  });
+  const fotosSrv = Array.from(mapaFotos.values());
 
   const modalHtml = `
-    <div id="modal-detalle-servicio-dialog" class="fixed inset-0 bg-navy-950/80 backdrop-blur-2xs z-50 flex items-center justify-center p-3 animate-in fade-in duration-150">
+    <div id="modal-detalle-servicio-dialog" data-cod-servicio="${s.cod_servicio}" class="fixed inset-0 bg-navy-950/80 backdrop-blur-2xs z-50 flex items-center justify-center p-3 animate-in fade-in duration-150">
       <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 overflow-y-auto max-h-[92vh] space-y-5">
         <!-- Header -->
         <div class="flex items-center justify-between pb-3 border-b border-slate-200">
@@ -5373,36 +5602,77 @@ function abrirModalDetalleServicioOficial(codServicio) {
           </div>
         </div>
 
-        <!-- INCIDENCIAS REGISTRADAS POR EL CONDUCTOR -->
+        <!-- INCIDENCIAS Y OBSERVACIONES REPORTADAS POR EL CONDUCTOR -->
         <div class="p-3.5 bg-amber-50/80 rounded-2xl border border-amber-200 text-xs text-amber-950 space-y-2">
           <div class="flex items-center justify-between">
             <strong class="font-bold flex items-center space-x-1 text-amber-900">
               <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600"></i>
               <span>Incidencias y Observaciones Reportadas por el Conductor:</span>
             </strong>
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-200 text-amber-900">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${incidenciasSrv.length > 0 ? 'bg-rose-600 text-white' : 'bg-amber-200 text-amber-900'}">
               ${incidenciasSrv.length} incidente(s)
             </span>
           </div>
           ${incidenciasSrv.length === 0 ? `
             <p class="text-[11px] text-amber-800 bg-white/70 p-2.5 rounded-xl border border-amber-100">
-              ${s.instrucciones || 'Sin incidencias mecánicas reportadas. Operación y tránsito en autopista en condiciones normales.'}
+              Sin incidencias reportadas por el conductor hasta el momento.
             </p>
           ` : `
             <div class="space-y-1.5">
               ${incidenciasSrv.map(inc => `
-                <div class="p-2.5 bg-white rounded-xl border border-amber-200 shadow-2xs space-y-1">
+                <div class="p-2.5 bg-white rounded-xl border border-amber-300 shadow-2xs space-y-1">
                   <div class="flex items-center justify-between">
-                    <span class="font-bold text-amber-900 text-[11px]">${inc.tipo || 'Incidencia'}</span>
-                    <span class="text-[9px] font-mono text-slate-400">${inc.fecha || ''}</span>
+                    <span class="font-bold text-rose-700 text-[11px]">⚠️ ${inc.tipo || 'Incidencia'}</span>
+                    <span class="text-[9px] font-mono text-slate-500">${inc.fecha || ''}</span>
                   </div>
-                  <p class="text-[11px] text-slate-700">${inc.descripcion}</p>
-                  <span class="text-[9px] font-semibold text-amber-700 block">Reportado por: ${inc.conductor || s.conductor_nombre}</span>
+                  <p class="text-[11px] text-slate-800 font-medium">${inc.descripcion}</p>
+                  <div class="flex items-center justify-between text-[9px] text-amber-800 pt-0.5">
+                    <span class="font-semibold">Reportado por: ${inc.conductor || s.conductor_nombre || 'Conductor'}</span>
+                    ${inc.parada ? `<span class="font-mono text-slate-500">Ubicación: ${inc.parada}</span>` : ''}
+                  </div>
                 </div>
               `).join('')}
             </div>
           `}
+          ${s.instrucciones ? `
+            <div class="p-2 bg-white/60 rounded-xl border border-amber-100 text-[10px] text-slate-600">
+              <strong class="text-slate-700">Observación / Instrucción asignada:</strong> ${s.instrucciones}
+            </div>
+          ` : ''}
         </div>
+
+        <!-- HISTORIAL EN VIVO DE GPS Y ODÓMETRO DEL CONDUCTOR -->
+        ${(ubicacionesSrv.length > 0 || eventosSrv.length > 0) ? `
+          <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-2">
+            <div class="flex items-center justify-between">
+              <strong class="font-bold text-navy-900 flex items-center space-x-1.5">
+                <i data-lucide="history" class="w-4 h-4 text-turquoise-600"></i>
+                <span>Historial Reciente de GPS, Odómetro y Eventos</span>
+              </strong>
+              <span class="text-[10px] text-slate-400 font-semibold">En tiempo real</span>
+            </div>
+            <div class="space-y-1.5 max-h-36 overflow-y-auto pr-1">
+              ${ubicacionesSrv.slice(0, 4).map(ub => `
+                <div class="p-2 bg-white rounded-xl border border-rose-100 flex items-center justify-between text-[10px]">
+                  <div>
+                    <strong class="text-rose-700">📍 GPS: ${ub.parada || 'En ruta'}</strong>
+                    <span class="text-slate-500 block font-mono">${Number(ub.latitud).toFixed(5)}, ${Number(ub.longitud).toFixed(5)} (±${Math.round(ub.precision_metros || 12)}m)</span>
+                  </div>
+                  <span class="text-slate-400 font-mono text-right">${ub.fecha_hora_captura || ub.fecha_recepcion || ''}</span>
+                </div>
+              `).join('')}
+              ${eventosSrv.slice(0, 5).map(ev => `
+                <div class="p-2 bg-white rounded-xl border border-slate-100 flex items-center justify-between text-[10px]">
+                  <div class="pr-2">
+                    <strong class="text-navy-900 block">${ev.evento}</strong>
+                    <span class="text-slate-500 block">${ev.observacion || ev.ubicacion || ''}</span>
+                  </div>
+                  <span class="text-slate-400 font-mono shrink-0">${ev.fecha_hora || ''}</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
 
         <!-- Evidencias Fotográficas Reales Subidas por el Conductor -->
         <div class="space-y-2">
@@ -7070,7 +7340,7 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
       const cat = document.getElementById("sup-cnd-cat").value;
       const tracto = document.getElementById("sup-cnd-tracto").value;
       const carreta = document.getElementById("sup-cnd-carreta").value;
-      const user = document.getElementById("sup-cnd-user").value.trim();
+      const user = document.getElementById("sup-cnd-user").value.trim().toLowerCase();
       const pass = document.getElementById("sup-cnd-pass").value.trim();
 
       if (!nombres || !apellidos || !dni || !user || !pass) {
@@ -7094,11 +7364,21 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
         estado: "Disponible",
         placa_tracto: tracto,
         placa_carreta: carreta,
+        pass: pass,
+        rol: "CONDUCTOR",
+        usuario_login: user,
+        creado_manualmente: true,
         latitud: -12.0463,
         longitud: -77.0427,
         precision_m: 10,
         ultima_actualizacion: "Recién registrado"
       };
+
+      try {
+        let uElim = JSON.parse(localStorage.getItem("NEXA_RUTA_USUARIOS_ELIMINADOS") || "[]");
+        uElim = uElim.filter(x => x.toLowerCase() !== user);
+        localStorage.setItem("NEXA_RUTA_USUARIOS_ELIMINADOS", JSON.stringify(uElim));
+      } catch(e) {}
 
       const nuevoUsuario = {
         id: "USR-" + Date.now().toString().slice(-4),
@@ -7110,7 +7390,10 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
         nombre: nombreCompleto,
         dni: dni,
         telefono: tel,
-        estado: "ACTIVO"
+        placa_tracto: tracto,
+        placa_carreta: carreta,
+        estado: "ACTIVO",
+        creado_manualmente: true
       };
 
       // 1. INSERTAR DE INMEDIATO EN PANTALLA (APARECE EN EL SEGUNDO CERO)
@@ -9781,8 +10064,22 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
     }
 
     function abrirModalRegistrarKm(codServicio, placaTracto) {
-      document.getElementById("km-lbl-tracto").textContent = placaTracto;
-      document.getElementById("km-input-valor").value = "";
+      const srv = (DB_LOCAL.servicios || []).find(s => s.cod_servicio === codServicio) || servicioActivoSeleccionado;
+      if (srv) servicioActivoSeleccionado = srv;
+      document.getElementById("km-lbl-tracto").textContent = placaTracto || (srv ? srv.placa_tracto : "-");
+      const elResumen = document.getElementById("km-lbl-resumen");
+      if (elResumen && srv) {
+        elResumen.innerHTML = `Ini: <b>${srv.km_inicial || '-'}</b> | Act: <b>${srv.km_actual || '-'}</b> | Fin: <b>${srv.km_final || '-'}</b>`;
+      }
+      const inKm = document.getElementById("km-input-valor");
+      if (inKm) {
+        inKm.value = "";
+        inKm.placeholder = srv ? `Actual: ${srv.km_actual || srv.km_inicial || 148500}` : "Ej. 148520";
+      }
+      // Preseleccionar ACTUAL si ya se registró el inicial y no se ha cerrado el viaje
+      const tipoDefault = (srv && srv.km_inicial && !srv.km_final) ? "ACTUAL" : "INICIAL";
+      const radioDef = document.querySelector(`input[name="km-tipo"][value="${tipoDefault}"]`);
+      if (radioDef) radioDef.checked = true;
       document.getElementById("modal-registrar-km").classList.remove("hidden");
     }
 
@@ -9797,8 +10094,8 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
         return;
       }
 
-      if (tipo === "FINAL" && srv && srv.km_inicial && valor < srv.km_inicial) {
-        mostrarToast(`El km final (${valor}) no puede ser menor al inicial (${srv.km_inicial})`, "error");
+      if ((tipo === "FINAL" || tipo === "ACTUAL") && srv && srv.km_inicial && valor < Number(srv.km_inicial)) {
+        mostrarToast(`El km ${tipo.toLowerCase()} (${valor}) no puede ser menor al inicial (${srv.km_inicial})`, "error");
         return;
       }
 
@@ -9807,8 +10104,10 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
       if (srv) {
         if (tipo === "INICIAL") {
           srv.km_inicial = valor;
-          srv.km_actual = valor;
-          srv.estado = "En camino al punto de carga";
+          if (!srv.km_actual || Number(srv.km_actual) < valor) srv.km_actual = valor;
+          if (!srv.estado || srv.estado === "Asignado" || srv.estado === "Programado") {
+            srv.estado = "En camino al punto de carga";
+          }
         } else if (tipo === "FINAL") {
           srv.km_final = valor;
           srv.km_actual = valor;
@@ -9824,17 +10123,17 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
         srv.eventos_historial = srv.eventos_historial || [];
         srv.eventos_historial.unshift({
           fecha_hora: fechaHora,
-          evento: `ODÓMETRO: ${tipo} (${valor.toLocaleString()} km)`,
+          evento: `ODÓMETRO ${tipo}: ${valor.toLocaleString()} km`,
           odometro: valor,
           ubicacion: srv.parada_actual || "En ruta",
-          observacion: `Kilometraje registrado por conductor: ${valor.toLocaleString()} km (+${kmRec.toLocaleString()} km recorridos)`
+          observacion: `Kilometraje ${tipo} registrado por conductor: ${valor.toLocaleString()} km (+${kmRec.toLocaleString()} km recorridos)`
         });
 
         // Actualizar conductor
         const cnd = (DB_LOCAL.conductores || []).find(c => c.id_conductor === srv.id_conductor);
         if (cnd) {
           if (tipo === "FINAL") cnd.estado = "Disponible";
-          cnd.ultima_actualizacion = `Km: ${valor.toLocaleString()} • ${fechaHora}`;
+          cnd.ultima_actualizacion = `Km ${tipo}: ${valor.toLocaleString()} • ${fechaHora}`;
         }
 
         guardarBaseDatosLocal(false);
@@ -9847,29 +10146,30 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
           tipo_registro: tipo
         });
 
-        // Sincronizar con Google Sheets
-        if (APPS_SCRIPT_URL) {
-          fetch(APPS_SCRIPT_URL, {
-            method: "POST",
-            body: JSON.stringify({
-              action: "conductor/reportar_odometro",
-              token: sesionActual ? sesionActual.token : "",
-              cod_servicio: srv.cod_servicio,
-              tipo_km: tipo,
-              valor_km: valor,
-              id_conductor: srv.id_conductor
-            })
-          }).catch(err => console.warn("Sync Sheets Odometro:", err));
-        }
+        // Encolar y sincronizar con Google Sheets
+        const payloadKm = {
+          action: "conductor/reportar_odometro",
+          token: sesionActual ? sesionActual.token : "",
+          cod_servicio: srv.cod_servicio,
+          id_empresa: srv.id_empresa || (sesionActual ? sesionActual.id_empresa : "TRP-001"),
+          placa_tracto: srv.placa_tracto || "V7X-890",
+          tipo_km: tipo,
+          tipo_lectura: tipo,
+          valor_km: valor,
+          id_conductor: srv.id_conductor || (sesionActual ? sesionActual.id_conductor : ""),
+          conductor: srv.conductor_nombre || (sesionActual ? sesionActual.nombre : "Conductor")
+        };
+        encolarPendiente(payloadKm);
+        enviarPendientesNube().catch(err => console.warn("Sync Sheets Odometro:", err));
       }
 
       cerrarModal("modal-registrar-km");
-      mostrarToast(`Kilometraje ${tipo} (${valor.toLocaleString()} km) registrado con éxito`, "success");
+      mostrarToast(`✅ Kilometraje ${tipo} (${valor.toLocaleString()} km) registrado con éxito`, "success");
       if (srv) abrirDetalleServicioConductor(srv.cod_servicio);
     }
 
     let servicioGpsSeleccionado = null;
-    let lecturaGpsConductor = { lat: -12.0463, lng: -77.0427, precision: 10, fecha_hora: "" };
+    let lecturaGpsConductor = { lat: -12.0463, lng: -77.0427, precision: 10, fecha_hora: "", satelital: false };
 
     function abrirModalRegistrarGpsConductor(codServicio) {
       let srv = (DB_LOCAL.servicios || []).find(s => s.cod_servicio === codServicio);
@@ -9896,12 +10196,13 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
       const elFechaHora = document.getElementById("cnd-gps-fecha-hora");
       if (elFechaHora) elFechaHora.textContent = fechaHoraActual;
 
-      const procesarPosicion = (lat, lng, prec) => {
+      const procesarPosicion = (lat, lng, prec, esSatelital = false) => {
         lecturaGpsConductor = {
           lat: lat,
           lng: lng,
           precision: prec,
-          fecha_hora: fechaHoraActual
+          fecha_hora: fechaHoraActual,
+          satelital: esSatelital
         };
 
         const elCoords = document.getElementById("cnd-gps-coords");
@@ -9922,17 +10223,18 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
       if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition(
           (pos) => {
-            procesarPosicion(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy);
+            procesarPosicion(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy, true);
             mostrarToast(`GPS satelital detectado (±${Math.round(pos.coords.accuracy)}m)`, "success");
           },
           (err) => {
             console.warn("GPS timeout/denegado, usando última ubicación conocida:", err);
-            // Fallback con la última posición conocida del conductor o Lima
-            const cnd = (DB_LOCAL.conductores || []).find(c => sesionActual && c.nombre.toLowerCase().includes(sesionActual.nombre.toLowerCase())) || DB_LOCAL.conductores[0];
-            const latDef = (cnd && cnd.latitud) ? cnd.latitud : -12.0463;
-            const lngDef = (cnd && cnd.longitud) ? cnd.longitud : -77.0427;
-            procesarPosicion(latDef, lngDef, 15);
-            mostrarToast("No se pudo obtener señal satelital en vivo. Verifica que la Ubicación/GPS esté encendida en tu celular.", "warning");
+            const lugarTxt = document.getElementById("cnd-gps-lugar") ? document.getElementById("cnd-gps-lugar").value : "";
+            const geoTxt = resolverCoordenadasPeruanas(lugarTxt);
+            const cnd = (DB_LOCAL.conductores || []).find(c => sesionActual && c.nombre && c.nombre.toLowerCase().includes(sesionActual.nombre.toLowerCase())) || DB_LOCAL.conductores[0];
+            const latDef = geoTxt ? geoTxt.lat : ((cnd && cnd.latitud) ? cnd.latitud : -12.0463);
+            const lngDef = geoTxt ? geoTxt.lng : ((cnd && cnd.longitud) ? cnd.longitud : -77.0427);
+            procesarPosicion(latDef, lngDef, 15, false);
+            mostrarToast("GPS sin señal en escritorio; se geolocalizará según el lugar registrado.", "info");
           },
           { enableHighAccuracy: true, timeout: 7000, maximumAge: 0 }
         );
@@ -9958,8 +10260,8 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
       let lng = lecturaGpsConductor.lng;
       let prec = lecturaGpsConductor.precision;
 
-      // Resolver coordenadas por ciudad si GPS no obtuvo señal satelital en vivo
-      if (!lat || Math.abs(Number(lat)) < 0.01 || (Number(lat) === -12.0463 && lugar && !lugar.toUpperCase().includes('LIMA'))) {
+      // Resolver coordenadas por ciudad si no proviene de satélite activo
+      if (!lecturaGpsConductor.satelital || !lat || Math.abs(Number(lat)) < 0.01) {
         const geoLugar = resolverCoordenadasPeruanas(lugar) || (srv ? resolverCoordenadasPeruanas(srv.parada_actual || srv.destino) : null);
         if (geoLugar) {
           lat = geoLugar.lat;
@@ -9968,11 +10270,16 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
         }
       }
 
-      // 1. Guardar evento en el servicio local
+      const ahoraTs = Date.now();
+
+      // 1. Guardar evento y última ubicación directamente en el servicio local
       if (srv) {
         srv.parada_actual = lugar;
         srv.latitud = lat;
         srv.longitud = lng;
+        srv.gps_ultima_fecha = fechaCaptura;
+        srv.gps_precision = prec;
+        srv.gps_timestamp = ahoraTs;
         srv.eventos_historial = srv.eventos_historial || [];
         srv.eventos_historial.unshift({
           fecha_hora: fechaCaptura,
@@ -10008,7 +10315,8 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
         longitud: lng,
         precision_metros: prec,
         fecha_hora_captura: fechaCaptura,
-        fecha_recepcion: fechaCaptura
+        fecha_recepcion: fechaCaptura,
+        timestamp: ahoraTs
       });
 
       guardarBaseDatosLocal(false);
@@ -10085,6 +10393,7 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
         cod_servicio: srv ? srv.cod_servicio : "SRV-ACTUAL",
         id_empresa: empId,
         conductor: cndNom,
+        parada: srv ? (srv.parada_actual || "En ruta") : "En ruta",
         tipo: tipo,
         descripcion: desc,
         estado: "ABIERTA",
@@ -10096,7 +10405,11 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
       DB_LOCAL.incidencias.unshift(nuevaIncidencia);
 
       if (srv) {
-        srv.estado = "Observado";
+        srv.incidencias = srv.incidencias || [];
+        srv.incidencias.unshift(nuevaIncidencia);
+        if (!tipo.toLowerCase().includes("observaci")) {
+          srv.estado = "Observado";
+        }
         srv.eventos_historial = srv.eventos_historial || [];
         srv.eventos_historial.unshift({
           fecha_hora: fechaHora,
@@ -10122,9 +10435,12 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
         action: "conductor/reportar_incidencia",
         token: sesionActual ? sesionActual.token : "",
         id_empresa: empId,
+        id_conductor: srv ? srv.id_conductor : (sesionActual ? sesionActual.id_conductor : ""),
         cod_servicio: srv ? srv.cod_servicio : "",
         conductor: cndNom,
+        parada: srv ? (srv.parada_actual || "En ruta") : "En ruta",
         tipo: tipo,
+        tipo_incidencia: tipo,
         descripcion: desc,
         fecha: fechaHora
       };
@@ -11639,7 +11955,8 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
 
         nuevoCnd = {
           id_conductor: idCndAsignado,
-          id_empresa: empresa,
+          id_usuario: nuevoUsr.id,
+          id_empresa: empAsignada,
           nombre: nombre || login,
           dni: dni || ("4" + Math.floor(1000000 + Math.random() * 8999999)),
           licencia: lic || ("Q" + (dni || Math.floor(10000000 + Math.random() * 89999999))),
@@ -11653,6 +11970,7 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
           pass: pass,
           rol: rol,
           usuario_login: login,
+          creado_manualmente: true,
           latitud: -12.0463,
           longitud: -77.0427,
           precision_m: 5,
@@ -11820,7 +12138,8 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
               categoria: cat,
               placa_tracto: tracto,
               placa_carreta: carreta,
-              estado: est
+              estado: est,
+              creado_manualmente: true
             });
           });
 

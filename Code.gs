@@ -444,27 +444,38 @@ function procesarApiGetInterno(params) {
   }
 
   
-  if (action === 'conductor/reportar_odometro') {
+  if (action === 'conductor/reportar_odometro' || action === 'conductor/registrar_kilometraje') {
     let payload = params;
     if (params.data) {
       try { payload = JSON.parse(params.data); } catch(e) {}
     }
-    const ss = obtenerSpreadsheet();
-    const sheetSrv = ss.getSheetByName("Servicios");
-    if (sheetSrv && payload.cod_servicio) {
-      const dataSrv = sheetSrv.getDataRange().getValues();
-      for (let i = 1; i < dataSrv.length; i++) {
-        if (dataSrv[i][0] === payload.cod_servicio) {
-          if (payload.tipo_km === "INICIAL") sheetSrv.getRange(i + 1, 9).setValue(payload.valor_km);
-          if (payload.tipo_km === "FINAL") {
-            sheetSrv.getRange(i + 1, 10).setValue(payload.valor_km);
-            sheetSrv.getRange(i + 1, 11).setValue("Finalizado");
-          }
-          break;
-        }
-      }
+    const sKm = {
+      valido: true,
+      id_usuario: payload.id_conductor || "CONDUCTOR",
+      id_empresa: payload.id_empresa || "TRP-001",
+      nombre_completo: payload.conductor || "Conductor"
+    };
+    return jsonResponse(registrarKilometrajeConductor(sKm, {
+      ...payload,
+      tipo_lectura: payload.tipo_lectura || payload.tipo_km || "ACTUAL"
+    }));
+  }
+
+  if (action === 'conductor/reportar_incidencia') {
+    let payload = params;
+    if (params.data) {
+      try { payload = JSON.parse(params.data); } catch(e) {}
     }
-    return jsonResponse({ status: "OK", cod_servicio: payload.cod_servicio, km: payload.valor_km });
+    const sInc = {
+      valido: true,
+      id_usuario: payload.id_conductor || payload.conductor || "CONDUCTOR",
+      id_empresa: payload.id_empresa || "TRP-001",
+      nombre_completo: payload.conductor || "Conductor"
+    };
+    return jsonResponse(registrarIncidenciaConductor(sInc, {
+      ...payload,
+      tipo_incidencia: payload.tipo_incidencia || payload.tipo || "Demora"
+    }));
   }
 
   if (action === 'conductor/reportar_avance') {
@@ -1060,6 +1071,50 @@ function doPostInterno(e) {
       return jsonResponse(subirFotoEvidencia(sesionEv, payload));
     }
 
+    if (action === "conductor/reportar_odometro" || action === "conductor/registrar_kilometraje") {
+      let sKm = {
+        valido: true,
+        id_usuario: payload.id_conductor || "CONDUCTOR",
+        id_empresa: payload.id_empresa || "TRP-001",
+        nombre_completo: payload.conductor || "Conductor Nexa",
+        rol: "CONDUCTOR"
+      };
+      if (payload.token) {
+        try {
+          const s = validarTokenSesion(payload.token);
+          if (s && s.valido) sKm = s;
+        } catch(e) {}
+      }
+      return jsonResponse(registrarKilometrajeConductor(sKm, {
+        ...payload,
+        tipo_lectura: payload.tipo_lectura || payload.tipo_km || "ACTUAL"
+      }));
+    }
+
+    if (action === "conductor/reportar_incidencia") {
+      let sInc = {
+        valido: true,
+        id_usuario: payload.id_conductor || payload.conductor || "CONDUCTOR",
+        id_empresa: payload.id_empresa || "TRP-001",
+        nombre_completo: payload.conductor || "Conductor Nexa",
+        rol: "CONDUCTOR"
+      };
+      if (payload.token) {
+        try {
+          const s = validarTokenSesion(payload.token);
+          if (s && s.valido) sInc = s;
+        } catch(e) {}
+      }
+      return jsonResponse(registrarIncidenciaConductor(sInc, {
+        ...payload,
+        tipo_incidencia: payload.tipo_incidencia || payload.tipo || "Demora"
+      }));
+    }
+
+    if (action === "conductor/reportar_avance") {
+      return jsonResponse(actualizarEstadoOperativoDirecto(payload));
+    }
+
     // Acción pública: Login
     if (action === "auth/login") {
       return jsonResponse(procesarLogin(payload.usuario, payload.password));
@@ -1487,7 +1542,7 @@ function registrarKilometrajeConductor(sesion, payload) {
     }
   }
 
-  // Si es inicial o final, actualizar en la cabecera del servicio
+  // Si es inicial, actual o final, actualizar en la cabecera del servicio
   const dataSrv = sheetServicios.getDataRange().getValues();
   for (let s = 1; s < dataSrv.length; s++) {
     if (dataSrv[s][0] === codServicio) {
@@ -1495,6 +1550,7 @@ function registrarKilometrajeConductor(sesion, payload) {
         sheetServicios.getRange(s + 1, 13).setValue(valorKm);
       } else if (tipoLectura === "FINAL") {
         sheetServicios.getRange(s + 1, 14).setValue(valorKm);
+        sheetServicios.getRange(s + 1, 11).setValue("Finalizado");
       }
       break;
     }
@@ -2158,6 +2214,19 @@ function procesarLogin(usuario, password) {
 
       if (coincide) {
         sheetUsuarios.getRange(i + 1, 11).setValue(obtenerFechaHoraPeru());
+        let idCondVinculado = row[12] || "";
+        if (!idCondVinculado && String(row[2] || "").toUpperCase() === "CONDUCTOR") {
+          const sheetC = ss.getSheetByName("Conductores");
+          if (sheetC) {
+            const cRows = sheetC.getDataRange().getValues();
+            for (let k = 1; k < cRows.length; k++) {
+              if ((row[0] && String(cRows[k][1]) === String(row[0])) || (uDni && String(cRows[k][3]).trim().toLowerCase() === uDni)) {
+                idCondVinculado = cRows[k][0];
+                break;
+              }
+            }
+          }
+        }
         const token = generarTokenSesion(row[0], row[1], row[2], row[6]);
         return {
           status: "OK",
@@ -2171,7 +2240,7 @@ function procesarLogin(usuario, password) {
             dni: row[7],
             telefono: row[8],
             estado: row[9],
-            id_conductor: row[12] || ""
+            id_conductor: idCondVinculado
           }
         };
       }
