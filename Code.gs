@@ -388,6 +388,8 @@ function procesarApiGetInterno(params) {
       status: 'OK',
       mensaje: 'Conexión activa con Nexa Ruta Google Sheets',
       version: '2026.1',
+      build: BUILD_NEXA,
+      funciones_ok: diagnosticoFunciones(),
       spreadsheetUrl: ss ? ss.getUrl() : '',
       timestamp: obtenerFechaHoraPeru()
     });
@@ -1011,7 +1013,7 @@ function doPostInterno(e) {
 
     // Acción pública: Ping de verificación de estado
     if (action === "sistema/ping") {
-      return jsonResponse({ status: "OK", mensaje: "Conexión exitosa con Nexa Ruta Backend", version: "2026.1" });
+      return jsonResponse({ status: "OK", mensaje: "Conexión exitosa con Nexa Ruta Backend", version: "2026.1", build: BUILD_NEXA, funciones_ok: diagnosticoFunciones() });
     }
 
     if (action === "supervisor/asignar_ruta" || action === "supervisor/asignar_servicio" || action === "supervisor/modificar_programacion" || action === "supervisor/crear_programacion") {
@@ -2225,6 +2227,17 @@ function ejecutarRespaldoDiarioAutomatico() {
  * AUTENTICACIÓN, HASHING Y TOKENS SEGUROS (Sin contraseñas en texto plano)
  * =========================================================================================
  */
+
+// Identificador de esta versión del script. Abre ...exec?action=sistema/ping para ver cuál está publicada.
+const BUILD_NEXA = "2026-11-25-auth-v2";
+
+function diagnosticoFunciones() {
+  return {
+    hashPassword: typeof hashPassword === 'function',
+    crearUsuarioDirecto: typeof crearUsuarioDirecto === 'function',
+    procesarLogin: typeof procesarLogin === 'function'
+  };
+}
 
 function hashPassword(password, salt) {
   const raw = String(password || "") + String(salt || "");
