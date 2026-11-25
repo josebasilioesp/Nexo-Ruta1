@@ -2418,10 +2418,10 @@
 
     function persistirUsuariosYEmpresasLocales() {
       try {
-        localStorage.setItem("NEXA_RUTA_USUARIOS_CUSTOM", JSON.stringify(DB_LOCAL.usuarios));
+        localStorage.setItem("NEXA_RUTA_USUARIOS_CUSTOM", JSON.stringify((DB_LOCAL.usuarios || []).map(u => ({ ...u, pass: "" }))));
         localStorage.setItem("NEXA_RUTA_EMPRESAS_CUSTOM", JSON.stringify(DB_LOCAL.empresas));
         if (DB_LOCAL.conductores) {
-          localStorage.setItem("NEXA_RUTA_CONDUCTORES_CUSTOM", JSON.stringify(DB_LOCAL.conductores));
+          localStorage.setItem("NEXA_RUTA_CONDUCTORES_CUSTOM", JSON.stringify(DB_LOCAL.conductores.map(c => ({ ...c, pass: "" }))));
         }
         if (DB_LOCAL.evidencias) {
           localStorage.setItem("NEXA_RUTA_EVIDENCIAS_CUSTOM", JSON.stringify(DB_LOCAL.evidencias.slice(0, 50)));
@@ -2810,7 +2810,7 @@
               // NUNCA sobreescribir la contraseña de texto plano local con el hash SHA-256 de Google Sheets
               let passEnNube = (idx >= 0 && DB_LOCAL.usuarios[idx].pass && DB_LOCAL.usuarios[idx].pass.length < 30) ? DB_LOCAL.usuarios[idx].pass : null;
               if (!passEnNube) {
-                passEnNube = (uCloud.pass && uCloud.pass.length < 30) ? uCloud.pass : ((uCloud.password && uCloud.password.length < 30) ? uCloud.password : (uKey === 'admin' ? 'Nexa#Admin2026!' : 'Nexa#2026!'));
+                passEnNube = (uCloud.pass && uCloud.pass.length < 30) ? uCloud.pass : ((uCloud.password && uCloud.password.length < 30) ? uCloud.password : "");
               }
               const uNorm = {
                 id: uCloud.ID_USUARIO || uCloud.id || ("USR-" + Date.now()),
@@ -2844,7 +2844,9 @@
 
               // Regla estricta 1 conductor por empresa: Solo CND-001, CND-002, CND-003 o creados manualmente
               const esCndOficial = CONDUCTORES_AUTORIZADOS_IDS.includes(idCnd);
-              const esCndManual = cCloud.creado_manualmente === true || (DB_LOCAL.conductores || []).some(c => c.id_conductor === idCnd && c.creado_manualmente);
+              const esCndManual = cCloud.creado_manualmente === true
+                || (DB_LOCAL.conductores || []).some(c => c.id_conductor === idCnd && c.creado_manualmente)
+                || (DB_LOCAL.usuarios || []).some(u => u.creado_manualmente && ((u.id_conductor && u.id_conductor === idCnd) || (cCloud.ID_USUARIO && u.id === cCloud.ID_USUARIO)));
               if (!esCndOficial && !esCndManual) return;
 
               const idx = DB_LOCAL.conductores.findIndex(c => 
@@ -3305,7 +3307,7 @@
       let cuentaInmediata = null;
 
       const esPassValida = (passReq, passAlt = "Nexa#2026!") => {
-        return [passReq, passAlt, "123456", "admin123", "admin", "nexa2026", "Nexa2026!"].includes(passLimpia);
+        return [passReq, passAlt].includes(passLimpia);
       };
 
       // 1. Administrador General (Carlos Benítez)
@@ -3412,18 +3414,10 @@
         const coincideUsuario = (uNom === uUser || uDni === uUser || (uAlias && uAlias === uUser));
         if (!coincideUsuario) return false;
 
+        // La clave local solo existe en el dispositivo donde se creó la cuenta.
+        // En los demás dispositivos se valida contra Google Sheets (paso 12).
         const uPass = (u.pass || "").trim();
-        return (
-          uPass === passLimpia || 
-          uPass === pass || 
-          passLimpia === "123456" || 
-          passLimpia === "admin" || 
-          passLimpia === "admin123" || 
-          passLimpia === "nexa2026" || 
-          passLimpia === "Nexa#2026!" || 
-          passLimpia === uDni ||
-          passLimpia === uNom
-        );
+        return uPass !== "" && (uPass === passLimpia || uPass === pass);
       });
 
       if (usuarioCreado) {
@@ -3453,17 +3447,8 @@
       );
 
       if (cndMatch) {
-        const passValidaCnd = (
-          passLimpia === "Nexa#Cond2026!" || 
-          passLimpia === "Nexa#Cond2026" || 
-          passLimpia === "cond123" || 
-          passLimpia === "123456" || 
-          passLimpia === "admin" ||
-          passLimpia === "conductor" ||
-          passLimpia === String(cndMatch.dni).trim() || 
-          passLimpia === "RutaAndinos!3658" || 
-          (cndMatch.pass && (cndMatch.pass.trim() === passLimpia || cndMatch.pass === pass))
-        );
+        const passValidaCnd = !!(cndMatch.pass && String(cndMatch.pass).trim() !== "" &&
+          (String(cndMatch.pass).trim() === passLimpia || cndMatch.pass === pass));
 
         if (passValidaCnd) {
           const sesionCnd = {
@@ -11990,7 +11975,7 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
         mostrarToast("Debes ingresar un nombre de usuario", "error");
         return;
       }
-      if (!pass || pass.length < 5) {
+      if (!pass || pass.length < 6) {
         mostrarToast("La contraseña debe tener al menos 6 caracteres", "error");
         return;
       }
@@ -12088,26 +12073,40 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
       refrescarVistaUsuariosActual();
       mostrarToast(`✅ Usuario ${login} (${rol}) guardado con acceso completo listo`, "success");
 
-      // 2. Sincronizar en segundo plano con Google Sheets
+      // 2. Guardar en Google Sheets y comprobar que la cuenta realmente puede ingresar
       const payloadCrearUsuario = {
         action: "admin/crear_usuario",
         token: sesionActual ? sesionActual.token : "",
         nuevoUsuario: nuevoUsr,
         nuevoConductor: nuevoCnd
       };
-      try {
-        const res = await llamarApiGoogleSheets(payloadCrearUsuario);
-        if (res && res.status === "OK") {
-          mostrarToast(`✅ Usuario ${login} sincronizado con Google Sheets`, "info");
-        } else {
-          encolarPendiente(payloadCrearUsuario);
-          const msgErr = (res && res.mensaje) ? res.mensaje : "Sin respuesta de Google Sheets";
-          mostrarToast(`⚠️ Usuario creado localmente, pero Google Sheets reportó: ${msgErr}. Actualiza Code.gs en Apps Script para habilitar login remoto.`, "warning");
-        }
-      } catch(e) {
-        encolarPendiente(payloadCrearUsuario);
-        console.warn("Fallo guardando en nube, queda en cola:", e);
+      mostrarToast(`Guardando ${login} en Google Sheets...`, "info");
+      await registrarUsuarioEnNubeVerificado(payloadCrearUsuario, login, pass);
+    }
+
+    async function registrarUsuarioEnNubeVerificado(payload, login, pass) {
+      let res = null, motivo = "";
+      try { res = await llamarApiGoogleSheets(payload); } catch (e) { motivo = String(e && e.message || e); }
+      if (!res) {
+        motivo = motivo || "Sin respuesta de Google Sheets (revisa internet y que el Web App esté publicado con acceso 'Cualquier usuario').";
+      } else if (res.status !== "OK") {
+        motivo = res.mensaje || ("Respuesta del servidor: " + res.status);
       }
+      if (motivo) {
+        encolarPendiente(payload);
+        mostrarToast(`❌ ${login} NO se guardó en Google Sheets: ${motivo} Se reintentará solo; mientras tanto solo funciona en este dispositivo.`, "error");
+        return false;
+      }
+      // Prueba real: iniciar sesión en la nube con la clave recién creada
+      let chk = null;
+      try { chk = await llamarApiGoogleSheets({ action: "auth/login", usuario: login, password: pass }); } catch (e) {}
+      if (chk && chk.status === "OK") {
+        mostrarToast(`✅ ${login} guardado y verificado en Google Sheets: ya puede ingresar desde cualquier dispositivo.`, "success");
+        ejecutarSincronizacionBidireccional(false);
+        return true;
+      }
+      mostrarToast(`⚠️ ${login} se guardó en Sheets, pero la prueba de ingreso falló (${(chk && chk.mensaje) || "sin respuesta"}). Publica la nueva versión de Code.gs en Apps Script.`, "warning");
+      return false;
     }
 
     // =========================================================================

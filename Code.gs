@@ -2260,18 +2260,11 @@ function procesarLogin(usuario, password) {
         Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, pBuscado + "::" + salt, Utilities.Charset.UTF_8)
       );
 
-      const coincide = (passwordHashCalculado === passwordHashEsperado) ||
+      // Solo se acepta la clave real de la cuenta (hash) o, en filas antiguas, la clave guardada en texto.
+      const coincide = (passwordHashEsperado !== "") && (
+                       (passwordHashCalculado === passwordHashEsperado) ||
                        (passwordHashAlt === passwordHashEsperado) ||
-                       (passwordHashEsperado === pBuscado) ||
-                       (passwordHashEsperado === "") ||
-                       (pBuscado === "Nexa#Admin2026" || pBuscado === "Nexa#Admin2026!" || pBuscado === "admin123" || pBuscado === "admin" || pBuscado === "DemoAdmin!4826") ||
-                       (pBuscado === "Nexa#Super2026" || pBuscado === "Nexa#Super2026!" || pBuscado === "DemoAndinos!7142") ||
-                       (pBuscado === "Nexa#Cond2026" || pBuscado === "Nexa#Cond2026!" || pBuscado === "cond123" || pBuscado === "123456" || pBuscado === uDni || pBuscado === "RutaAndinos!3658") ||
-                       (pBuscado === "Nexa#Prog2026" || pBuscado === "Nexa#Prog2026!" || pBuscado === "prog123") ||
-                       (pBuscado === "Nexa#Seg2026" || pBuscado === "Nexa#Seg2026!" || pBuscado === "seg123") ||
-                       (pBuscado === "Nexa#Ger2026" || pBuscado === "Nexa#Ger2026!" || pBuscado === "ger123") ||
-                       (pBuscado === "Nexa#Mant2026" || pBuscado === "Nexa#Mant2026!" || pBuscado === "mant123") ||
-                       (pBuscado === "Nexa#Cli2026" || pBuscado === "Nexa#Cli2026!" || pBuscado === "cli123");
+                       (passwordHashEsperado === pBuscado));
 
       if (coincide) {
         sheetUsuarios.getRange(i + 1, 11).setValue(obtenerFechaHoraPeru());
@@ -2302,37 +2295,6 @@ function procesarLogin(usuario, password) {
             telefono: row[8],
             estado: row[9],
             id_conductor: idCondVinculado
-          }
-        };
-      }
-    }
-  }
-
-  // 2. Buscar directamente en pestaña Conductores (por DNI, ID_CONDUCTOR o NOMBRES)
-  const sheetCnd = ss.getSheetByName("Conductores");
-  if (sheetCnd) {
-    const cData = sheetCnd.getDataRange().getValues();
-    for (let j = 1; j < cData.length; j++) {
-      const rowC = cData[j];
-      const cId = String(rowC[0] || "").trim().toLowerCase();
-      const cNom = String(rowC[2] || "").trim().toLowerCase();
-      const cDni = String(rowC[3] || "").trim().toLowerCase();
-      const cLic = String(rowC[4] || "").trim().toLowerCase();
-
-      if (cId === uBuscado || cDni === uBuscado || cLic === uBuscado || cNom.includes(uBuscado)) {
-        const token = generarTokenSesion(rowC[0], rowC[1], "CONDUCTOR", rowC[2]);
-        return {
-          status: "OK",
-          token: token,
-          usuario: {
-            id_usuario: rowC[0],
-            id_empresa: rowC[1] || "TRP-001",
-            rol: "CONDUCTOR",
-            id_conductor: rowC[0],
-            nombre_completo: rowC[2],
-            dni: rowC[3],
-            telefono: rowC[7] || "",
-            estado: "ACTIVO"
           }
         };
       }
