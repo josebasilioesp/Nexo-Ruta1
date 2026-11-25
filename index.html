@@ -1699,7 +1699,7 @@
           body: JSON.stringify(payload)
         });
         const data = await res.json();
-        if (data && data.status) return data;
+        if (data && data.status && data.status !== "UNAUTHORIZED") return data;
       } catch (errPost) {
         console.warn("POST Apps Script bloqueado por navegador, intentando vía GET:", errPost);
       }
@@ -2696,8 +2696,16 @@
           if (res && res.status === "OK") {
             guardarPendientes(leerPendientes().filter(x => x._id !== item._id));
             enviados++;
+          } else if (res && (res.status === "UNAUTHORIZED" || res.status === "ERROR")) {
+            // Registrar intento sin bloquear elementos posteriores de la cola
+            const actual = leerPendientes().map(x => {
+              if (x._id !== item._id) return x;
+              return { ...x, intentos: (x.intentos || 0) + 1, ultimoError: res.mensaje || res.status };
+            }).filter(x => (x.intentos || 0) < 5);
+            guardarPendientes(actual);
+            continue;
           } else {
-            break; // sin conexión o error: se reintenta en el próximo ciclo
+            break; // sin conexión: se reintenta en el próximo ciclo
           }
         }
       } finally { enviandoPendientes = false; }
@@ -2793,9 +2801,10 @@
               // REGLA SUPREMA: Si el usuario fue eliminado por el administrador, NUNCA volver a añadirlo
               if (uEliminados.includes(uKey)) return;
 
-              // REGLA ESTRICTA 10 CUENTAS: Bloquear cualquier cuenta antigua no autorizada de Google Sheets
+              // REGLA ESTRICTA 10 CUENTAS + CREADOS MANUALMENTE DESDE WEB: Bloquear cuentas antiguas spam
               const esOficial = CUENTAS_AUTORIZADAS_OFICIALES.some(c => c.toLowerCase() === uKey || c.toLowerCase().split('@')[0] === uKey);
-              const esManual = uCloud.creado_manualmente === true || (DB_LOCAL.usuarios || []).some(u => (u.usuario || '').toLowerCase() === uKey && u.creado_manualmente);
+              const esCreadoWeb = (uCloud.ORIGEN_CREACION === "WEB_MANUAL" || uCloud.origen_creacion === "WEB_MANUAL");
+              const esManual = esCreadoWeb || uCloud.creado_manualmente === true || (DB_LOCAL.usuarios || []).some(u => (u.usuario || '').toLowerCase() === uKey && u.creado_manualmente);
               if (!esOficial && !esManual) return;
               const idx = DB_LOCAL.usuarios.findIndex(u => String(u.usuario || "").trim().toLowerCase() === uKey);
               // NUNCA sobreescribir la contraseña de texto plano local con el hash SHA-256 de Google Sheets
@@ -2814,7 +2823,7 @@
                 dni: String(uCloud.DNI || uCloud.dni || ""),
                 telefono: String(uCloud.TELEFONO || uCloud.telefono || ""),
                 estado: uCloud.ESTADO || uCloud.estado || "ACTIVO",
-                creado_manualmente: (idx >= 0 && DB_LOCAL.usuarios[idx].creado_manualmente) || uCloud.creado_manualmente || false
+                creado_manualmente: (idx >= 0 && DB_LOCAL.usuarios[idx].creado_manualmente) || esCreadoWeb || uCloud.creado_manualmente || false
               };
               if (idx >= 0) {
                 DB_LOCAL.usuarios[idx] = { ...DB_LOCAL.usuarios[idx], ...uNorm };
@@ -3008,26 +3017,77 @@
             });
           }
 
-          // 6. SINCRONIZAR EVENTOS HISTÓRICOS DESDE GOOGLE SHEETS
+          // 6. SINCRONIZAR EVENTOS HISTÓRICOS Y OBSERVACIONES DESDE GOOGLE SHEETS
           if (Array.isArray(data.eventos) && data.eventos.length > 0) {
             DB_LOCAL.eventos = DB_LOCAL.eventos || [];
+            DB_LOCAL.incidencias = DB_LOCAL.incidencias || [];
             data.eventos.forEach(evtCloud => {
               const idEvt = evtCloud.ID_EVENTO || evtCloud.id_evento;
               if (!idEvt) return;
+              const codSrvEvt = String(evtCloud.COD_SERVICIO || evtCloud.cod_servicio || "");
+              const empEvt = String(evtCloud.ID_EMPRESA || evtCloud.id_empresa || "TRP-001");
+              const condEvt = String(evtCloud.ID_CONDUCTOR || evtCloud.conductor || "");
+              const rawTitulo = evtCloud.EVENTO || evtCloud.ESTADO_OPERATIVO || evtCloud.evento || "Registro Operativo";
+              const lugarEvt = String(evtCloud.LUGAR || evtCloud.PARADA || evtCloud.lugar || "En ruta");
+              const obsEvt = String(evtCloud.OBSERVACION || evtCloud.DETALLE || evtCloud.observacion || "");
+              const fechaEvt = String(evtCloud.FECHA_HORA_CAPTURA || evtCloud.FECHA_HORA || evtCloud.fecha_hora || "");
+              const tituloEvt = (typeof rawTitulo === "number" || /^\d+$/.test(String(rawTitulo)))
+                ? (obsEvt.includes("Lat:") ? `REPORTE GPS: ${lugarEvt} (${rawTitulo} km)` : `ODÓMETRO: ${rawTitulo} km`)
+                : String(rawTitulo);
+
               const evtNorm = {
                 id_evento: idEvt,
-                cod_servicio: evtCloud.COD_SERVICIO || evtCloud.cod_servicio || "",
-                evento: evtCloud.EVENTO || evtCloud.evento || "Registro Operativo",
+                cod_servicio: codSrvEvt,
+                id_empresa: empEvt,
+                conductor: condEvt,
+                evento: tituloEvt,
                 odometro: evtCloud.ODOMETRO || evtCloud.odometro || 0,
-                lugar: evtCloud.LUGAR || evtCloud.lugar || "En ruta",
-                observacion: evtCloud.DETALLE || evtCloud.observacion || "",
-                fecha_hora: evtCloud.FECHA_HORA || evtCloud.fecha_hora || ""
+                lugar: lugarEvt,
+                ubicacion: lugarEvt,
+                observacion: obsEvt,
+                fecha_hora: fechaEvt
               };
               const idxEvt = DB_LOCAL.eventos.findIndex(e => e.id_evento === idEvt);
               if (idxEvt >= 0) {
                 DB_LOCAL.eventos[idxEvt] = { ...DB_LOCAL.eventos[idxEvt], ...evtNorm };
               } else {
-                DB_LOCAL.eventos.push(evtNorm);
+                DB_LOCAL.eventos.unshift(evtNorm);
+              }
+
+              // Vincular al historial del servicio correspondiente
+              if (codSrvEvt) {
+                const srvEvt = (DB_LOCAL.servicios || []).find(sx => sx.cod_servicio === codSrvEvt);
+                if (srvEvt) {
+                  srvEvt.eventos_historial = srvEvt.eventos_historial || [];
+                  if (!srvEvt.eventos_historial.some(h => h.id_evento === idEvt || (h.fecha_hora === fechaEvt && h.observacion === obsEvt))) {
+                    srvEvt.eventos_historial.unshift({
+                      id_evento: idEvt,
+                      fecha_hora: fechaEvt,
+                      evento: tituloEvt,
+                      odometro: evtNorm.odometro || srvEvt.km_actual || 0,
+                      ubicacion: lugarEvt,
+                      observacion: obsEvt
+                    });
+                  }
+                }
+              }
+
+              // Si el evento trae una incidencia / observación del conductor, mostrarla en incidencias también
+              if (String(tituloEvt).toUpperCase().includes("INCIDENCIA") || String(obsEvt).toUpperCase().includes("INCIDENCIA [")) {
+                if (!DB_LOCAL.incidencias.some(x => x.id_incidencia === idEvt || (x.cod_servicio === codSrvEvt && x.descripcion === obsEvt))) {
+                  DB_LOCAL.incidencias.unshift({
+                    id_incidencia: idEvt,
+                    cod_servicio: codSrvEvt,
+                    id_empresa: empEvt,
+                    conductor: condEvt || "Conductor",
+                    parada: lugarEvt,
+                    tipo: String(tituloEvt).replace("INCIDENCIA:", "").trim() || "Observación de Ruta",
+                    descripcion: obsEvt,
+                    estado: "ABIERTA",
+                    accion_admin: "Pendiente de revisión",
+                    fecha: fechaEvt
+                  });
+                }
               }
             });
           }
@@ -5480,12 +5540,16 @@ function abrirModalDetalleServicioOficial(codServicio) {
   // También incluir registros de incidencias/observaciones en eventos_historial si no estuvieran ya
   const eventosSrv = s.eventos_historial || [];
   eventosSrv.forEach((ev, idxEv) => {
-    if (ev && ev.evento && (ev.evento.includes('INCIDENCIA') || ev.evento.includes('OBSERVACIÓN')) && !Array.from(mapaIncidencias.values()).some(x => x.descripcion === ev.observacion)) {
+    const evTxt = String((ev && ev.evento) || '');
+    const obsTxt = String((ev && ev.observacion) || '');
+    const evUp = evTxt.toUpperCase();
+    const obsUp = obsTxt.toUpperCase();
+    if (ev && (evUp.includes('INCIDENCIA') || evUp.includes('OBSERVACI') || obsUp.includes('INCIDENCIA [')) && !Array.from(mapaIncidencias.values()).some(x => x.descripcion === obsTxt)) {
       mapaIncidencias.set('EVT-INC-' + idxEv, {
         id_incidencia: 'EVT-INC-' + idxEv,
-        tipo: ev.evento.replace('INCIDENCIA:', '').trim() || 'Incidencia / Observación',
-        descripcion: ev.observacion || ev.evento,
-        fecha: ev.fecha_hora || '',
+        tipo: evTxt.replace('INCIDENCIA:', '').trim() || 'Incidencia / Observación',
+        descripcion: obsTxt || evTxt,
+        fecha: String(ev.fecha_hora || ''),
         conductor: s.conductor_nombre || 'Conductor'
       });
     }
@@ -10430,10 +10494,11 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
         timestamp: Date.now()
       });
 
-      // Encolar y enviar a Google Sheets
+      // Encolar y enviar a Google Sheets inmediatamente (con respaldo por reportar_avance si la versión en nube exige token HMAC)
       const payloadIncidencia = {
         action: "conductor/reportar_incidencia",
         token: sesionActual ? sesionActual.token : "",
+        id_incidencia: nuevaIncidencia.id_incidencia,
         id_empresa: empId,
         id_conductor: srv ? srv.id_conductor : (sesionActual ? sesionActual.id_conductor : ""),
         cod_servicio: srv ? srv.cod_servicio : "",
@@ -10444,8 +10509,34 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
         descripcion: desc,
         fecha: fechaHora
       };
-      encolarPendiente(payloadIncidencia);
-      enviarPendientesNube().catch(e => console.warn("Sync Sheets Incidencia:", e));
+
+      (async () => {
+        try {
+          const resInc = await llamarApiGoogleSheets(payloadIncidencia);
+          if (resInc && resInc.status === "OK" && resInc.id_incidencia) {
+            mostrarToast("✅ Observación/incidencia sincronizada con Google Sheets", "info");
+            return;
+          }
+          // Respaldo compatible con Apps Script sin re-despliegue: registrar vía reportar_avance -> hoja Eventos
+          const payloadFallback = {
+            action: "conductor/reportar_avance",
+            cod_servicio: srv ? srv.cod_servicio : "",
+            id_empresa: empId,
+            id_conductor: cndNom,
+            nuevo_estado: srv ? srv.estado : "Observado",
+            parada: srv ? (srv.parada_actual || "En ruta") : "En ruta",
+            observacion: `INCIDENCIA [${tipo}]: ${desc} (Chofer: ${cndNom})`
+          };
+          const resFb = await llamarApiGoogleSheets(payloadFallback);
+          if (resFb && resFb.status === "OK") {
+            mostrarToast("✅ Observación enviada a la empresa vía Google Sheets", "info");
+          } else {
+            encolarPendiente(payloadIncidencia);
+          }
+        } catch(e) {
+          encolarPendiente(payloadIncidencia);
+        }
+      })();
 
       cerrarModal("modal-reportar-incidencia");
       mostrarToast("✅ Incidencia reportada y transmitida a la empresa en vivo", "success");
@@ -11998,16 +12089,23 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
       mostrarToast(`✅ Usuario ${login} (${rol}) guardado con acceso completo listo`, "success");
 
       // 2. Sincronizar en segundo plano con Google Sheets
+      const payloadCrearUsuario = {
+        action: "admin/crear_usuario",
+        token: sesionActual ? sesionActual.token : "",
+        nuevoUsuario: nuevoUsr,
+        nuevoConductor: nuevoCnd
+      };
       try {
-        const res = await llamarApiGoogleSheets({
-          action: "admin/crear_usuario",
-          nuevoUsuario: nuevoUsr,
-          nuevoConductor: nuevoCnd
-        });
+        const res = await llamarApiGoogleSheets(payloadCrearUsuario);
         if (res && res.status === "OK") {
           mostrarToast(`✅ Usuario ${login} sincronizado con Google Sheets`, "info");
+        } else {
+          encolarPendiente(payloadCrearUsuario);
+          const msgErr = (res && res.mensaje) ? res.mensaje : "Sin respuesta de Google Sheets";
+          mostrarToast(`⚠️ Usuario creado localmente, pero Google Sheets reportó: ${msgErr}. Actualiza Code.gs en Apps Script para habilitar login remoto.`, "warning");
         }
       } catch(e) {
+        encolarPendiente(payloadCrearUsuario);
         console.warn("Fallo guardando en nube, queda en cola:", e);
       }
     }

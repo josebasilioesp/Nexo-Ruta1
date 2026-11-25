@@ -772,14 +772,26 @@ function eliminarServicioDirecto(codServicio) {
 
 function crearUsuarioDirecto(u) {
   const ss = obtenerSpreadsheet();
-  const sheet = ss.getSheetByName('Usuarios');
-  if (!sheet) return;
+  let sheet = ss.getSheetByName('Usuarios');
+  if (!sheet) {
+    sheet = ss.insertSheet('Usuarios');
+    sheet.appendRow([
+      "ID_USUARIO", "ID_EMPRESA", "ROL", "USUARIO", "PASSWORD_HASH",
+      "SALT", "NOMBRE_COMPLETO", "DNI", "TELEFONO", "ESTADO", "ULTIMO_ACCESO", "ORIGEN_CREACION", "ID_CONDUCTOR"
+    ]);
+  }
+  const lastCol = Math.max(sheet.getLastColumn(), 1);
+  const headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0].map(String);
+  if (headers.indexOf('ORIGEN_CREACION') === -1) sheet.getRange(1, sheet.getLastColumn() + 1).setValue('ORIGEN_CREACION');
+  if (headers.indexOf('ID_CONDUCTOR') === -1) sheet.getRange(1, sheet.getLastColumn() + 1).setValue('ID_CONDUCTOR');
+
   const data = sheet.getDataRange().getValues();
   const userClean = (u.usuario || '').trim().toLowerCase();
   const pass = String(u.pass || u.password || 'Nexa#User2026!').trim();
   const rolLimpio = String(u.rol || 'CONDUCTOR').trim().toUpperCase();
   const empLimpia = String(u.id_empresa || u.empresa_ruc || u.empresa || 'TRP-001').trim();
   const nomLimpio = String(u.nombre || u.nombres || u.nombre_completo || u.nombres_apellidos || u.usuario || '').trim();
+  const idCndFinal = u.id_conductor || ((rolLimpio === 'CONDUCTOR' || rolLimpio === 'AUXILIAR') ? ('CND-' + Utilities.getUuid().substring(0, 4).toUpperCase()) : '');
 
   for (let i = 1; i < data.length; i++) {
     if (String(data[i][3]).toLowerCase() === userClean) {
@@ -794,7 +806,9 @@ function crearUsuarioDirecto(u) {
       if (u.dni) sheet.getRange(i + 1, 8).setValue(String(u.dni).trim());
       if (u.telefono) sheet.getRange(i + 1, 9).setValue(String(u.telefono).trim());
       sheet.getRange(i + 1, 10).setValue(u.estado || 'ACTIVO');
-      return;
+      sheet.getRange(i + 1, 12).setValue('WEB_MANUAL');
+      if (idCndFinal) sheet.getRange(i + 1, 13).setValue(idCndFinal);
+      return { status: 'OK', id_usuario: data[i][0], id_conductor: idCndFinal };
     }
   }
 
@@ -812,12 +826,14 @@ function crearUsuarioDirecto(u) {
     String(u.dni || '').trim(),
     String(u.telefono || '').trim(),
     u.estado || 'ACTIVO',
-    obtenerFechaHoraPeru()
+    obtenerFechaHoraPeru(),
+    'WEB_MANUAL',
+    idCndFinal
   ]);
 
-  if (rolLimpio === 'CONDUCTOR') {
+  if (rolLimpio === 'CONDUCTOR' || rolLimpio === 'AUXILIAR') {
     crearConductorDirecto({
-      id_conductor: u.id_conductor || ('CND-' + idUsuario.replace('USR-', '')),
+      id_conductor: idCndFinal || ('CND-' + idUsuario.replace('USR-', '')),
       id_usuario: idUsuario,
       id_empresa: empLimpia,
       dni: String(u.dni || '').trim(),
@@ -830,6 +846,7 @@ function crearUsuarioDirecto(u) {
       estado: 'Disponible'
     });
   }
+  return { status: 'OK', id_usuario: idUsuario, id_conductor: idCndFinal };
 }
 
 function asegurarColumnasConductores(sheet) {
@@ -1624,11 +1641,13 @@ function registrarUbicacionGps(sesion, payload) {
         "EVT-" + Utilities.getUuid().substring(0, 8),
         codServicio,
         idEmpresa,
-        "REPORTE_GPS: " + parada,
-        payload.odometro || 148500,
+        idUsuario,
+        "REPORTE GPS: " + parada,
         parada,
         "Lat: " + lat.toFixed(4) + ", Lng: " + lng.toFixed(4) + " (±" + Math.round(prec) + "m)",
-        fechaCaptura
+        fechaCaptura,
+        obtenerFechaHoraPeru(),
+        "APP_MOVIL"
       ]);
     } catch(errEvt) {}
   }
@@ -1648,17 +1667,24 @@ function registrarUbicacionGps(sesion, payload) {
  */
 function registrarIncidenciaConductor(sesion, payload) {
   const ss = obtenerSpreadsheet();
-  const sheetInc = ss.getSheetByName("Incidencias");
-  const sheetEvidencias = ss.getSheetByName("Evidencias");
+  let sheetInc = ss.getSheetByName("Incidencias");
+  if (!sheetInc) {
+    sheetInc = ss.insertSheet("Incidencias");
+    sheetInc.appendRow([
+      "ID_INCIDENCIA", "COD_SERVICIO", "ID_EMPRESA", "ID_CONDUCTOR",
+      "PARADA", "TIPO_INCIDENCIA", "DESCRIPCION", "ESTADO_INCIDENCIA",
+      "ACCION_ADMIN", "FECHA_HORA_REPORTE", "ID_EVIDENCIA_VINCULADA"
+    ]);
+  }
 
-  const idInc = "INC-" + Utilities.getUuid().substring(0, 8);
+  const idInc = payload.id_incidencia || ("INC-" + Utilities.getUuid().substring(0, 8));
   let idEvidenciaVinculada = payload.id_evidencia || "";
 
   // Si viene con foto adjunta para la incidencia
   if (payload.foto_base64 && !idEvidenciaVinculada) {
     const resFoto = subirFotoEvidencia(sesion, {
       cod_servicio: payload.cod_servicio,
-      tipo_evidencia: "Incidencia: " + payload.tipo_incidencia,
+      tipo_evidencia: "Incidencia: " + (payload.tipo_incidencia || payload.tipo || "Incidencia"),
       parada: payload.parada,
       observacion: payload.descripcion,
       foto_base64: payload.foto_base64,
@@ -1669,19 +1695,43 @@ function registrarIncidenciaConductor(sesion, payload) {
     idEvidenciaVinculada = resFoto.id_evidencia;
   }
 
+  const idEmpFinal = payload.id_empresa || (sesion && sesion.id_empresa) || "TRP-001";
+  const cndFinal = payload.conductor || (sesion && sesion.nombre_completo) || payload.id_conductor || "Conductor";
+  const tipoFinal = payload.tipo_incidencia || payload.tipo || "Demora";
+  const fechaFinal = payload.fecha || obtenerFechaHoraPeru();
+
   sheetInc.appendRow([
     idInc,
-    payload.cod_servicio,
-    sesion.id_empresa,
-    sesion.id_usuario,
+    payload.cod_servicio || "",
+    idEmpFinal,
+    cndFinal,
     payload.parada || "En ruta",
-    payload.tipo_incidencia || "Demora",
-    payload.descripcion,
+    tipoFinal,
+    payload.descripcion || "",
     "ABIERTA",
     "Pendiente de revisión administrativa",
-    obtenerFechaHoraPeru(),
+    fechaFinal,
     idEvidenciaVinculada
   ]);
+
+  // También registrar en Eventos para visibilidad inmediata en línea de tiempo
+  const sheetEvt = ss.getSheetByName("Eventos");
+  if (sheetEvt && payload.cod_servicio) {
+    try {
+      sheetEvt.appendRow([
+        "EVT-" + Utilities.getUuid().substring(0, 8),
+        payload.cod_servicio,
+        idEmpFinal,
+        payload.id_conductor || cndFinal,
+        "INCIDENCIA: " + tipoFinal,
+        payload.parada || "En ruta",
+        payload.descripcion || "",
+        fechaFinal,
+        obtenerFechaHoraPeru(),
+        "APP_MOVIL"
+      ]);
+    } catch(e) {}
+  }
 
   return {
     status: "OK",
@@ -2176,6 +2226,12 @@ function ejecutarRespaldoDiarioAutomatico() {
  * =========================================================================================
  */
 
+function hashPassword(password, salt) {
+  const raw = String(password || "") + String(salt || "");
+  const bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, raw, Utilities.Charset.UTF_8);
+  return Utilities.base64Encode(bytes);
+}
+
 function procesarLogin(usuario, password) {
   const ss = obtenerSpreadsheet();
   const sheetUsuarios = ss.getSheetByName("Usuarios");
@@ -2184,14 +2240,15 @@ function procesarLogin(usuario, password) {
   const uBuscado = String(usuario || "").trim().toLowerCase();
   const pBuscado = String(password || "").trim();
 
-  // 1. Buscar en pestaña Usuarios (por USUARIO o por DNI)
+  // 1. Buscar en pestaña Usuarios (por USUARIO, alias sin @ o por DNI)
   for (let i = 1; i < data.length; i++) {
     const row = data[i];
     const uUsuario = String(row[3] || "").trim().toLowerCase();
+    const uAlias = uUsuario.indexOf("@") !== -1 ? uUsuario.split("@")[0] : "";
     const uDni = String(row[7] || "").trim().toLowerCase();
     const uEstado = String(row[9] || "ACTIVO").trim().toUpperCase();
 
-    if (uUsuario === uBuscado || uDni === uBuscado) {
+    if (uUsuario === uBuscado || uDni === uBuscado || (uAlias && uAlias === uBuscado)) {
       if (uEstado !== "ACTIVO") {
         return { status: "ERROR", mensaje: "Cuenta de usuario inactiva o bloqueada." };
       }
@@ -2199,8 +2256,12 @@ function procesarLogin(usuario, password) {
       const salt = String(row[5] || "");
       const passwordHashEsperado = String(row[4] || "").trim();
       const passwordHashCalculado = hashPassword(pBuscado, salt);
+      const passwordHashAlt = Utilities.base64Encode(
+        Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, pBuscado + "::" + salt, Utilities.Charset.UTF_8)
+      );
 
       const coincide = (passwordHashCalculado === passwordHashEsperado) ||
+                       (passwordHashAlt === passwordHashEsperado) ||
                        (passwordHashEsperado === pBuscado) ||
                        (passwordHashEsperado === "") ||
                        (pBuscado === "Nexa#Admin2026" || pBuscado === "Nexa#Admin2026!" || pBuscado === "admin123" || pBuscado === "admin" || pBuscado === "DemoAdmin!4826") ||
