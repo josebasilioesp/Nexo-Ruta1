@@ -678,58 +678,96 @@ function procesarSyncBidireccional(payload) {
   return obtenerDatosCompletosSync();
 }
 
+function asegurarColumnasServicios(sheetSrv) {
+  const faltan = ['TIPO_OPERACION', 'FECHA_REGISTRO', 'HORA_REGISTRO', 'FECHA_CITA', 'PUNTOS_CARGA_JSON', 'PUNTOS_DESCARGA_JSON', 'MERCANCIAS_JSON'];
+  const lastCol = Math.max(sheetSrv.getLastColumn(), 1);
+  const headers = sheetSrv.getRange(1, 1, 1, lastCol).getValues()[0].map(String);
+  faltan.forEach(function(h) {
+    if (headers.indexOf(h) === -1) {
+      sheetSrv.getRange(1, sheetSrv.getLastColumn() + 1).setValue(h);
+      headers.push(h);
+    }
+  });
+  return headers;
+}
+
 function asignarServicioDirecto(payload) {
   const ss = obtenerSpreadsheet();
   const sheetSrv = ss.getSheetByName("Servicios");
   if (!sheetSrv) return { status: "ERROR", mensaje: "Hoja Servicios no encontrada" };
 
+  const headers = asegurarColumnasServicios(sheetSrv);
+  const col = function(nombre) { return headers.indexOf(nombre) + 1; };
+
   const codServicio = payload.cod_servicio || ("SRV-" + new Date().getFullYear() + "-" + Math.floor(1000 + Math.random() * 9000));
-  const destinos = payload.destinos || [];
-  const puntoLlegada = destinos.length > 0 ? (destinos[0].punto_llegada || destinos[0].nombre) : (payload.parada_actual || payload.destino || "Destino Principal");
+  const destinos = payload.destinos || payload.puntos_descarga || [];
+  const puntoLlegada = destinos.length > 0 ? (destinos[0].punto_llegada || destinos[0].destino || destinos[0].nombre) : (payload.parada_actual || payload.destino || "Destino Principal");
+  const cargas = payload.puntos_carga || [];
+  const primerOrigen = cargas.length > 0 ? (cargas[0].origen || payload.origen) : (payload.origen || "Lima");
+
+  const tipoOpStr = Array.isArray(payload.tipo_operacion) ? payload.tipo_operacion.join(", ") : (payload.tipo_operacion || "");
+  const cargasJson = payload.puntos_carga ? JSON.stringify(payload.puntos_carga) : "";
+  const descargasJson = payload.puntos_descarga ? JSON.stringify(payload.puntos_descarga) : "";
+  const mercJson = payload.mercancias ? JSON.stringify(payload.mercancias) : "";
 
   // Validar si ya existía para actualizar todos los campos en vez de duplicar
   const data = sheetSrv.getDataRange().getValues();
   for (let i = 1; i < data.length; i++) {
     if (data[i][0] === codServicio) {
       if (payload.cliente_razon_social || payload.cliente) sheetSrv.getRange(i + 1, 3).setValue(payload.cliente_razon_social || payload.cliente);
-      if (payload.cliente_ruc || payload.ruc_cliente) sheetSrv.getRange(i + 1, 4).setValue(payload.cliente_ruc || payload.ruc_cliente);
+      if (payload.cliente_ruc !== undefined || payload.ruc_cliente !== undefined) sheetSrv.getRange(i + 1, 4).setValue(payload.cliente_ruc || payload.ruc_cliente || "");
       if (payload.id_conductor) sheetSrv.getRange(i + 1, 5).setValue(payload.id_conductor);
       if (payload.placa_tracto) sheetSrv.getRange(i + 1, 6).setValue(payload.placa_tracto);
-      if (payload.placa_carreta) sheetSrv.getRange(i + 1, 7).setValue(payload.placa_carreta);
-      if (payload.origen) sheetSrv.getRange(i + 1, 8).setValue(payload.origen);
+      if (payload.placa_carreta !== undefined) sheetSrv.getRange(i + 1, 7).setValue(payload.placa_carreta || "");
+      if (primerOrigen) sheetSrv.getRange(i + 1, 8).setValue(primerOrigen);
+      if (destinos.length > 0) sheetSrv.getRange(i + 1, 9).setValue(destinos.length);
       sheetSrv.getRange(i + 1, 10).setValue(puntoLlegada);
       if (payload.estado) sheetSrv.getRange(i + 1, 11).setValue(payload.estado);
       if (payload.fecha_programada) sheetSrv.getRange(i + 1, 15).setValue(payload.fecha_programada);
       if (payload.hora_programada) sheetSrv.getRange(i + 1, 16).setValue(payload.hora_programada);
-      if (payload.instrucciones) sheetSrv.getRange(i + 1, 19).setValue(payload.instrucciones);
-      if (payload.auxiliar) sheetSrv.getRange(i + 1, 21).setValue(payload.auxiliar);
+      if (payload.instrucciones !== undefined) sheetSrv.getRange(i + 1, 19).setValue(payload.instrucciones);
+      if (payload.auxiliar !== undefined && sheetSrv.getLastColumn() >= 21) sheetSrv.getRange(i + 1, 21).setValue(payload.auxiliar);
+      if (tipoOpStr && col('TIPO_OPERACION') > 0) sheetSrv.getRange(i + 1, col('TIPO_OPERACION')).setValue(tipoOpStr);
+      if (payload.fecha_cita && col('FECHA_CITA') > 0) sheetSrv.getRange(i + 1, col('FECHA_CITA')).setValue(payload.fecha_cita);
+      if (cargasJson && col('PUNTOS_CARGA_JSON') > 0) sheetSrv.getRange(i + 1, col('PUNTOS_CARGA_JSON')).setValue(cargasJson);
+      if (descargasJson && col('PUNTOS_DESCARGA_JSON') > 0) sheetSrv.getRange(i + 1, col('PUNTOS_DESCARGA_JSON')).setValue(descargasJson);
+      if (mercJson && col('MERCANCIAS_JSON') > 0) sheetSrv.getRange(i + 1, col('MERCANCIAS_JSON')).setValue(mercJson);
       return { status: "OK", cod_servicio: codServicio, mensaje: "Programación modificada y actualizada en Google Sheets con éxito" };
     }
   }
 
-  sheetSrv.appendRow([
-    codServicio,
-    payload.id_empresa || "TRP-001",
-    payload.cliente_razon_social || payload.cliente || "Cliente Carga",
-    payload.cliente_ruc || payload.ruc_cliente || "",
-    payload.id_conductor || "",
-    payload.placa_tracto || "",
-    payload.placa_carreta || "",
-    payload.origen || "Lima",
-    destinos.length || 1,
-    puntoLlegada,
-    payload.estado || "Programado",
-    "A TIEMPO",
-    payload.km_inicial || 148500,
-    "",
-    payload.fecha_programada || obtenerFechaHoraPeru().substring(0, 10),
-    payload.hora_programada || "08:00",
-    "",
-    "",
-    payload.instrucciones || "",
-    obtenerFechaHoraPeru(),
-    payload.auxiliar || ""
-  ]);
+  const fila = new Array(Math.max(headers.length, 21)).fill("");
+  fila[0] = codServicio;
+  fila[1] = payload.id_empresa || "TRP-001";
+  fila[2] = payload.cliente_razon_social || payload.cliente || "Cliente Carga";
+  fila[3] = payload.cliente_ruc || payload.ruc_cliente || "";
+  fila[4] = payload.id_conductor || "";
+  fila[5] = payload.placa_tracto || "";
+  fila[6] = payload.placa_carreta || "";
+  fila[7] = primerOrigen;
+  fila[8] = destinos.length || 1;
+  fila[9] = puntoLlegada;
+  fila[10] = payload.estado || "Programado";
+  fila[11] = "A TIEMPO";
+  fila[12] = payload.km_inicial || 148500;
+  fila[13] = "";
+  fila[14] = payload.fecha_programada || obtenerFechaHoraPeru().substring(0, 10);
+  fila[15] = payload.hora_programada || "08:00";
+  fila[16] = "";
+  fila[17] = "";
+  fila[18] = payload.instrucciones || "";
+  fila[19] = obtenerFechaHoraPeru();
+  fila[20] = payload.auxiliar || "";
+  const setCol = function(n, val) { const idx = headers.indexOf(n); if (idx >= 0) fila[idx] = val; };
+  setCol('TIPO_OPERACION', tipoOpStr);
+  setCol('FECHA_REGISTRO', payload.fecha_registro || obtenerFechaHoraPeru().substring(0, 10));
+  setCol('HORA_REGISTRO', payload.hora_registro || "");
+  setCol('FECHA_CITA', payload.fecha_cita || "");
+  setCol('PUNTOS_CARGA_JSON', cargasJson);
+  setCol('PUNTOS_DESCARGA_JSON', descargasJson);
+  setCol('MERCANCIAS_JSON', mercJson);
+
+  sheetSrv.appendRow(fila);
 
   return { status: "OK", cod_servicio: codServicio, mensaje: "Programación creada y publicada en Google Sheets con éxito" };
 }

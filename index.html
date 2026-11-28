@@ -227,6 +227,12 @@
     html.modo-oscuro .bg-slate-50 {
       background-color: #0d1527 !important;
     }
+    html.modo-oscuro .bg-slate-100 {
+      background-color: #1e293b !important;
+    }
+    html.modo-oscuro .hover\:bg-slate-200:hover {
+      background-color: #334155 !important;
+    }
     html.modo-oscuro .text-navy-900 {
       color: #f8fafc !important;
     }
@@ -996,113 +1002,299 @@
   <!-- MODALES DE PROGRAMACIÓN DE RUTAS Y SERVICIOS (SUPERVISOR)                   -->
   <!-- ========================================================================= -->
 
-  <!-- MODAL: CREAR NUEVA PROGRAMACIÓN MANUAL -->
-  <div id="modal-supervisor-crear-programacion" class="fixed inset-0 bg-navy-950/80 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-3">
-    <div class="bg-white rounded-3xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl border border-slate-200 max-h-[92vh] flex flex-col">
+  <!-- MODAL: PROGRAMACIÓN MANUAL / EDICIÓN COMPLETA (10 SECCIONES) -->
+  <div id="modal-supervisor-crear-programacion" class="fixed inset-0 bg-navy-950/80 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-2 sm:p-4">
+    <div class="bg-white rounded-3xl max-w-4xl w-full p-5 sm:p-6 shadow-2xl border border-slate-200 max-h-[94vh] flex flex-col">
       <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
         <div class="flex items-center space-x-2.5">
           <div class="w-9 h-9 rounded-2xl bg-turquoise-100 text-turquoise-800 flex items-center justify-center shadow-xs">
             <i data-lucide="calendar-plus" class="w-5 h-5"></i>
           </div>
           <div>
-            <h3 class="text-sm font-extrabold text-navy-900">Nueva Programación de Servicio y Ruta</h3>
-            <p class="text-[10px] text-slate-500">Paso 1 y 2 del Flujo: Asigna transporte, conductor, auxiliar y publica en la app móvil</p>
+            <h3 id="prog-modal-titulo" class="text-sm font-extrabold text-navy-900">PROGRAMACIÓN MANUAL</h3>
+            <p id="prog-modal-subtitulo" class="text-[10px] text-slate-500">Registro normalizado de cargas, hasta 80+ descargas, mercancías, flota y personal</p>
           </div>
         </div>
-        <button onclick="cerrarModal('modal-supervisor-crear-programacion')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+        <button type="button" onclick="cerrarModal('modal-supervisor-crear-programacion')" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
 
-      <form onsubmit="event.preventDefault(); guardarNuevaProgramacionManual();" class="space-y-3 text-xs overflow-y-auto flex-1 pr-1">
-        <!-- Código y Fechas -->
-        <div class="grid grid-cols-3 gap-2">
-          <div>
-            <label class="block font-bold text-slate-700 mb-1">Cód. Servicio:</label>
-            <input type="text" id="prog-crear-cod" readonly class="w-full p-2 bg-slate-100 border border-slate-200 rounded-xl text-xs font-mono font-bold text-navy-900">
-          </div>
-          <div>
-            <label class="block font-bold text-slate-700 mb-1">Fecha Programada:</label>
-            <input type="date" id="prog-crear-fecha" required class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium">
-          </div>
-          <div>
-            <label class="block font-bold text-slate-700 mb-1">Hora Estimada:</label>
-            <input type="time" id="prog-crear-hora" value="08:00" required class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium">
-          </div>
-        </div>
+      <form onsubmit="event.preventDefault(); guardarNuevaProgramacionManual();" class="space-y-4 text-xs overflow-y-auto flex-1 pr-1">
+        <input type="hidden" id="prog-crear-modo-edicion" value="">
+        <!-- Campos ocultos de compatibilidad -->
+        <input type="hidden" id="prog-crear-fecha">
+        <input type="hidden" id="prog-crear-hora" value="08:00">
+        <input type="hidden" id="prog-crear-origen">
+        <input type="hidden" id="prog-crear-destino">
 
-        <!-- Cliente y RUC -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          <div class="sm:col-span-2">
-            <label class="block font-bold text-slate-700 mb-1">Cliente / Empresa Solicitante:</label>
-            <input type="text" id="prog-crear-cliente" required placeholder="Ej. Aceros Arequipa S.A." class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold">
-          </div>
-          <div>
-            <label class="block font-bold text-slate-700 mb-1">RUC Cliente:</label>
-            <input type="text" id="prog-crear-ruc" maxlength="11" placeholder="20XXXXXXXXX" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono">
-          </div>
-        </div>
-
-        <!-- Origen y Destino -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          <div>
-            <label class="block font-bold text-slate-700 mb-1">Origen (Punto de Salida / Carga):</label>
-            <input type="text" id="prog-crear-origen" required placeholder="Ej. Almacén Central Callao" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium">
-          </div>
-          <div>
-            <label class="block font-bold text-slate-700 mb-1">Destino Principal / Entrega:</label>
-            <input type="text" id="prog-crear-destino" required placeholder="Ej. Planta Toromocho - Morococha" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium">
-          </div>
-        </div>
-
-        <!-- Asignación de Unidades de Transporte -->
-        <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
-          <span class="text-[10px] font-extrabold uppercase text-navy-900 tracking-wider block">🚛 1. Asignación de Transporte:</span>
-          <div class="grid grid-cols-2 gap-2">
+        <!-- 1. DATOS DEL SERVICIO -->
+        <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+          <span class="text-[10px] font-black uppercase text-navy-900 tracking-wider block">1. Datos del Servicio</span>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
             <div>
-              <label class="block font-semibold text-slate-700 mb-1">Tracto (Placa):</label>
-              <select id="prog-crear-tracto" class="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs font-mono font-bold"></select>
+              <label class="block font-bold text-slate-600 mb-1 text-[11px]">Código de Servicio (Autogenerado):</label>
+              <input type="text" id="prog-crear-cod" readonly class="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs font-mono font-black text-navy-900">
             </div>
             <div>
-              <label class="block font-semibold text-slate-700 mb-1">Carreta (Placa):</label>
-              <select id="prog-crear-carreta" class="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs font-mono font-bold"></select>
+              <label class="block font-bold text-slate-600 mb-1 text-[11px]">Fecha de Registro (Automática):</label>
+              <input type="text" id="prog-crear-fecha-reg" readonly class="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs font-mono font-semibold text-slate-700">
+            </div>
+            <div>
+              <label class="block font-bold text-slate-600 mb-1 text-[11px]">Hora de Registro (Automática):</label>
+              <input type="text" id="prog-crear-hora-reg" readonly class="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs font-mono font-semibold text-slate-700">
             </div>
           </div>
         </div>
 
-        <!-- Asignación de Personal (Conductor y Auxiliar) -->
-        <div class="p-3 bg-turquoise-50/60 rounded-2xl border border-turquoise-200 space-y-2">
-          <span class="text-[10px] font-extrabold uppercase text-turquoise-900 tracking-wider block">👤 2. Asignación de Personal Operativo:</span>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <div>
-              <label class="block font-semibold text-slate-700 mb-1">Conductor de la Flota (Obligatorio):</label>
-              <select id="prog-crear-conductor" required class="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-navy-900"></select>
+        <!-- 2. DATOS DEL CLIENTE & 3. TIPO DE OPERACIÓN -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
+          <div class="lg:col-span-7 p-3.5 bg-white rounded-2xl border border-slate-200 space-y-2">
+            <span class="text-[10px] font-black uppercase text-navy-900 tracking-wider block">2. Datos del Cliente</span>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <div>
+                <label class="block font-bold text-slate-700 mb-1 text-[11px]">RUC Cliente:</label>
+                <input type="text" id="prog-crear-ruc" maxlength="11" placeholder="20XXXXXXXXX" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono">
+              </div>
+              <div class="sm:col-span-2">
+                <label class="block font-bold text-slate-700 mb-1 text-[11px]">Cliente / Empresa Solicitante: *</label>
+                <input type="text" id="prog-crear-cliente" required placeholder="Ej. Aceros Arequipa S.A. / TAXIS" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold">
+              </div>
             </div>
-            <div>
-              <label class="block font-semibold text-slate-700 mb-1">Auxiliar / Copiloto de Ruta:</label>
-              <input type="text" id="prog-crear-auxiliar" placeholder="Ej. Pedro Ramírez (Auxiliar)" class="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs">
+          </div>
+
+          <div class="lg:col-span-5 p-3.5 bg-white rounded-2xl border border-slate-200 space-y-2">
+            <span class="text-[10px] font-black uppercase text-navy-900 tracking-wider block">3. Tipo de Operación</span>
+            <div class="grid grid-cols-3 gap-2 pt-1">
+              <label class="flex items-center space-x-1.5 p-2 rounded-xl border border-slate-200 bg-slate-50 hover:border-turquoise-500 cursor-pointer">
+                <input type="checkbox" name="prog-tipo-op" value="Local" class="rounded text-turquoise-600 focus:ring-turquoise-500">
+                <span class="font-bold text-slate-800 text-[11px]">Local</span>
+              </label>
+              <label class="flex items-center space-x-1.5 p-2 rounded-xl border border-slate-200 bg-slate-50 hover:border-turquoise-500 cursor-pointer">
+                <input type="checkbox" name="prog-tipo-op" value="Provincia" class="rounded text-turquoise-600 focus:ring-turquoise-500">
+                <span class="font-bold text-slate-800 text-[11px]">Provincia</span>
+              </label>
+              <label class="flex items-center space-x-1.5 p-2 rounded-xl border border-slate-200 bg-slate-50 hover:border-turquoise-500 cursor-pointer">
+                <input type="checkbox" name="prog-tipo-op" value="Oriente" class="rounded text-turquoise-600 focus:ring-turquoise-500">
+                <span class="font-bold text-slate-800 text-[11px]">Oriente</span>
+              </label>
             </div>
           </div>
         </div>
 
-        <!-- Odómetro Inicial Estimado e Instrucciones -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Odómetro Base (km):</label>
-            <input type="number" id="prog-crear-km" value="148500" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono">
+        <!-- 4. PUNTOS DE CARGA -->
+        <div class="p-3.5 bg-slate-50 rounded-2xl border border-blue-500/30 space-y-2.5">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+              <span class="text-[10px] font-black uppercase text-navy-900 tracking-wider block">4. Puntos de Carga</span>
+              <span id="lbl-resumen-carga-prog" class="text-[10px] text-blue-500 font-bold">1 punto de carga registrado</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-1.5">
+              <button type="button" onclick="agregarPuntoCargaProg()" class="px-2.5 py-1.5 bg-navy-900 hover:bg-navy-800 text-white rounded-xl text-[11px] font-bold flex items-center space-x-1 cursor-pointer">
+                <span>➕ Agregar Punto de Carga</span>
+              </button>
+              <label class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[11px] font-bold flex items-center space-x-1 cursor-pointer">
+                <span>📥 Importar Excel</span>
+                <input type="file" id="input-excel-puntos-carga" accept=".xlsx,.xls,.csv" onchange="importarExcelPuntosProg('carga', this)" class="hidden">
+              </label>
+              <button type="button" onclick="abrirModalListadoPuntos('carga')" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-navy-900 border border-slate-300 rounded-xl text-[11px] font-bold cursor-pointer">
+                👁️ Ver Listado
+              </button>
+            </div>
           </div>
-          <div class="sm:col-span-2">
-            <label class="block font-semibold text-slate-700 mb-1">Instrucciones Operativas:</label>
-            <input type="text" id="prog-crear-obs" placeholder="Precinto aduanero requerido, escolta en tramos autorizados..." class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+          <div class="overflow-x-auto max-h-40 overflow-y-auto bg-white rounded-xl border border-slate-200">
+            <table class="w-full text-left text-[11px]">
+              <thead class="bg-slate-50 text-slate-500 uppercase text-[9px] font-black sticky top-0 border-b border-slate-200">
+                <tr>
+                  <th class="p-2 w-14 text-center">Orden</th>
+                  <th class="p-2">Origen</th>
+                  <th class="p-2 w-32">Fecha Carga</th>
+                  <th class="p-2 w-24">Hora Carga</th>
+                  <th class="p-2 w-10 text-center"></th>
+                </tr>
+              </thead>
+              <tbody id="tbody-puntos-carga-prog" class="divide-y divide-slate-100"></tbody>
+            </table>
           </div>
         </div>
 
-        <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
-          <button type="button" onclick="cerrarModal('modal-supervisor-crear-programacion')" class="px-3 py-2 text-slate-500 font-semibold text-xs">Cancelar</button>
-          <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-turquoise-600 to-cyan-500 hover:from-turquoise-500 hover:to-cyan-400 text-white font-extrabold text-xs rounded-xl shadow-md flex items-center space-x-1.5 transition">
-            <i data-lucide="send" class="w-4 h-4"></i>
-            <span>Publicar Programación en App Móvil y Sheets</span>
-          </button>
+        <!-- 5. PUNTOS DE DESCARGA (HASTA 80+ PUNTOS) -->
+        <div class="p-3.5 bg-slate-50 rounded-2xl border border-emerald-500/30 space-y-2.5">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+              <span class="text-[10px] font-black uppercase text-navy-900 tracking-wider block">5. Puntos de Descarga</span>
+              <span id="lbl-resumen-descarga-prog" class="text-[10px] text-emerald-500 font-bold">1 punto de descarga registrado</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-1.5">
+              <button type="button" onclick="agregarPuntoDescargaProg()" class="px-2.5 py-1.5 bg-navy-900 hover:bg-navy-800 text-white rounded-xl text-[11px] font-bold flex items-center space-x-1 cursor-pointer">
+                <span>➕ Agregar Punto de Descarga</span>
+              </button>
+              <label class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[11px] font-bold flex items-center space-x-1 cursor-pointer">
+                <span>📥 Importar Excel</span>
+                <input type="file" id="input-excel-puntos-descarga" accept=".xlsx,.xls,.csv" onchange="importarExcelPuntosProg('descarga', this)" class="hidden">
+              </label>
+              <button type="button" onclick="abrirModalListadoPuntos('descarga')" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-navy-900 border border-slate-300 rounded-xl text-[11px] font-bold cursor-pointer">
+                👁️ Ver Listado
+              </button>
+            </div>
+          </div>
+          <div class="overflow-x-auto max-h-48 overflow-y-auto bg-white rounded-xl border border-slate-200">
+            <table class="w-full text-left text-[11px]">
+              <thead class="bg-slate-50 text-slate-500 uppercase text-[9px] font-black sticky top-0 border-b border-slate-200">
+                <tr>
+                  <th class="p-2 w-14 text-center">Orden</th>
+                  <th class="p-2">Destino</th>
+                  <th class="p-2 w-32">Fecha Descarga</th>
+                  <th class="p-2 w-24">Hora Descarga</th>
+                  <th class="p-2 w-10 text-center"></th>
+                </tr>
+              </thead>
+              <tbody id="tbody-puntos-descarga-prog" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 6. DETALLE DE MERCANCÍA -->
+        <div class="p-3.5 bg-slate-50 rounded-2xl border border-amber-500/30 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="text-[10px] font-black uppercase text-navy-900 tracking-wider block">6. Detalle de Mercancía</span>
+              <span id="lbl-resumen-mercancia-prog" class="text-[10px] text-amber-500 font-bold">1 mercancía registrada</span>
+            </div>
+            <button type="button" onclick="agregarMercanciaProg()" class="px-2.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-[11px] font-bold cursor-pointer">
+              ➕ Agregar Mercancía
+            </button>
+          </div>
+          <div class="overflow-x-auto max-h-36 overflow-y-auto bg-white rounded-xl border border-slate-200">
+            <table class="w-full text-left text-[11px]">
+              <thead class="bg-slate-50 text-slate-500 uppercase text-[9px] font-black sticky top-0 border-b border-slate-200">
+                <tr>
+                  <th class="p-2">Tipo</th>
+                  <th class="p-2 w-36">Unidad de Medida</th>
+                  <th class="p-2 w-24">Qty</th>
+                  <th class="p-2 w-10 text-center"></th>
+                </tr>
+              </thead>
+              <tbody id="tbody-mercancias-prog" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 7. ASIGNACIÓN DE TRANSPORTE & 8. ASIGNACIÓN DE PERSONAL OPERATIVO -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+            <span class="text-[10px] font-black uppercase text-navy-900 tracking-wider block">7. Asignación de Transporte</span>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block font-bold text-slate-700 mb-1 text-[11px]">Placa (Obligatorio): *</label>
+                <select id="prog-crear-tracto" required class="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs font-mono font-bold"></select>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1 text-[11px]">Carreta (Opcional):</label>
+                <select id="prog-crear-carreta" class="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs font-mono font-bold"></select>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-3.5 bg-slate-50 rounded-2xl border border-turquoise-500/30 space-y-2">
+            <span class="text-[10px] font-black uppercase text-navy-900 tracking-wider block">8. Asignación de Personal Operativo</span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div>
+                <label class="block font-bold text-slate-700 mb-1 text-[11px]">Conductor (Obligatorio): *</label>
+                <select id="prog-crear-conductor" required class="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-navy-900"></select>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1 text-[11px]">Auxiliar / Copiloto (Opcional):</label>
+                <input type="text" id="prog-crear-auxiliar" placeholder="Opcional: Sin auxiliar" class="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 9. INSTRUCCIONES OPERATIVAS & ODÓMETRO -->
+        <div class="p-3.5 bg-white rounded-2xl border border-slate-200 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-black uppercase text-navy-900 tracking-wider">9. Instrucciones Operativas</span>
+            <div class="flex items-center space-x-2">
+              <label class="text-[10px] font-semibold text-slate-500">Odómetro base (km):</label>
+              <input type="number" id="prog-crear-km" value="148500" class="w-24 p-1 bg-slate-50 border border-slate-200 rounded-lg text-[11px] font-mono">
+            </div>
+          </div>
+          <textarea id="prog-crear-obs" rows="2" placeholder="Área de texto libre para indicaciones operativas, citas de descarga, precintos, contactos..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs resize-y"></textarea>
+        </div>
+
+        <!-- 10. ACCIONES -->
+        <div class="pt-3 border-t border-slate-200 flex items-center justify-between gap-3 sticky bottom-0 bg-white pb-1">
+          <span class="text-[10px] font-black uppercase text-slate-500 tracking-wider">10. Acciones</span>
+          <div class="flex items-center space-x-3">
+            <button type="button" onclick="cerrarModal('modal-supervisor-crear-programacion')" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition cursor-pointer">
+              Cancelar
+            </button>
+            <button type="submit" id="btn-prog-guardar-submit" class="px-5 py-2.5 bg-gradient-to-r from-turquoise-600 to-cyan-500 hover:from-turquoise-500 hover:to-cyan-400 text-white font-extrabold text-xs rounded-xl shadow-md flex items-center space-x-1.5 transition cursor-pointer">
+              <i data-lucide="save" class="w-4 h-4"></i>
+              <span>Guardar Programación</span>
+            </button>
+          </div>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- MODAL: VER LISTADO COMPLETO DE PUNTOS DE CARGA / DESCARGA (80+ FILAS) -->
+  <div id="modal-listado-puntos-prog" class="fixed inset-0 bg-navy-950/80 backdrop-blur-2xs z-[60] hidden flex items-center justify-center p-3">
+    <div class="bg-white rounded-3xl max-w-3xl w-full p-5 shadow-2xl border border-slate-200 max-h-[90vh] flex flex-col space-y-3">
+      <div class="flex items-center justify-between pb-2.5 border-b border-slate-100">
+        <div>
+          <h3 id="titulo-modal-listado-puntos" class="text-sm font-black text-navy-900">Listado de Puntos</h3>
+          <p id="subtitulo-modal-listado-puntos" class="text-[11px] text-slate-500">Visualización completa y edición rápida</p>
+        </div>
+        <button type="button" onclick="cerrarModal('modal-listado-puntos-prog')" class="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <input type="text" id="buscar-listado-puntos-prog" oninput="filtrarListadoPuntosModal()" placeholder="Buscar por orden o dirección..." class="flex-1 min-w-[200px] p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+        <button type="button" onclick="descargarPlantillaPuntosExcel()" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-xl text-[11px] font-bold cursor-pointer">
+          📥 Descargar Plantilla Excel
+        </button>
+      </div>
+      <div class="flex-1 overflow-y-auto border border-slate-200 rounded-2xl">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 text-slate-500 uppercase text-[10px] font-black sticky top-0 border-b border-slate-200">
+            <tr>
+              <th class="p-2.5 w-16 text-center">Orden</th>
+              <th id="th-listado-punto-lugar" class="p-2.5">Punto</th>
+              <th id="th-listado-punto-fecha" class="p-2.5 w-32">Fecha</th>
+              <th id="th-listado-punto-hora" class="p-2.5 w-24">Hora</th>
+              <th class="p-2.5 w-14 text-center">Quitar</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-modal-listado-puntos" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+      <div class="pt-2 border-t border-slate-100 flex justify-end">
+        <button type="button" onclick="cerrarModal('modal-listado-puntos-prog')" class="px-4 py-2 bg-navy-900 text-white rounded-xl text-xs font-bold cursor-pointer">Cerrar Listado</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CONFIRMAR ANULACIÓN DE SERVICIO -->
+  <div id="modal-confirmar-anular-servicio" class="fixed inset-0 bg-navy-950/80 backdrop-blur-2xs z-[60] hidden flex items-center justify-center p-3">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div class="flex items-start space-x-3">
+        <div class="w-10 h-10 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+          <i data-lucide="alert-octagon" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 class="text-sm font-black text-navy-900">¿Desea anular este servicio?</h3>
+          <p class="text-xs text-slate-500 mt-1">Esta acción no se puede deshacer.</p>
+          <span id="lbl-anular-cod-servicio" class="inline-block mt-2 px-2.5 py-0.5 rounded-lg bg-slate-100 font-mono text-xs font-black text-navy-900">-</span>
+        </div>
+      </div>
+      <div class="pt-2 flex items-center justify-end space-x-2 border-t border-slate-100">
+        <button type="button" onclick="cerrarModal('modal-confirmar-anular-servicio')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition cursor-pointer">
+          Cancelar
+        </button>
+        <button type="button" onclick="confirmarAnularServicio()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-sm transition cursor-pointer">
+          Sí, Anular
+        </button>
+      </div>
     </div>
   </div>
 
@@ -3142,9 +3334,18 @@
 
           // 3. SINCRONIZAR SERVICIOS Y RUTAS ASIGNADAS DESDE GOOGLE SHEETS
           if (Array.isArray(data.servicios) && data.servicios.length > 0) {
+            const parseJsonSafe = (str) => { try { return (typeof str === 'string' && str.trim().startsWith('[')) ? JSON.parse(str) : null; } catch(e) { return null; } };
             data.servicios.forEach(sCloud => {
               const cod = sCloud.COD_SERVICIO || sCloud.cod_servicio;
               if (!cod) return;
+              const idCndCloud = sCloud.ID_CONDUCTOR || sCloud.id_conductor || "";
+              const cndMatchCloud = (DB_LOCAL.conductores || []).find(c => idCndCloud && c.id_conductor === idCndCloud);
+              const nomCndCloud = sCloud.CONDUCTOR_NOMBRE || sCloud.conductor_nombre || (cndMatchCloud ? cndMatchCloud.nombre : "");
+              const cargasCloud = parseJsonSafe(sCloud.PUNTOS_CARGA_JSON);
+              const descargasCloud = parseJsonSafe(sCloud.PUNTOS_DESCARGA_JSON);
+              const mercCloud = parseJsonSafe(sCloud.MERCANCIAS_JSON);
+              const tipoOpCloud = sCloud.TIPO_OPERACION ? String(sCloud.TIPO_OPERACION).split(',').map(x => x.trim()).filter(Boolean) : null;
+
               const idx = DB_LOCAL.servicios.findIndex(s => s.cod_servicio === cod);
               if (idx >= 0) {
                 if (sCloud.ESTADO_OPERATIVO) DB_LOCAL.servicios[idx].estado = sCloud.ESTADO_OPERATIVO;
@@ -3152,16 +3353,25 @@
                 if (sCloud.KM_INICIAL) DB_LOCAL.servicios[idx].km_inicial = sCloud.KM_INICIAL;
                 if (sCloud.KM_ACTUAL) DB_LOCAL.servicios[idx].km_actual = sCloud.KM_ACTUAL;
                 if (sCloud.KM_FINAL) DB_LOCAL.servicios[idx].km_final = sCloud.KM_FINAL;
-                if (sCloud.ID_CONDUCTOR) DB_LOCAL.servicios[idx].id_conductor = sCloud.ID_CONDUCTOR;
+                if (idCndCloud) DB_LOCAL.servicios[idx].id_conductor = idCndCloud;
+                if (nomCndCloud) DB_LOCAL.servicios[idx].conductor_nombre = nomCndCloud;
                 if (sCloud.PLACA_TRACTO) DB_LOCAL.servicios[idx].placa_tracto = sCloud.PLACA_TRACTO;
-                if (sCloud.PLACA_CARRETA) DB_LOCAL.servicios[idx].placa_carreta = sCloud.PLACA_CARRETA;
+                if (sCloud.PLACA_CARRETA !== undefined && sCloud.PLACA_CARRETA !== "") DB_LOCAL.servicios[idx].placa_carreta = sCloud.PLACA_CARRETA;
                 if (sCloud.CLIENTE_RAZON_SOCIAL) DB_LOCAL.servicios[idx].cliente = sCloud.CLIENTE_RAZON_SOCIAL;
                 if (sCloud.CLIENTE_RUC) DB_LOCAL.servicios[idx].ruc_cliente = sCloud.CLIENTE_RUC;
                 if (sCloud.ORIGEN) DB_LOCAL.servicios[idx].origen = sCloud.ORIGEN;
                 if (sCloud.FECHA_PROGRAMADA) DB_LOCAL.servicios[idx].fecha_programada = sCloud.FECHA_PROGRAMADA;
                 if (sCloud.HORA_PROGRAMADA) DB_LOCAL.servicios[idx].hora_programada = sCloud.HORA_PROGRAMADA;
                 if (sCloud.INSTRUCCIONES) DB_LOCAL.servicios[idx].instrucciones = sCloud.INSTRUCCIONES;
-                if (sCloud.AUXILIAR) DB_LOCAL.servicios[idx].auxiliar = sCloud.AUXILIAR;
+                if (sCloud.AUXILIAR !== undefined && sCloud.AUXILIAR !== "") DB_LOCAL.servicios[idx].auxiliar = sCloud.AUXILIAR;
+                if (tipoOpCloud) DB_LOCAL.servicios[idx].tipo_operacion = tipoOpCloud;
+                if (sCloud.FECHA_CITA) DB_LOCAL.servicios[idx].fecha_cita = sCloud.FECHA_CITA;
+                if (cargasCloud) DB_LOCAL.servicios[idx].puntos_carga = cargasCloud;
+                if (descargasCloud) {
+                  DB_LOCAL.servicios[idx].puntos_descarga = descargasCloud;
+                  DB_LOCAL.servicios[idx].cantidad_destinos = descargasCloud.length;
+                }
+                if (mercCloud) DB_LOCAL.servicios[idx].mercancias = mercCloud;
               } else {
                 // Nuevo viaje creado en otra PC y guardado en Google Sheets
                 DB_LOCAL.servicios.push({
@@ -3169,20 +3379,27 @@
                   id_empresa: sCloud.ID_EMPRESA || sCloud.id_empresa || "TRP-001",
                   cliente: sCloud.CLIENTE_RAZON_SOCIAL || sCloud.cliente || "Cliente",
                   ruc_cliente: sCloud.CLIENTE_RUC || sCloud.ruc_cliente || "",
-                  id_conductor: sCloud.ID_CONDUCTOR || sCloud.id_conductor || "",
-                  conductor_nombre: sCloud.CONDUCTOR_NOMBRE || sCloud.conductor_nombre || "Conductor",
+                  id_conductor: idCndCloud,
+                  conductor_nombre: nomCndCloud || "Conductor",
                   placa_tracto: sCloud.PLACA_TRACTO || sCloud.placa_tracto || "V7X-890",
-                  placa_carreta: sCloud.PLACA_CARRETA || sCloud.placa_carreta || "TC8-120",
+                  placa_carreta: sCloud.PLACA_CARRETA || sCloud.placa_carreta || "",
                   origen: sCloud.ORIGEN || sCloud.origen || "Lima",
-                  cantidad_destinos: 1,
+                  cantidad_destinos: descargasCloud ? descargasCloud.length : 1,
                   parada_actual: sCloud.PARADA_ACTUAL || sCloud.destino || "Destino",
-                  paradas: [{ id: "DST-1", orden: 1, nombre: sCloud.PARADA_ACTUAL || "Destino", estado: sCloud.ESTADO_OPERATIVO || "PENDIENTE" }],
-                  estado: sCloud.ESTADO_OPERATIVO || "Asignado",
+                  paradas: descargasCloud || [{ id: "DST-1", orden: 1, nombre: sCloud.PARADA_ACTUAL || "Destino", estado: sCloud.ESTADO_OPERATIVO || "PENDIENTE" }],
+                  estado: sCloud.ESTADO_OPERATIVO || "Programado",
                   alerta_retraso: "A TIEMPO",
                   km_inicial: sCloud.KM_INICIAL || 148500,
                   km_final: sCloud.KM_FINAL || null,
                   fecha_programada: sCloud.FECHA_PROGRAMADA || new Date().toLocaleDateString('es-PE'),
                   hora_programada: sCloud.HORA_PROGRAMADA || "08:00",
+                  fecha_registro: sCloud.FECHA_REGISTRO || sCloud.FECHA_PROGRAMADA || "",
+                  hora_registro: sCloud.HORA_REGISTRO || sCloud.HORA_PROGRAMADA || "",
+                  fecha_cita: sCloud.FECHA_CITA || "",
+                  tipo_operacion: tipoOpCloud || [],
+                  puntos_carga: cargasCloud || [],
+                  puntos_descarga: descargasCloud || [],
+                  mercancias: mercCloud || [],
                   auxiliar: sCloud.AUXILIAR || "",
                   instrucciones: sCloud.INSTRUCCIONES || "",
                   evidencias: []
@@ -3809,8 +4026,9 @@ function abrirPortalConductor() {
       }
 
       let misServicios = (DB_LOCAL.servicios || []).filter(s => 
-        (cndFicha && s.id_conductor === cndFicha.id_conductor) || 
-        (sesionActual.nombre && s.conductor_nombre && s.conductor_nombre.toLowerCase().includes(sesionActual.nombre.toLowerCase()))
+        (s.estado !== "Anulado" && s.estado !== "Cancelado") &&
+        ((cndFicha && s.id_conductor === cndFicha.id_conductor) || 
+        (sesionActual.nombre && s.conductor_nombre && s.conductor_nombre.toLowerCase().includes(sesionActual.nombre.toLowerCase())))
       );
 
       // Si el conductor es recién creado y aún no tiene viajes de Programación asignados, proveer servicio operativo inmediato
@@ -5089,7 +5307,7 @@ function renderizarModulo03Programacion(main, empId) {
       <div class="flex items-center space-x-2 border-b border-slate-200 pb-2 text-xs">
         <button onclick="cambiarSubPestanaProgEmpresa('servicios')" class="px-3.5 py-1.5 rounded-xl font-bold transition cursor-pointer ${subPestanaProgEmpresa === 'servicios' ? 'bg-navy-900 text-white' : 'text-slate-600 hover:bg-slate-100'}">
           <i data-lucide="calendar" class="w-3.5 h-3.5 inline mr-1"></i>
-          <span>Servicios y Asignaciones Activas (${serviciosEmp.length})</span>
+          <span>Servicios Activos (${serviciosEmp.filter(s => s.estado !== 'Anulado' && s.estado !== 'Cancelado').length} / ${serviciosEmp.length})</span>
         </button>
         <button onclick="cambiarSubPestanaProgEmpresa('auditoria')" class="px-3.5 py-1.5 rounded-xl font-bold transition cursor-pointer ${subPestanaProgEmpresa === 'auditoria' ? 'bg-navy-900 text-white' : 'text-slate-600 hover:bg-slate-100'}">
           <i data-lucide="history" class="w-3.5 h-3.5 inline mr-1"></i>
@@ -5098,66 +5316,101 @@ function renderizarModulo03Programacion(main, empId) {
       </div>
 
       ${subPestanaProgEmpresa === 'servicios' ? `
-        <!-- Lista de Servicios y Asignaciones (Imagen 5) -->
+        <!-- Lista de Servicios y Asignaciones -->
         <div class="space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             ${serviciosEmp.map(s => {
-              const paradasIntermedias = s.paradas && s.paradas.length > 0 ? s.paradas.map(p => p.nombre || p.direccion).join(' → ') : 'Directo';
+              const estNorm = String(s.estado || 'Programado');
+              const estaAnulado = estNorm === 'Anulado' || estNorm === 'Cancelado';
+              const badgeEstado = estaAnulado
+                ? `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-100 text-rose-800 border border-rose-200">🔴 Anulado</span>`
+                : estNorm === 'Programado'
+                ? `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200">🟢 Programado</span>`
+                : estNorm === 'Finalizado'
+                ? `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-teal-100 text-teal-800 border border-teal-200">🏁 Finalizado</span>`
+                : `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-100 text-blue-800 border border-blue-200">🟢 ${estNorm}</span>`;
+
+              const cndObj = (DB_LOCAL.conductores || []).find(c => s.id_conductor && c.id_conductor === s.id_conductor);
+              const nombreConductorReal = (s.conductor_nombre && s.conductor_nombre !== 'Conductor') ? s.conductor_nombre : (cndObj ? cndObj.nombre : (s.conductor_nombre || 'Sin asignar'));
+              const cargasCnt = (s.puntos_carga && s.puntos_carga.length) ? s.puntos_carga.length : 1;
+              const descargasCnt = (s.puntos_descarga && s.puntos_descarga.length) ? s.puntos_descarga.length : (s.cantidad_destinos || 1);
+              const primerOrigen = (s.puntos_carga && s.puntos_carga[0] && s.puntos_carga[0].origen) || s.origen || 'Lima';
+              const primerDestino = (s.puntos_descarga && s.puntos_descarga[0] && (s.puntos_descarga[0].destino || s.puntos_descarga[0].nombre)) || s.destino || s.parada_actual || 'Destino';
+              const fechaCargaTxt = (s.puntos_carga && s.puntos_carga[0] && s.puntos_carga[0].fecha_carga)
+                ? `${s.puntos_carga[0].fecha_carga} ${s.puntos_carga[0].hora_carga || ''}`.trim()
+                : `${s.fecha_programada || 'Hoy'} ${s.hora_programada || '00:00'}`.trim();
+              const fechaCitaTxt = s.fecha_cita
+                || ((s.puntos_descarga && s.puntos_descarga[0] && s.puntos_descarga[0].fecha_descarga)
+                    ? `${s.puntos_descarga[0].fecha_descarga} ${s.puntos_descarga[0].hora_descarga || ''}`.trim()
+                    : 'FECHA DE CITA');
+              const tipoOpBadges = (Array.isArray(s.tipo_operacion) && s.tipo_operacion.length > 0)
+                ? s.tipo_operacion.map(op => `<span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 text-[9px] font-bold">${op}</span>`).join(' ')
+                : '';
+
               return `
-                <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-2xs space-y-4 flex flex-col justify-between hover:shadow-md transition">
-                  <div class="space-y-3">
-                    <div class="flex items-center justify-between">
-                      <span class="font-mono font-black text-xs text-navy-900 bg-slate-100 px-2 py-0.5 rounded-lg">${s.cod_servicio}</span>
-                      <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                        (s.estado || '').includes('tránsito') || (s.estado || '').includes('ruta') ? 'bg-emerald-100 text-emerald-800' :
-                        s.estado === 'Finalizado' ? 'bg-teal-100 text-teal-800' :
-                        s.estado === 'Programado' ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-700'
-                      }">${s.estado}</span>
+                <div class="bg-white rounded-3xl p-5 border ${estaAnulado ? 'border-rose-200 bg-rose-50/20 opacity-90' : 'border-slate-200 hover:shadow-md'} shadow-2xs space-y-3.5 flex flex-col justify-between transition">
+                  <div class="space-y-2.5">
+                    <div class="flex items-center justify-between gap-2">
+                      <span class="font-mono font-black text-xs text-navy-900 bg-slate-100 px-2.5 py-1 rounded-xl">${s.cod_servicio}</span>
+                      ${badgeEstado}
                     </div>
 
                     <div>
-                      <h4 class="font-bold text-navy-900 text-sm">${s.cliente}</h4>
-                      <p class="text-xs text-slate-500 flex items-center space-x-1 mt-0.5">
-                        <i data-lucide="map-pin" class="w-3.5 h-3.5 text-rose-500 shrink-0"></i>
-                        <span>${s.origen} → ${s.destino || s.parada_actual || 'Destino'}</span>
+                      <div class="flex items-center justify-between gap-2">
+                        <h4 class="font-black text-navy-900 text-sm uppercase tracking-tight truncate">${s.cliente || 'Cliente'}</h4>
+                        <div class="flex items-center space-x-1 shrink-0">${tipoOpBadges}</div>
+                      </div>
+                      <p class="text-xs text-slate-700 font-semibold flex items-center space-x-1 mt-1">
+                        <span class="shrink-0">📍</span>
+                        <span class="truncate">${primerOrigen} → ${primerDestino}</span>
                       </p>
-                      <div class="text-[10px] text-slate-400 mt-1 bg-slate-50 p-2 rounded-xl border border-slate-100">
-                        <span class="font-semibold text-slate-600">Puntos Intermedios:</span> ${paradasIntermedias}
+                      ${(cargasCnt > 1 || descargasCnt > 1 || (s.mercancias && s.mercancias.length > 0)) ? `
+                        <div class="flex flex-wrap gap-1.5 mt-1.5 text-[10px]">
+                          ${cargasCnt > 1 ? `<span class="px-2 py-0.5 rounded-lg bg-blue-50 text-blue-800 font-bold">${cargasCnt} cargas</span>` : ''}
+                          ${descargasCnt > 1 ? `<span class="px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-800 font-bold">${descargasCnt} descargas</span>` : ''}
+                          ${(s.mercancias && s.mercancias.length > 0) ? `<span class="px-2 py-0.5 rounded-lg bg-amber-50 text-amber-800 font-bold">${s.mercancias.length} mercancía(s)</span>` : ''}
+                        </div>
+                      ` : ''}
+                    </div>
+
+                    <div class="p-2.5 bg-slate-50 rounded-2xl border border-slate-100 space-y-1.5 text-[11px]">
+                      <div class="flex items-center justify-between">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase">Placas</span>
+                        <div class="font-mono font-bold text-navy-900">
+                          <span>🔵 ${s.placa_tracto || '-'}</span>
+                          <span class="text-slate-300 mx-1">|</span>
+                          <span>${s.placa_carreta ? '🔵 ' + s.placa_carreta : 'Sin carreta'}</span>
+                        </div>
+                      </div>
+                      <div class="pt-1 border-t border-slate-200/60 space-y-0.5">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase block">Personal</span>
+                        <div class="font-bold text-navy-900 truncate">👤 ${nombreConductorReal}</div>
+                        <div class="text-slate-500 text-[10px] truncate">👤 ${s.auxiliar || 'Sin auxiliar'}</div>
                       </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-2 text-[11px] pt-1">
-                      <div class="p-2 bg-slate-50 rounded-xl border border-slate-100">
-                        <span class="text-[9px] text-slate-400 font-bold block uppercase">Tracto / Carreta</span>
-                        <strong class="font-mono text-navy-900">${s.placa_tracto || '-'}</strong> / <span class="font-mono text-slate-600">${s.placa_carreta || '-'}</span>
-                      </div>
-                      <div class="p-2 bg-slate-50 rounded-xl border border-slate-100">
-                        <span class="text-[9px] text-slate-400 font-bold block uppercase">Conductor / Auxiliar</span>
-                        <strong class="text-navy-900 block truncate">${s.conductor_nombre || 'Sin asignar'}</strong>
-                        <span class="text-[10px] text-slate-500 block truncate">${s.auxiliar || 'Sin auxiliar'}</span>
-                      </div>
-                    </div>
-
-                    <div class="text-[10px] text-slate-400 flex items-center justify-between">
-                      <span>Prog: ${s.fecha_programada || 'Hoy'} ${s.hora_programada || ''}</span>
-                      <span>${s.instrucciones ? 'Instrucciones activas' : 'Carga regular'}</span>
+                    <div class="p-2.5 bg-slate-50 rounded-2xl border border-slate-100 text-[10px] text-slate-600 space-y-0.5">
+                      <span class="text-[9px] text-slate-400 font-bold uppercase block">Programación</span>
+                      <div class="font-semibold text-slate-700">📅 <span class="text-slate-500 font-bold">FECHA DE CARGA</span> <span class="font-mono text-navy-900">${fechaCargaTxt}</span> • <span class="text-slate-500 font-bold">${fechaCitaTxt}</span></div>
                     </div>
                   </div>
 
-                  <!-- Botones de Acción de Programación (Imagen 5) -->
-                  <div class="pt-2 border-t border-slate-100 grid grid-cols-2 gap-1.5 text-[10px]">
-                    <button onclick="abrirModalModificarProgramacion('${s.cod_servicio}', 'placas')" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg transition text-center cursor-pointer">
-                      Cambiar Placas
-                    </button>
-                    <button onclick="abrirModalModificarProgramacion('${s.cod_servicio}', 'personal')" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg transition text-center cursor-pointer">
-                      Cambiar Personal
-                    </button>
-                    <button onclick="abrirModalModificarProgramacion('${s.cod_servicio}', 'reprogramar')" class="p-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold rounded-lg transition text-center cursor-pointer">
-                      Reprogramar
-                    </button>
-                    <button onclick="abrirModalModificarProgramacion('${s.cod_servicio}', 'anular')" class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-800 font-bold rounded-lg transition text-center cursor-pointer">
-                      Anular
-                    </button>
+                  <!-- Botones de Acción de Programación (Editar / Anular) -->
+                  <div class="pt-2 border-t border-slate-100">
+                    ${estaAnulado ? `
+                      <div class="w-full py-2 px-3 bg-rose-50 border border-rose-200 rounded-xl text-center text-[11px] font-bold text-rose-700">
+                        Servicio anulado
+                      </div>
+                    ` : `
+                      <div class="grid grid-cols-2 gap-2 text-xs">
+                        <button type="button" onclick="abrirModalEditarProgramacionCompleta('${s.cod_servicio}')" class="py-2 px-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition flex items-center justify-center space-x-1 cursor-pointer shadow-2xs">
+                          <span>🟦 Editar</span>
+                        </button>
+                        <button type="button" onclick="abrirModalConfirmarAnularServicio('${s.cod_servicio}')" class="py-2 px-3 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl transition flex items-center justify-center space-x-1 cursor-pointer shadow-2xs">
+                          <span>🟥 Anular</span>
+                        </button>
+                      </div>
+                    `}
                   </div>
                 </div>
               `;
@@ -5215,14 +5468,262 @@ function cambiarSubPestanaProgEmpresa(tab) {
   lucide.createIcons();
 }
 
-function abrirModalCrearProgramacionManual() {
-  const modal = document.getElementById("modal-supervisor-crear-programacion");
-  if (!modal) return;
+let puntosCargaProg = [];
+let puntosDescargaProg = [];
+let mercanciasProg = [];
+let listadoPuntosModoActual = 'descarga';
+let servicioAnularPendienteCod = '';
+
+function renderizarTablaPuntosCargaProg() {
+  const tbody = document.getElementById("tbody-puntos-carga-prog");
+  const lbl = document.getElementById("lbl-resumen-carga-prog");
+  if (lbl) lbl.textContent = `${puntosCargaProg.length} punto(s) de carga registrado(s)`;
+  if (!tbody) return;
+  const maxInline = 15;
+  const visibles = puntosCargaProg.slice(0, maxInline);
+  tbody.innerHTML = visibles.map((p, idx) => `
+    <tr>
+      <td class="p-1.5 text-center font-mono font-bold text-slate-500">${idx + 1}</td>
+      <td class="p-1.5"><input type="text" value="${(p.origen || '').replace(/"/g, '&quot;')}" oninput="puntosCargaProg[${idx}].origen = this.value" placeholder="Ej. Huancayo / Callao" class="w-full p-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs"></td>
+      <td class="p-1.5"><input type="date" value="${p.fecha_carga || ''}" oninput="puntosCargaProg[${idx}].fecha_carga = this.value" class="w-full p-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono"></td>
+      <td class="p-1.5"><input type="time" value="${p.hora_carga || '08:00'}" oninput="puntosCargaProg[${idx}].hora_carga = this.value" class="w-full p-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono"></td>
+      <td class="p-1.5 text-center"><button type="button" onclick="eliminarPuntoCargaProg(${idx})" class="text-rose-500 hover:text-rose-700 p-1 cursor-pointer" title="Quitar">✕</button></td>
+    </tr>
+  `).join('') + (puntosCargaProg.length > maxInline ? `<tr><td colspan="5" class="p-2 text-center text-[10px] text-blue-700 font-bold bg-blue-50">Mostrando ${maxInline} de ${puntosCargaProg.length}. Haz clic en "👁️ Ver Listado" para ver todos.</td></tr>` : '');
+}
+
+function renderizarTablaPuntosDescargaProg() {
+  const tbody = document.getElementById("tbody-puntos-descarga-prog");
+  const lbl = document.getElementById("lbl-resumen-descarga-prog");
+  if (lbl) lbl.textContent = `${puntosDescargaProg.length} punto(s) de descarga registrados`;
+  if (!tbody) return;
+  const maxInline = 15;
+  const visibles = puntosDescargaProg.slice(0, maxInline);
+  tbody.innerHTML = visibles.map((p, idx) => `
+    <tr>
+      <td class="p-1.5 text-center font-mono font-bold text-slate-500">${idx + 1}</td>
+      <td class="p-1.5"><input type="text" value="${(p.destino || '').replace(/"/g, '&quot;')}" oninput="puntosDescargaProg[${idx}].destino = this.value" placeholder="Ej. San Pedro de Coris / Arequipa" class="w-full p-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs"></td>
+      <td class="p-1.5"><input type="date" value="${p.fecha_descarga || ''}" oninput="puntosDescargaProg[${idx}].fecha_descarga = this.value" class="w-full p-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono"></td>
+      <td class="p-1.5"><input type="time" value="${p.hora_descarga || '12:00'}" oninput="puntosDescargaProg[${idx}].hora_descarga = this.value" class="w-full p-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono"></td>
+      <td class="p-1.5 text-center"><button type="button" onclick="eliminarPuntoDescargaProg(${idx})" class="text-rose-500 hover:text-rose-700 p-1 cursor-pointer" title="Quitar">✕</button></td>
+    </tr>
+  `).join('') + (puntosDescargaProg.length > maxInline ? `<tr><td colspan="5" class="p-2 text-center text-[10px] text-emerald-800 font-bold bg-emerald-50">Mostrando ${maxInline} de ${puntosDescargaProg.length} puntos. Usa "👁️ Ver Listado" para ver todos.</td></tr>` : '');
+}
+
+function renderizarTablaMercanciasProg() {
+  const tbody = document.getElementById("tbody-mercancias-prog");
+  const lbl = document.getElementById("lbl-resumen-mercancia-prog");
+  if (lbl) lbl.textContent = `${mercanciasProg.length} mercancía(s) registrada(s)`;
+  if (!tbody) return;
+  const unidadesOpts = ["TM", "KG", "Pallets", "Bultos", "Cajas", "Unidades", "M3", "Sacos", "Galones"];
+  tbody.innerHTML = mercanciasProg.map((m, idx) => `
+    <tr>
+      <td class="p-1.5"><input type="text" value="${(m.tipo || '').replace(/"/g, '&quot;')}" oninput="mercanciasProg[${idx}].tipo = this.value" placeholder="Ej. Carga General / Cemento / Alimentos" class="w-full p-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs"></td>
+      <td class="p-1.5">
+        <select onchange="mercanciasProg[${idx}].unidad = this.value" class="w-full p-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold">
+          ${unidadesOpts.map(u => `<option value="${u}" ${m.unidad === u ? 'selected' : ''}>${u}</option>`).join('')}
+        </select>
+      </td>
+      <td class="p-1.5"><input type="number" min="0" step="any" value="${m.qty || ''}" oninput="mercanciasProg[${idx}].qty = this.value" placeholder="0" class="w-full p-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono"></td>
+      <td class="p-1.5 text-center"><button type="button" onclick="eliminarMercanciaProg(${idx})" class="text-rose-500 hover:text-rose-700 p-1 cursor-pointer" title="Quitar">✕</button></td>
+    </tr>
+  `).join('');
+}
+
+function agregarPuntoCargaProg() {
+  const hoy = new Date().toISOString().split('T')[0];
+  puntosCargaProg.push({ orden: puntosCargaProg.length + 1, origen: "", fecha_carga: hoy, hora_carga: "08:00" });
+  renderizarTablaPuntosCargaProg();
+}
+
+function eliminarPuntoCargaProg(idx) {
+  if (puntosCargaProg.length <= 1) {
+    mostrarToast("Debe existir al menos 1 punto de carga", "warning");
+    return;
+  }
+  puntosCargaProg.splice(idx, 1);
+  puntosCargaProg.forEach((p, i) => p.orden = i + 1);
+  renderizarTablaPuntosCargaProg();
+}
+
+function agregarPuntoDescargaProg() {
+  const hoy = new Date().toISOString().split('T')[0];
+  puntosDescargaProg.push({ orden: puntosDescargaProg.length + 1, destino: "", fecha_descarga: hoy, hora_descarga: "12:00", estado: "PENDIENTE" });
+  renderizarTablaPuntosDescargaProg();
+}
+
+function eliminarPuntoDescargaProg(idx) {
+  if (puntosDescargaProg.length <= 1) {
+    mostrarToast("Debe existir al menos 1 punto de descarga", "warning");
+    return;
+  }
+  puntosDescargaProg.splice(idx, 1);
+  puntosDescargaProg.forEach((p, i) => p.orden = i + 1);
+  renderizarTablaPuntosDescargaProg();
+}
+
+function agregarMercanciaProg() {
+  mercanciasProg.push({ tipo: "", unidad: "TM", qty: "" });
+  renderizarTablaMercanciasProg();
+}
+
+function eliminarMercanciaProg(idx) {
+  if (mercanciasProg.length <= 1) {
+    mercanciasProg[0] = { tipo: "", unidad: "TM", qty: "" };
+  } else {
+    mercanciasProg.splice(idx, 1);
+  }
+  renderizarTablaMercanciasProg();
+}
+
+function importarExcelPuntosProg(tipo, inputEl) {
+  const file = inputEl && inputEl.files && inputEl.files[0];
+  if (!file) return;
+  if (typeof XLSX === 'undefined') {
+    mostrarToast("Librería Excel cargando, intenta en un segundo", "error");
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, { defval: "" });
+      if (!rows || rows.length === 0) {
+        mostrarToast("El archivo Excel no contiene filas válidas", "warning");
+        return;
+      }
+      const hoy = new Date().toISOString().split('T')[0];
+      const nuevos = [];
+      rows.forEach((r, idx) => {
+        const norm = {};
+        Object.keys(r).forEach(k => norm[String(k).toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim()] = r[k]);
+        const lugar = String(norm.ORIGEN || norm.DESTINO || norm.PUNTO || norm.DIRECCION || norm.LUGAR || norm.CIUDAD || Object.values(r)[1] || Object.values(r)[0] || "").trim();
+        if (!lugar) return;
+        const fechaRaw = String(norm.FECHA_CARGA || norm.FECHA_DESCARGA || norm.FECHA || hoy).trim();
+        const horaRaw = String(norm.HORA_CARGA || norm.HORA_DESCARGA || norm.HORA || (tipo === 'carga' ? '08:00' : '12:00')).trim();
+        const ordenVal = Number(norm.ORDEN || (idx + 1)) || (idx + 1);
+        if (tipo === 'carga') {
+          nuevos.push({ orden: ordenVal, origen: lugar, fecha_carga: fechaRaw, hora_carga: horaRaw });
+        } else {
+          nuevos.push({ orden: ordenVal, destino: lugar, fecha_descarga: fechaRaw, hora_descarga: horaRaw, estado: "PENDIENTE" });
+        }
+      });
+      if (nuevos.length === 0) {
+        mostrarToast("No se detectaron puntos en las columnas del Excel", "warning");
+        return;
+      }
+      if (tipo === 'carga') {
+        puntosCargaProg = nuevos;
+        renderizarTablaPuntosCargaProg();
+      } else {
+        puntosDescargaProg = nuevos;
+        renderizarTablaPuntosDescargaProg();
+      }
+      mostrarToast(`✅ ${nuevos.length} punto(s) de ${tipo} importados desde Excel`, "success");
+    } catch(err) {
+      mostrarToast("Error al leer Excel: " + err.message, "error");
+    } finally {
+      inputEl.value = "";
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function abrirModalListadoPuntos(tipo) {
+  listadoPuntosModoActual = tipo;
+  const titulo = document.getElementById("titulo-modal-listado-puntos");
+  const sub = document.getElementById("subtitulo-modal-listado-puntos");
+  const thLugar = document.getElementById("th-listado-punto-lugar");
+  const thFecha = document.getElementById("th-listado-punto-fecha");
+  const thHora = document.getElementById("th-listado-punto-hora");
+  const lista = tipo === 'carga' ? puntosCargaProg : puntosDescargaProg;
+  if (titulo) titulo.textContent = tipo === 'carga' ? `Puntos de Carga (${lista.length})` : `Puntos de Descarga (${lista.length})`;
+  if (sub) sub.textContent = `Visualización y edición rápida de los ${lista.length} punto(s) registrados`;
+  if (thLugar) thLugar.textContent = tipo === 'carga' ? 'Origen' : 'Destino';
+  if (thFecha) thFecha.textContent = tipo === 'carga' ? 'Fecha Carga' : 'Fecha Descarga';
+  if (thHora) thHora.textContent = tipo === 'carga' ? 'Hora Carga' : 'Hora Descarga';
+  const busc = document.getElementById("buscar-listado-puntos-prog");
+  if (busc) busc.value = "";
+  filtrarListadoPuntosModal();
+  document.getElementById("modal-listado-puntos-prog").classList.remove("hidden");
+  lucide.createIcons();
+}
+
+function filtrarListadoPuntosModal() {
+  const q = (document.getElementById("buscar-listado-puntos-prog")?.value || "").trim().toLowerCase();
+  const tbody = document.getElementById("tbody-modal-listado-puntos");
+  if (!tbody) return;
+  const esCarga = listadoPuntosModoActual === 'carga';
+  const lista = esCarga ? puntosCargaProg : puntosDescargaProg;
+  const filtrados = lista.map((p, idx) => ({ p, idx })).filter(({ p, idx }) => {
+    if (!q) return true;
+    const txt = esCarga ? (p.origen || '') : (p.destino || '');
+    return txt.toLowerCase().includes(q) || String(idx + 1).includes(q);
+  });
+  tbody.innerHTML = filtrados.map(({ p, idx }) => `
+    <tr class="hover:bg-slate-50">
+      <td class="p-2 text-center font-mono font-bold text-slate-500">${idx + 1}</td>
+      <td class="p-2"><input type="text" value="${((esCarga ? p.origen : p.destino) || '').replace(/"/g, '&quot;')}" oninput="${esCarga ? `puntosCargaProg[${idx}].origen=this.value;renderizarTablaPuntosCargaProg();` : `puntosDescargaProg[${idx}].destino=this.value;renderizarTablaPuntosDescargaProg();`}" class="w-full p-1.5 bg-white border border-slate-200 rounded-lg text-xs"></td>
+      <td class="p-2"><input type="date" value="${(esCarga ? p.fecha_carga : p.fecha_descarga) || ''}" oninput="${esCarga ? `puntosCargaProg[${idx}].fecha_carga=this.value;renderizarTablaPuntosCargaProg();` : `puntosDescargaProg[${idx}].fecha_descarga=this.value;renderizarTablaPuntosDescargaProg();`}" class="w-full p-1.5 bg-white border border-slate-200 rounded-lg text-xs font-mono"></td>
+      <td class="p-2"><input type="time" value="${(esCarga ? p.hora_carga : p.hora_descarga) || '08:00'}" oninput="${esCarga ? `puntosCargaProg[${idx}].hora_carga=this.value;renderizarTablaPuntosCargaProg();` : `puntosDescargaProg[${idx}].hora_descarga=this.value;renderizarTablaPuntosDescargaProg();`}" class="w-full p-1.5 bg-white border border-slate-200 rounded-lg text-xs font-mono"></td>
+      <td class="p-2 text-center"><button type="button" onclick="${esCarga ? `eliminarPuntoCargaProg(${idx})` : `eliminarPuntoDescargaProg(${idx})`}; filtrarListadoPuntosModal();" class="text-rose-500 hover:text-rose-700 p-1 cursor-pointer">✕</button></td>
+    </tr>
+  `).join('');
+}
+
+function descargarPlantillaPuntosExcel() {
+  if (typeof XLSX === 'undefined') return;
+  const esCarga = listadoPuntosModoActual === 'carga';
+  const hoy = new Date().toISOString().split('T')[0];
+  const rows = esCarga
+    ? [{ ORDEN: 1, ORIGEN: "Almacén Central Huancayo", FECHA_CARGA: hoy, HORA_CARGA: "08:00" }]
+    : [{ ORDEN: 1, DESTINO: "San Pedro de Coris", FECHA_DESCARGA: hoy, HORA_DESCARGA: "14:00" }, { ORDEN: 2, DESTINO: "Chilca", FECHA_DESCARGA: hoy, HORA_DESCARGA: "16:30" }];
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, esCarga ? "Puntos_Carga" : "Puntos_Descarga");
+  XLSX.writeFile(wb, esCarga ? "plantilla_puntos_carga.xlsx" : "plantilla_puntos_descarga.xlsx");
+}
+
+function poblarSelectoresFlotaYPersonalProg(empId, tractoSel = "", carretaSel = "", conductorSel = "") {
   if (typeof sincronizarUsuariosYConductoresUnificados === "function") {
     sincronizarUsuariosYConductoresUnificados();
   }
+  const cndSelect = document.getElementById("prog-crear-conductor");
+  if (cndSelect) {
+    const cnds = (DB_LOCAL.conductores || []).filter(c => !empId || empId === 'TODAS' || !c.id_empresa || c.id_empresa === empId || c.id_empresa === 'TODAS');
+    const cndsList = cnds.length > 0 ? cnds : (DB_LOCAL.conductores || []);
+    cndSelect.innerHTML = cndsList.map(c => `<option value="${c.id_conductor}" ${c.id_conductor === conductorSel ? 'selected' : ''}>${c.nombre} (${c.dni || c.usuario_login || 'Sin DNI'}) - Lic: ${c.licencia || 'A-IIIc'}</option>`).join('');
+  }
+  const tractoSelect = document.getElementById("prog-crear-tracto");
+  if (tractoSelect) {
+    let tractosPlacas = (DB_LOCAL.tractos || []).filter(t => !empId || empId === 'TODAS' || t.id_empresa === empId || t.id_empresa === 'TODAS').map(t => t.placa);
+    if (tractosPlacas.length === 0) tractosPlacas = ["V7X-890", "F4C-902", "T3B-891", "B5K-710"];
+    if (tractoSel && !tractosPlacas.includes(tractoSel)) tractosPlacas.unshift(tractoSel);
+    tractoSelect.innerHTML = tractosPlacas.map(p => `<option value="${p}" ${p === tractoSel ? 'selected' : ''}>${p}</option>`).join('');
+  }
+  const carretaSelect = document.getElementById("prog-crear-carreta");
+  if (carretaSelect) {
+    let carretasPlacas = (DB_LOCAL.carretas || []).filter(c => !empId || empId === 'TODAS' || c.id_empresa === empId || c.id_empresa === 'TODAS').map(c => c.placa);
+    if (carretasPlacas.length === 0) carretasPlacas = ["TC8-120", "TR8-901", "C1M-552", "TC8-110"];
+    if (carretaSel && !carretasPlacas.includes(carretaSel)) carretasPlacas.push(carretaSel);
+    carretaSelect.innerHTML = `<option value="" ${!carretaSel ? 'selected' : ''}>Sin carreta (Opcional)</option>` + carretasPlacas.map(p => `<option value="${p}" ${p === carretaSel ? 'selected' : ''}>${p}</option>`).join('');
+  }
+}
+
+function abrirModalCrearProgramacionManual() {
+  const modal = document.getElementById("modal-supervisor-crear-programacion");
+  if (!modal) return;
   const empId = sesionActual ? sesionActual.id_empresa : 'TRP-001';
-  
+  const ahora = new Date();
+  const hoyIso = ahora.toISOString().split('T')[0];
+  const fechaPe = ahora.toLocaleDateString('es-PE');
+  const horaPe = ahora.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', hour12: false });
+
+  document.getElementById("prog-crear-modo-edicion").value = "";
+  const tit = document.getElementById("prog-modal-titulo");
+  if (tit) tit.textContent = "PROGRAMACIÓN MANUAL";
+
   const codInput = document.getElementById("prog-crear-cod");
   if (codInput) {
     let srvNum = (DB_LOCAL.servicios || []).length + 1;
@@ -5231,36 +5732,123 @@ function abrirModalCrearProgramacionManual() {
     }
     codInput.value = 'SRV-2026-' + String(srvNum).padStart(4, '0');
   }
-  const fechaInput = document.getElementById("prog-crear-fecha");
-  if (fechaInput && !fechaInput.value) {
-    fechaInput.value = new Date().toISOString().split('T')[0];
-  }
+  if (document.getElementById("prog-crear-fecha-reg")) document.getElementById("prog-crear-fecha-reg").value = fechaPe;
+  if (document.getElementById("prog-crear-hora-reg")) document.getElementById("prog-crear-hora-reg").value = horaPe;
+  if (document.getElementById("prog-crear-fecha")) document.getElementById("prog-crear-fecha").value = hoyIso;
+  if (document.getElementById("prog-crear-cliente")) document.getElementById("prog-crear-cliente").value = "";
+  if (document.getElementById("prog-crear-ruc")) document.getElementById("prog-crear-ruc").value = "";
+  if (document.getElementById("prog-crear-auxiliar")) document.getElementById("prog-crear-auxiliar").value = "";
+  if (document.getElementById("prog-crear-km")) document.getElementById("prog-crear-km").value = "148500";
+  if (document.getElementById("prog-crear-obs")) document.getElementById("prog-crear-obs").value = "";
 
-  // Poblar select conductores de la empresa (incluyendo recién creados desde Usuarios)
-  const cndSelect = document.getElementById("prog-crear-conductor");
-  if (cndSelect) {
-    const cnds = (DB_LOCAL.conductores || []).filter(c => !empId || empId === 'TODAS' || !c.id_empresa || c.id_empresa === empId || c.id_empresa === 'TODAS');
-    const cndsList = cnds.length > 0 ? cnds : (DB_LOCAL.conductores || []);
-    cndSelect.innerHTML = cndsList.map(c => `<option value="${c.id_conductor}">${c.nombre} (${c.dni || c.usuario_login || 'Sin DNI'}) - Lic: ${c.licencia || 'A-IIIc'}</option>`).join('');
-  }
+  document.querySelectorAll('input[name="prog-tipo-op"]').forEach(chk => { chk.checked = (chk.value === "Local"); });
 
-  // Poblar select tractos con placas reales
-  const tractoSelect = document.getElementById("prog-crear-tracto");
-  if (tractoSelect) {
-    let tractosPlacas = (DB_LOCAL.tractos || []).filter(t => !empId || empId === 'TODAS' || t.id_empresa === empId || t.id_empresa === 'TODAS').map(t => t.placa);
-    if (tractosPlacas.length === 0) tractosPlacas = ["V7X-890", "F4C-902", "T3B-891", "B5K-710"];
-    tractoSelect.innerHTML = tractosPlacas.map(p => `<option value="${p}">${p}</option>`).join('');
-  }
+  puntosCargaProg = [{ orden: 1, origen: "", fecha_carga: hoyIso, hora_carga: "08:00" }];
+  puntosDescargaProg = [{ orden: 1, destino: "", fecha_descarga: hoyIso, hora_descarga: "12:00", estado: "PENDIENTE" }];
+  mercanciasProg = [{ tipo: "", unidad: "TM", qty: "" }];
+  renderizarTablaPuntosCargaProg();
+  renderizarTablaPuntosDescargaProg();
+  renderizarTablaMercanciasProg();
 
-  // Poblar select carretas con placas reales
-  const carretaSelect = document.getElementById("prog-crear-carreta");
-  if (carretaSelect) {
-    let carretasPlacas = (DB_LOCAL.carretas || []).filter(c => !empId || empId === 'TODAS' || c.id_empresa === empId || c.id_empresa === 'TODAS').map(c => c.placa);
-    if (carretasPlacas.length === 0) carretasPlacas = ["TC8-120", "TR8-901", "C1M-552", "TC8-110"];
-    carretaSelect.innerHTML = carretasPlacas.map(p => `<option value="${p}">${p}</option>`).join('');
-  }
+  poblarSelectoresFlotaYPersonalProg(empId);
 
   modal.classList.remove("hidden");
+  lucide.createIcons();
+}
+
+function abrirModalEditarProgramacionCompleta(codServicio) {
+  const s = (DB_LOCAL.servicios || []).find(x => x.cod_servicio === codServicio);
+  if (!s) return;
+  const modal = document.getElementById("modal-supervisor-crear-programacion");
+  if (!modal) return;
+  const empId = sesionActual ? sesionActual.id_empresa : (s.id_empresa || 'TRP-001');
+  const hoyIso = new Date().toISOString().split('T')[0];
+
+  document.getElementById("prog-crear-modo-edicion").value = s.cod_servicio;
+  const tit = document.getElementById("prog-modal-titulo");
+  if (tit) tit.textContent = `EDITAR PROGRAMACIÓN — ${s.cod_servicio}`;
+
+  document.getElementById("prog-crear-cod").value = s.cod_servicio;
+  if (document.getElementById("prog-crear-fecha-reg")) document.getElementById("prog-crear-fecha-reg").value = s.fecha_registro || s.fecha_programada || new Date().toLocaleDateString('es-PE');
+  if (document.getElementById("prog-crear-hora-reg")) document.getElementById("prog-crear-hora-reg").value = s.hora_registro || s.hora_programada || "08:00";
+  if (document.getElementById("prog-crear-cliente")) document.getElementById("prog-crear-cliente").value = s.cliente || "";
+  if (document.getElementById("prog-crear-ruc")) document.getElementById("prog-crear-ruc").value = s.ruc_cliente || "";
+  if (document.getElementById("prog-crear-auxiliar")) document.getElementById("prog-crear-auxiliar").value = s.auxiliar || "";
+  if (document.getElementById("prog-crear-km")) document.getElementById("prog-crear-km").value = s.km_inicial || 148500;
+  if (document.getElementById("prog-crear-obs")) document.getElementById("prog-crear-obs").value = s.instrucciones || "";
+
+  const tiposArr = Array.isArray(s.tipo_operacion) ? s.tipo_operacion : [];
+  document.querySelectorAll('input[name="prog-tipo-op"]').forEach(chk => {
+    chk.checked = tiposArr.includes(chk.value);
+  });
+
+  puntosCargaProg = (Array.isArray(s.puntos_carga) && s.puntos_carga.length > 0)
+    ? JSON.parse(JSON.stringify(s.puntos_carga))
+    : [{ orden: 1, origen: s.origen || "", fecha_carga: s.fecha_programada || hoyIso, hora_carga: s.hora_programada || "08:00" }];
+
+  puntosDescargaProg = (Array.isArray(s.puntos_descarga) && s.puntos_descarga.length > 0)
+    ? JSON.parse(JSON.stringify(s.puntos_descarga))
+    : (Array.isArray(s.paradas) && s.paradas.length > 0
+        ? s.paradas.map((p, i) => ({ orden: p.orden || (i + 1), destino: p.nombre || p.destino || s.parada_actual || "", fecha_descarga: p.fecha_descarga || hoyIso, hora_descarga: p.hora_descarga || "12:00", estado: p.estado || "PENDIENTE" }))
+        : [{ orden: 1, destino: s.destino || s.parada_actual || "", fecha_descarga: hoyIso, hora_descarga: "12:00", estado: "PENDIENTE" }]);
+
+  mercanciasProg = (Array.isArray(s.mercancias) && s.mercancias.length > 0)
+    ? JSON.parse(JSON.stringify(s.mercancias))
+    : [{ tipo: "", unidad: "TM", qty: "" }];
+
+  renderizarTablaPuntosCargaProg();
+  renderizarTablaPuntosDescargaProg();
+  renderizarTablaMercanciasProg();
+
+  poblarSelectoresFlotaYPersonalProg(empId, s.placa_tracto || "", s.placa_carreta || "", s.id_conductor || "");
+
+  modal.classList.remove("hidden");
+  lucide.createIcons();
+}
+
+function abrirModalConfirmarAnularServicio(codServicio) {
+  servicioAnularPendienteCod = codServicio;
+  const lbl = document.getElementById("lbl-anular-cod-servicio");
+  if (lbl) lbl.textContent = codServicio;
+  const modal = document.getElementById("modal-confirmar-anular-servicio");
+  if (modal) {
+    modal.classList.remove("hidden");
+    lucide.createIcons();
+  }
+}
+
+function confirmarAnularServicio() {
+  const codServicio = servicioAnularPendienteCod;
+  const s = (DB_LOCAL.servicios || []).find(x => x.cod_servicio === codServicio);
+  if (!s) {
+    cerrarModal("modal-confirmar-anular-servicio");
+    return;
+  }
+  s.estado = 'Anulado';
+  s.motivo_cancelacion = 'Anulado desde Programación';
+  registrarAuditoriaProgramacion(codServicio, 'Anulación de Servicio', `Servicio ${codServicio} anulado.`);
+  guardarBaseDatosLocal();
+
+  const payloadAnular = {
+    action: "supervisor/asignar_ruta",
+    cod_servicio: codServicio,
+    id_empresa: s.id_empresa,
+    estado: "Anulado",
+    cliente_razon_social: s.cliente,
+    id_conductor: s.id_conductor,
+    placa_tracto: s.placa_tracto,
+    placa_carreta: s.placa_carreta,
+    origen: s.origen,
+    parada_actual: s.parada_actual
+  };
+  encolarPendiente(payloadAnular);
+  enviarPendientesNube().catch(() => {});
+  notificarCambioRealtime({ tipo: "PROGRAMACION_ANULADA", cod_servicio: codServicio });
+
+  cerrarModal("modal-confirmar-anular-servicio");
+  mostrarToast(`✅ Servicio ${codServicio} anulado correctamente.`, "success");
+  const main = document.getElementById("main-stage-area");
+  renderizarModulo03Programacion(main, sesionActual ? sesionActual.id_empresa : 'TRP-001');
   lucide.createIcons();
 }
 
@@ -7941,62 +8529,18 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
       renderizarPanelProgramacion(document.getElementById("main-stage-area"), srvs, cnds);
     }
 
-    // ABRIR MODAL: CREAR PROGRAMACIÓN MANUAL
+    // ABRIR MODAL: CREAR PROGRAMACIÓN MANUAL (Delegación al modal unificado de 10 secciones)
     function abrirModalCrearProgramacion() {
-      const hoy = new Date().toISOString().slice(0, 10);
-      const codSrv = "SRV-" + new Date().getFullYear() + "-" + Math.floor(1000 + Math.random() * 9000);
-
-      document.getElementById("prog-crear-cod").value = codSrv;
-      document.getElementById("prog-crear-fecha").value = hoy;
-      document.getElementById("prog-crear-hora").value = "08:00";
-      document.getElementById("prog-crear-cliente").value = "";
-      document.getElementById("prog-crear-ruc").value = "";
-      document.getElementById("prog-crear-origen").value = "Almacén Central Callao";
-      document.getElementById("prog-crear-destino").value = "";
-      document.getElementById("prog-crear-auxiliar").value = "";
-      document.getElementById("prog-crear-obs").value = "";
-
-      // Llenar selectores con flota y conductores de la empresa activa (sincronizados)
-      if (typeof sincronizarUsuariosYConductoresUnificados === "function") {
-        sincronizarUsuariosYConductoresUnificados();
-      }
-      const cnds = DB_LOCAL.conductores.filter(c => !c.id_empresa || c.id_empresa === 'TODAS' || !sesionActual || sesionActual.id_empresa === 'TODAS' || c.id_empresa === sesionActual.id_empresa);
-      const selCnd = document.getElementById("prog-crear-conductor");
-      if (selCnd) {
-        selCnd.innerHTML = cnds.map(c => `<option value="${c.id_conductor}">${c.nombre} (${c.dni || c.usuario_login || c.estado}) - Lic: ${c.licencia || 'A-IIIc'}</option>`).join('');
-      }
-
-      // Tractos y Carretas
-      const selTracto = document.getElementById("prog-crear-tracto");
-      if (selTracto) {
-        const tractosUnicos = Array.from(new Set(cnds.map(c => c.placa_tracto).filter(Boolean)));
-        if (!tractosUnicos.includes("V7X-890")) tractosUnicos.unshift("V7X-890");
-        if (!tractosUnicos.includes("F4C-902")) tractosUnicos.push("F4C-902");
-        if (!tractosUnicos.includes("T3B-891")) tractosUnicos.push("T3B-891");
-        selTracto.innerHTML = tractosUnicos.map(p => `<option value="${p}">${p}</option>`).join('');
-      }
-
-      const selCarreta = document.getElementById("prog-crear-carreta");
-      if (selCarreta) {
-        const carretasUnicas = Array.from(new Set(cnds.map(c => c.placa_carreta).filter(Boolean)));
-        if (!carretasUnicas.includes("TC8-120")) carretasUnicas.unshift("TC8-120");
-        if (!carretasUnicas.includes("TR8-901")) carretasUnicas.push("TR8-901");
-        if (!carretasUnicas.includes("C1M-552")) carretasUnicas.push("C1M-552");
-        selCarreta.innerHTML = carretasUnicas.map(p => `<option value="${p}">${p}</option>`).join('');
-      }
-
-      document.getElementById("modal-supervisor-crear-programacion").classList.remove("hidden");
-      lucide.createIcons();
+      return abrirModalCrearProgramacionManual();
     }
 
     async function guardarNuevaProgramacionManual() {
+      const modoEditCod = (document.getElementById("prog-crear-modo-edicion")?.value || "").trim();
       const codServicio = document.getElementById("prog-crear-cod").value;
-      const fecha = document.getElementById("prog-crear-fecha").value;
-      const hora = document.getElementById("prog-crear-hora").value;
+      const fechaReg = document.getElementById("prog-crear-fecha-reg")?.value || new Date().toLocaleDateString('es-PE');
+      const horaReg = document.getElementById("prog-crear-hora-reg")?.value || "08:00";
       const cliente = document.getElementById("prog-crear-cliente").value.trim();
       const ruc = document.getElementById("prog-crear-ruc").value.trim();
-      const origen = document.getElementById("prog-crear-origen").value.trim();
-      const destino = document.getElementById("prog-crear-destino").value.trim();
       const idCnd = document.getElementById("prog-crear-conductor").value;
       const aux = document.getElementById("prog-crear-auxiliar").value.trim();
       const tracto = document.getElementById("prog-crear-tracto").value;
@@ -8004,62 +8548,140 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
       const km = Number(document.getElementById("prog-crear-km").value) || 148500;
       const obs = document.getElementById("prog-crear-obs").value.trim();
 
-      if (!cliente || !origen || !destino || !idCnd) {
-        mostrarToast("Completa los datos obligatorios de la programación", "error");
+      const tiposOperacion = Array.from(document.querySelectorAll('input[name="prog-tipo-op"]:checked')).map(el => el.value);
+      const cargasValidas = (puntosCargaProg || []).filter(p => (p.origen || "").trim().length > 0).map((p, i) => ({
+        orden: i + 1,
+        origen: p.origen.trim(),
+        fecha_carga: p.fecha_carga || "",
+        hora_carga: p.hora_carga || "08:00"
+      }));
+      const descargasValidas = (puntosDescargaProg || []).filter(p => (p.destino || "").trim().length > 0).map((p, i) => ({
+        id: "DST-" + (i + 1),
+        orden: i + 1,
+        destino: p.destino.trim(),
+        nombre: p.destino.trim(),
+        fecha_descarga: p.fecha_descarga || "",
+        hora_descarga: p.hora_descarga || "12:00",
+        estado: p.estado || "PENDIENTE"
+      }));
+      const mercanciasValidas = (mercanciasProg || []).filter(m => (m.tipo || "").trim().length > 0 || Number(m.qty) > 0).map(m => ({
+        tipo: (m.tipo || "Carga General").trim(),
+        unidad: m.unidad || "TM",
+        qty: Number(m.qty) || 0
+      }));
+
+      const origenPrincipal = cargasValidas.length > 0 ? cargasValidas[0].origen : (document.getElementById("prog-crear-origen")?.value || "").trim();
+      const destinoPrincipal = descargasValidas.length > 0 ? descargasValidas[0].destino : (document.getElementById("prog-crear-destino")?.value || "").trim();
+      const fecha = (cargasValidas[0] && cargasValidas[0].fecha_carga) ? cargasValidas[0].fecha_carga : (document.getElementById("prog-crear-fecha")?.value || new Date().toISOString().split('T')[0]);
+      const hora = (cargasValidas[0] && cargasValidas[0].hora_carga) ? cargasValidas[0].hora_carga : "08:00";
+      const fechaCita = (descargasValidas[0] && descargasValidas[0].fecha_descarga)
+        ? `${descargasValidas[0].fecha_descarga} ${descargasValidas[0].hora_descarga || ''}`.trim()
+        : "FECHA DE CITA";
+
+      if (!cliente || !origenPrincipal || !destinoPrincipal || !tracto || !idCnd) {
+        mostrarToast("Completa Cliente, al menos 1 Punto de Carga, 1 Punto de Descarga, Placa (Tracto) y Conductor", "error");
         return;
       }
 
-      const cnd = DB_LOCAL.conductores.find(c => c.id_conductor === idCnd);
+      const cnd = (DB_LOCAL.conductores || []).find(c => c.id_conductor === idCnd);
+      const empAsig = (sesionActual && sesionActual.id_empresa && sesionActual.id_empresa !== 'TODAS') ? sesionActual.id_empresa : 'TRP-001';
 
-      const nuevoSrv = {
-        cod_servicio: codServicio,
-        id_empresa: sesionActual ? sesionActual.id_empresa : 'TRP-001',
-        cliente: cliente,
-        ruc_cliente: ruc,
-        id_conductor: idCnd,
-        conductor_nombre: cnd ? cnd.nombre : "Conductor",
-        conductor_dni: cnd ? cnd.dni : "",
-        conductor_licencia: cnd ? cnd.licencia : "",
-        auxiliar: aux,
-        placa_tracto: tracto,
-        placa_carreta: carreta,
-        origen: origen,
-        cantidad_destinos: 1,
-        parada_actual: destino,
-        paradas: [{ id: "DST-1", orden: 1, nombre: destino, estado: "PENDIENTE" }],
-        estado: "Programado",
-        alerta_retraso: "A TIEMPO",
-        km_inicial: km,
-        km_final: null,
-        fecha_programada: fecha,
-        hora_programada: hora,
-        instrucciones: obs,
-        eventos: [],
-        evidencias: []
-      };
+      if (modoEditCod) {
+        const srvExist = (DB_LOCAL.servicios || []).find(s => s.cod_servicio === modoEditCod);
+        if (srvExist) {
+          srvExist.cliente = cliente;
+          srvExist.ruc_cliente = ruc;
+          srvExist.tipo_operacion = tiposOperacion;
+          srvExist.id_conductor = idCnd;
+          srvExist.conductor_nombre = cnd ? cnd.nombre : srvExist.conductor_nombre;
+          srvExist.conductor_dni = cnd ? cnd.dni : srvExist.conductor_dni;
+          srvExist.conductor_licencia = cnd ? cnd.licencia : srvExist.conductor_licencia;
+          srvExist.auxiliar = aux;
+          srvExist.placa_tracto = tracto;
+          srvExist.placa_carreta = carreta;
+          srvExist.origen = origenPrincipal;
+          srvExist.destino = destinoPrincipal;
+          srvExist.parada_actual = destinoPrincipal;
+          srvExist.cantidad_destinos = descargasValidas.length;
+          srvExist.puntos_carga = cargasValidas;
+          srvExist.puntos_descarga = descargasValidas;
+          srvExist.paradas = descargasValidas;
+          srvExist.mercancias = mercanciasValidas;
+          srvExist.km_inicial = km;
+          srvExist.fecha_programada = fecha;
+          srvExist.hora_programada = hora;
+          srvExist.fecha_cita = fechaCita;
+          srvExist.instrucciones = obs;
+          registrarAuditoriaProgramacion(codServicio, 'Edición de Programación', `Actualizado: ${origenPrincipal} → ${destinoPrincipal} (${cargasValidas.length} carga(s), ${descargasValidas.length} descarga(s)).`);
+        }
+      } else {
+        const nuevoSrv = {
+          cod_servicio: codServicio,
+          id_empresa: empAsig,
+          cliente: cliente,
+          ruc_cliente: ruc,
+          tipo_operacion: tiposOperacion,
+          id_conductor: idCnd,
+          conductor_nombre: cnd ? cnd.nombre : "Conductor",
+          conductor_dni: cnd ? cnd.dni : "",
+          conductor_licencia: cnd ? cnd.licencia : "",
+          auxiliar: aux,
+          placa_tracto: tracto,
+          placa_carreta: carreta,
+          origen: origenPrincipal,
+          destino: destinoPrincipal,
+          cantidad_destinos: descargasValidas.length,
+          parada_actual: destinoPrincipal,
+          puntos_carga: cargasValidas,
+          puntos_descarga: descargasValidas,
+          paradas: descargasValidas,
+          mercancias: mercanciasValidas,
+          estado: "Programado",
+          alerta_retraso: "A TIEMPO",
+          km_inicial: km,
+          km_actual: km,
+          km_final: null,
+          fecha_programada: fecha,
+          hora_programada: hora,
+          fecha_registro: fechaReg,
+          hora_registro: horaReg,
+          fecha_cita: fechaCita,
+          instrucciones: obs,
+          eventos: [],
+          eventos_historial: [],
+          evidencias: []
+        };
+        DB_LOCAL.servicios = DB_LOCAL.servicios || [];
+        DB_LOCAL.servicios.unshift(nuevoSrv);
+        registrarAuditoriaProgramacion(codServicio, 'Programación Creada', `Creada ruta ${origenPrincipal} → ${destinoPrincipal} (${cargasValidas.length} carga(s), ${descargasValidas.length} descarga(s)).`);
+      }
 
-      nuevoSrv.id_empresa = (sesionActual && sesionActual.id_empresa && sesionActual.id_empresa !== 'TODAS') ? sesionActual.id_empresa : 'TRP-001';
-      DB_LOCAL.servicios = DB_LOCAL.servicios || [];
-      DB_LOCAL.servicios.unshift(nuevoSrv);
       guardarBaseDatosLocal();
 
       // Enviar y encolar a Google Sheets
       const payloadAsignar = {
         action: "supervisor/asignar_ruta",
         cod_servicio: codServicio,
-        id_empresa: nuevoSrv.id_empresa,
+        id_empresa: empAsig,
         cliente_razon_social: cliente,
         cliente_ruc: ruc,
+        tipo_operacion: tiposOperacion,
         id_conductor: idCnd,
         placa_tracto: tracto,
         placa_carreta: carreta,
-        origen: origen,
-        parada_actual: destino,
-        destinos: [{ id: "DST-1", punto_llegada: destino, orden: 1 }],
+        origen: origenPrincipal,
+        parada_actual: destinoPrincipal,
+        destinos: descargasValidas.map(d => ({ id: d.id, punto_llegada: d.destino, orden: d.orden })),
+        puntos_carga: cargasValidas,
+        puntos_descarga: descargasValidas,
+        mercancias: mercanciasValidas,
         estado: "Programado",
         km_inicial: km,
         fecha_programada: fecha,
         hora_programada: hora,
+        fecha_registro: fechaReg,
+        hora_registro: horaReg,
+        fecha_cita: fechaCita,
         instrucciones: obs,
         auxiliar: aux
       };
@@ -8067,15 +8689,15 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
       encolarPendiente(payloadAsignar);
       enviarPendientesNube().then(n => {
         if (n > 0) {
-          mostrarToast(`✅ Programación ${codServicio} publicada en Google Sheets`, "success");
+          mostrarToast(`✅ Programación ${codServicio} guardada en Google Sheets`, "success");
           ejecutarSincronizacionBidireccional(false);
         }
       }).catch(err => console.warn("Sync Sheets programacion:", err));
 
-      notificarCambioRealtime({ tipo: "PROGRAMACION_PUBLICADA", cod_servicio: codServicio });
+      notificarCambioRealtime({ tipo: modoEditCod ? "PROGRAMACION_MODIFICADA" : "PROGRAMACION_PUBLICADA", cod_servicio: codServicio });
 
       cerrarModal("modal-supervisor-crear-programacion");
-      mostrarToast(`✅ Programación ${codServicio} publicada. Conductor asignado ya puede verla en su móvil.`, "success");
+      mostrarToast(modoEditCod ? `✅ Programación ${codServicio} actualizada correctamente.` : `✅ Programación ${codServicio} guardada. Conductor asignado ya puede verla en su móvil.`, "success");
       mostrarSeccionSupervisor('programacion');
     }
 
