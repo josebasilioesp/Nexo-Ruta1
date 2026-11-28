@@ -1929,6 +1929,7 @@
         if (payload.password) params.set("password", payload.password);
         if (payload.cod_servicio) params.set("cod_servicio", payload.cod_servicio);
         if (payload.nuevo_estado) params.set("nuevo_estado", payload.nuevo_estado);
+        if (payload.estado) params.set("estado", payload.estado);
 
         // Para acciones con datos nuevos que no sean sync general, enviar data limpio y corto
         if (payload.action !== "sistema/sync_bidireccional") {
@@ -2546,8 +2547,8 @@
         const esOficial = CUENTAS_AUTORIZADAS_OFICIALES.some(c => c.toLowerCase() === nom || c.toLowerCase().split('@')[0] === nom);
         return esOficial || u.creado_manualmente === true;
       });
-      // Guardar lista limpia
-      persistirUsuariosYEmpresasLocales();
+      // Guardar únicamente la lista limpia de usuarios (SIN pisar servicios, conductores o auditoría antes de restaurarlos)
+      try { localStorage.setItem("NEXA_RUTA_USUARIOS_CUSTOM", JSON.stringify(DB_LOCAL.usuarios)); } catch(e) {}
 
       // 4. Restaurar conductores personalizados (filtrando eliminados)
       const cGuardados = localStorage.getItem("NEXA_RUTA_CONDUCTORES_CUSTOM");
@@ -2607,18 +2608,40 @@
         }
       }
 
-      // 8. Restaurar servicios modificados
+      // 8. Restaurar servicios modificados, anulados y auditoría de programación
       const srvGuardados = localStorage.getItem("NEXA_RUTA_SERVICIOS_CUSTOM");
       if (srvGuardados) {
         const parsedSrv = JSON.parse(srvGuardados);
         if (Array.isArray(parsedSrv) && parsedSrv.length > 0) {
+          // Conservar el orden guardado poniendo primero los servicios creados/modificados personalizados
+          const nuevosCustom = [];
           parsedSrv.forEach(s => {
             const idx = (DB_LOCAL.servicios || []).findIndex(x => x.cod_servicio === s.cod_servicio);
             if (idx >= 0) DB_LOCAL.servicios[idx] = { ...DB_LOCAL.servicios[idx], ...s };
-            else DB_LOCAL.servicios.push(s);
+            else nuevosCustom.push(s);
           });
+          if (nuevosCustom.length > 0) {
+            DB_LOCAL.servicios = nuevosCustom.concat(DB_LOCAL.servicios || []);
+          }
         }
       }
+      try {
+        const srvAnulados = JSON.parse(localStorage.getItem("NEXA_RUTA_SERVICIOS_ANULADOS") || "[]");
+        if (Array.isArray(srvAnulados) && srvAnulados.length > 0) {
+          (DB_LOCAL.servicios || []).forEach(s => {
+            if (srvAnulados.includes(s.cod_servicio)) {
+              s.estado = "Anulado";
+              if (!s.motivo_cancelacion) s.motivo_cancelacion = "Anulado desde Programación";
+            }
+          });
+        }
+      } catch(e) {}
+      try {
+        const audProgGuard = JSON.parse(localStorage.getItem("NEXA_RUTA_AUDITORIA_PROG_CUSTOM") || "[]");
+        if (Array.isArray(audProgGuard) && audProgGuard.length > 0) {
+          DB_LOCAL.auditoria_programacion = audProgGuard;
+        }
+      } catch(e) {}
 
       // 9. Restaurar incidencias y observaciones reportadas
       const incGuardadas = localStorage.getItem("NEXA_RUTA_INCIDENCIAS_CUSTOM");
@@ -2637,26 +2660,89 @@
       console.warn("Aviso al restaurar base de datos local:", e);
     }
 
-    function persistirUsuariosYEmpresasLocales() {
+    function leerServiciosAnulados() {
       try {
-        localStorage.setItem("NEXA_RUTA_USUARIOS_CUSTOM", JSON.stringify(DB_LOCAL.usuarios));
-        localStorage.setItem("NEXA_RUTA_EMPRESAS_CUSTOM", JSON.stringify(DB_LOCAL.empresas));
-        if (DB_LOCAL.conductores) {
-          localStorage.setItem("NEXA_RUTA_CONDUCTORES_CUSTOM", JSON.stringify(DB_LOCAL.conductores));
+        const raw = JSON.parse(localStorage.getItem("NEXA_RUTA_SERVICIOS_ANULADOS") || "[]");
+        return Array.isArray(raw) ? raw.map(x => String(x).trim()).filter(Boolean) : [];
+      } catch(e) { return []; }
+    }
+
+    function marcarServicioAnuladoLocal(codServicio, anulado = true) {
+      try {
+        const cod = String(codServicio || "").trim();
+        if (!cod) return;
+        let lista = leerServiciosAnulados();
+        if (anulado) {
+          if (!lista.includes(cod)) lista.push(cod);
+        } else {
+          lista = lista.filter(x => x !== cod);
         }
-        if (DB_LOCAL.evidencias) {
-          localStorage.setItem("NEXA_RUTA_EVIDENCIAS_CUSTOM", JSON.stringify(DB_LOCAL.evidencias.slice(0, 50)));
-        }
-        if (DB_LOCAL.ubicaciones) {
-          localStorage.setItem("NEXA_RUTA_UBICACIONES_CUSTOM", JSON.stringify(DB_LOCAL.ubicaciones.slice(0, 50)));
-        }
-        if (DB_LOCAL.servicios) {
-          localStorage.setItem("NEXA_RUTA_SERVICIOS_CUSTOM", JSON.stringify(DB_LOCAL.servicios));
-        }
-        if (DB_LOCAL.incidencias) {
-          localStorage.setItem("NEXA_RUTA_INCIDENCIAS_CUSTOM", JSON.stringify(DB_LOCAL.incidencias.slice(0, 100)));
-        }
+        localStorage.setItem("NEXA_RUTA_SERVICIOS_ANULADOS", JSON.stringify(lista));
       } catch(e) {}
+    }
+
+    function compactarServiciosParaStorage(lista) {
+      return (lista || []).map(s => {
+        if (!Array.isArray(s.evidencias) || s.evidencias.length === 0) return s;
+        const evCompactas = s.evidencias.map(ev => {
+          const url = ev.url_foto || "";
+          if (url.length > 1500 && url.startsWith("data:")) {
+            return { ...ev, url_foto: "[EN_EVIDENCIAS_CUSTOM]" };
+          }
+          return ev;
+        });
+        return { ...s, evidencias: evCompactas };
+      });
+    }
+
+    function safeParseLS(k, fallback = []) {
+      try {
+        const raw = localStorage.getItem(k);
+        if (!raw) return fallback;
+        const parsed = JSON.parse(raw);
+        return parsed !== null && parsed !== undefined ? parsed : fallback;
+      } catch(e) { return fallback; }
+    }
+
+    function compactarEvidenciasParaStorage(lista) {
+      let bytesBase64 = 0;
+      return (lista || []).slice(0, 20).map((ev, idx) => {
+        const u = String(ev.url_foto || "");
+        if (u.startsWith("data:")) {
+          if (idx >= 3 || bytesBase64 + u.length > 350000) {
+            const fallbackUrl = ev.id_drive_archivo ? `https://lh3.googleusercontent.com/d/${ev.id_drive_archivo}` : "";
+            return { ...ev, url_foto: fallbackUrl };
+          }
+          bytesBase64 += u.length;
+        }
+        return ev;
+      });
+    }
+
+    function persistirUsuariosYEmpresasLocales() {
+      const saveKey = (k, val) => {
+        const json = JSON.stringify(val);
+        try {
+          localStorage.setItem(k, json);
+        } catch(e) {
+          // Si localStorage está saturado por fotos antiguas en caché, liberar primero caché pesado de fotos/GPS y reintentar
+          try {
+            localStorage.removeItem("NEXA_RUTA_EVIDENCIAS_CUSTOM");
+            localStorage.removeItem("NEXA_RUTA_UBICACIONES_CUSTOM");
+            localStorage.setItem(k, json);
+          } catch(e2) {
+            console.warn("Storage aviso (" + k + "):", e2.message);
+          }
+        }
+      };
+      saveKey("NEXA_RUTA_USUARIOS_CUSTOM", DB_LOCAL.usuarios);
+      saveKey("NEXA_RUTA_EMPRESAS_CUSTOM", DB_LOCAL.empresas);
+      if (DB_LOCAL.conductores) saveKey("NEXA_RUTA_CONDUCTORES_CUSTOM", DB_LOCAL.conductores);
+      if (DB_LOCAL.servicios) saveKey("NEXA_RUTA_SERVICIOS_CUSTOM", compactarServiciosParaStorage(DB_LOCAL.servicios));
+      if (DB_LOCAL.auditoria_programacion) saveKey("NEXA_RUTA_AUDITORIA_PROG_CUSTOM", DB_LOCAL.auditoria_programacion.slice(0, 100));
+      if (DB_LOCAL.incidencias) saveKey("NEXA_RUTA_INCIDENCIAS_CUSTOM", DB_LOCAL.incidencias.slice(0, 100));
+      if (DB_LOCAL.ubicaciones) saveKey("NEXA_RUTA_UBICACIONES_CUSTOM", DB_LOCAL.ubicaciones.slice(0, 30));
+      if (DB_LOCAL.evidencias) saveKey("NEXA_RUTA_EVIDENCIAS_CUSTOM", compactarEvidenciasParaStorage(DB_LOCAL.evidencias));
     }
 
     function cargarAccesoDemo(usuario, pass) {
@@ -2750,56 +2836,70 @@
           } catch(e) {}
         }
 
-        // Restaurar conductores, ubicaciones, evidencias, servicios e incidencias actualizados entre pestañas
-        try {
-          const cGuard = JSON.parse(localStorage.getItem("NEXA_RUTA_CONDUCTORES_CUSTOM") || "[]");
-          if (Array.isArray(cGuard)) {
-            cGuard.forEach(c => {
-              const cLog = (c.usuario_login || "").toLowerCase();
-              const cId = (c.id_conductor || "").toLowerCase();
-              const cUsr = (c.id_usuario || "").toLowerCase();
-              if ((cLog && uEliminados.includes(cLog)) || (cId && uEliminados.includes(cId)) || (cUsr && uEliminados.includes(cUsr))) return;
-              const idx = (DB_LOCAL.conductores || []).findIndex(x => x.id_conductor === c.id_conductor || (x.id_usuario && c.id_usuario && x.id_usuario === c.id_usuario));
-              if (idx >= 0) DB_LOCAL.conductores[idx] = { ...DB_LOCAL.conductores[idx], ...c };
-              else DB_LOCAL.conductores.push(c);
-            });
-          }
-          DB_LOCAL.conductores = (DB_LOCAL.conductores || []).filter(c => {
+        // Restaurar conductores, ubicaciones, evidencias, servicios e incidencias actualizados entre pestañas (cada bloque aislado)
+        const cGuard = safeParseLS("NEXA_RUTA_CONDUCTORES_CUSTOM", []);
+        if (Array.isArray(cGuard)) {
+          cGuard.forEach(c => {
             const cLog = (c.usuario_login || "").toLowerCase();
             const cId = (c.id_conductor || "").toLowerCase();
             const cUsr = (c.id_usuario || "").toLowerCase();
-            return !(cLog && uEliminados.includes(cLog)) && !(cId && uEliminados.includes(cId)) && !(cUsr && uEliminados.includes(cUsr));
+            if ((cLog && uEliminados.includes(cLog)) || (cId && uEliminados.includes(cId)) || (cUsr && uEliminados.includes(cUsr))) return;
+            const idx = (DB_LOCAL.conductores || []).findIndex(x => x.id_conductor === c.id_conductor || (x.id_usuario && c.id_usuario && x.id_usuario === c.id_usuario));
+            if (idx >= 0) DB_LOCAL.conductores[idx] = { ...DB_LOCAL.conductores[idx], ...c };
+            else DB_LOCAL.conductores.push(c);
           });
-          const evGuard = JSON.parse(localStorage.getItem("NEXA_RUTA_EVIDENCIAS_CUSTOM") || "[]");
-          if (Array.isArray(evGuard)) {
-            DB_LOCAL.evidencias = DB_LOCAL.evidencias || [];
-            evGuard.forEach(ev => {
-              if (!DB_LOCAL.evidencias.some(x => x.id_evidencia === ev.id_evidencia)) DB_LOCAL.evidencias.unshift(ev);
-            });
-          }
-          const ubGuard = JSON.parse(localStorage.getItem("NEXA_RUTA_UBICACIONES_CUSTOM") || "[]");
-          if (Array.isArray(ubGuard)) {
-            DB_LOCAL.ubicaciones = DB_LOCAL.ubicaciones || [];
-            ubGuard.forEach(ub => {
-              if (!DB_LOCAL.ubicaciones.some(x => x.id_ubicacion === ub.id_ubicacion)) DB_LOCAL.ubicaciones.unshift(ub);
-            });
-          }
-          const svGuard = JSON.parse(localStorage.getItem("NEXA_RUTA_SERVICIOS_CUSTOM") || "[]");
-          if (Array.isArray(svGuard)) {
-            svGuard.forEach(s => {
-              const idx = (DB_LOCAL.servicios || []).findIndex(x => x.cod_servicio === s.cod_servicio);
-              if (idx >= 0) DB_LOCAL.servicios[idx] = { ...DB_LOCAL.servicios[idx], ...s };
-              else DB_LOCAL.servicios.unshift(s);
-            });
-          }
-          const incGuard = JSON.parse(localStorage.getItem("NEXA_RUTA_INCIDENCIAS_CUSTOM") || "[]");
-          if (Array.isArray(incGuard)) {
-            DB_LOCAL.incidencias = DB_LOCAL.incidencias || [];
-            incGuard.forEach(inc => {
-              if (!DB_LOCAL.incidencias.some(x => x.id_incidencia === inc.id_incidencia)) DB_LOCAL.incidencias.unshift(inc);
-            });
-          }
-        } catch(e) {}
+        }
+        DB_LOCAL.conductores = (DB_LOCAL.conductores || []).filter(c => {
+          const cLog = (c.usuario_login || "").toLowerCase();
+          const cId = (c.id_conductor || "").toLowerCase();
+          const cUsr = (c.id_usuario || "").toLowerCase();
+          return !(cLog && uEliminados.includes(cLog)) && !(cId && uEliminados.includes(cId)) && !(cUsr && uEliminados.includes(cUsr));
+        });
+
+        const svGuard = safeParseLS("NEXA_RUTA_SERVICIOS_CUSTOM", []);
+        if (Array.isArray(svGuard) && svGuard.length > 0) {
+          const nuevosSv = [];
+          svGuard.forEach(s => {
+            const idx = (DB_LOCAL.servicios || []).findIndex(x => x.cod_servicio === s.cod_servicio);
+            if (idx >= 0) DB_LOCAL.servicios[idx] = { ...DB_LOCAL.servicios[idx], ...s };
+            else nuevosSv.push(s);
+          });
+          if (nuevosSv.length > 0) DB_LOCAL.servicios = nuevosSv.concat(DB_LOCAL.servicios || []);
+        }
+        const srvAnulados = leerServiciosAnulados();
+        if (srvAnulados.length > 0) {
+          (DB_LOCAL.servicios || []).forEach(s => {
+            if (srvAnulados.includes(s.cod_servicio)) {
+              s.estado = "Anulado";
+              if (!s.motivo_cancelacion) s.motivo_cancelacion = "Anulado desde Programación";
+            }
+          });
+        }
+        const audProgGuard = safeParseLS("NEXA_RUTA_AUDITORIA_PROG_CUSTOM", []);
+        if (Array.isArray(audProgGuard) && audProgGuard.length > 0) {
+          DB_LOCAL.auditoria_programacion = audProgGuard;
+        }
+        const evGuard = safeParseLS("NEXA_RUTA_EVIDENCIAS_CUSTOM", []);
+        if (Array.isArray(evGuard)) {
+          DB_LOCAL.evidencias = DB_LOCAL.evidencias || [];
+          evGuard.forEach(ev => {
+            if (!DB_LOCAL.evidencias.some(x => x.id_evidencia === ev.id_evidencia)) DB_LOCAL.evidencias.unshift(ev);
+          });
+        }
+        const ubGuard = safeParseLS("NEXA_RUTA_UBICACIONES_CUSTOM", []);
+        if (Array.isArray(ubGuard)) {
+          DB_LOCAL.ubicaciones = DB_LOCAL.ubicaciones || [];
+          ubGuard.forEach(ub => {
+            if (!DB_LOCAL.ubicaciones.some(x => x.id_ubicacion === ub.id_ubicacion)) DB_LOCAL.ubicaciones.unshift(ub);
+          });
+        }
+        const incGuard = safeParseLS("NEXA_RUTA_INCIDENCIAS_CUSTOM", []);
+        if (Array.isArray(incGuard)) {
+          DB_LOCAL.incidencias = DB_LOCAL.incidencias || [];
+          incGuard.forEach(inc => {
+            if (!DB_LOCAL.incidencias.some(x => x.id_incidencia === inc.id_incidencia)) DB_LOCAL.incidencias.unshift(inc);
+          });
+        }
       } catch(e) {}
     }
 
@@ -2957,6 +3057,54 @@
         if (payload.nuevoConductor && !DB_LOCAL.conductores.some(c => c.id_conductor === payload.nuevoConductor.id_conductor || String(c.dni) === String(payload.nuevoConductor.dni))) {
           DB_LOCAL.conductores.push(payload.nuevoConductor);
         }
+        if (payload.action === "supervisor/asignar_ruta" || payload.action === "supervisor/asignar_servicio" || payload.action === "supervisor/modificar_programacion" || payload.action === "supervisor/crear_programacion" || payload.action === "supervisor/anular_servicio") {
+          const codP = payload.cod_servicio;
+          if (codP) {
+            const srvEx = (DB_LOCAL.servicios || []).find(s => s.cod_servicio === codP);
+            if (srvEx) {
+              if (payload.estado) srvEx.estado = payload.estado;
+              if (payload.cliente_razon_social) srvEx.cliente = payload.cliente_razon_social;
+              if (payload.id_conductor) srvEx.id_conductor = payload.id_conductor;
+              if (payload.placa_tracto) srvEx.placa_tracto = payload.placa_tracto;
+              if (payload.placa_carreta !== undefined) srvEx.placa_carreta = payload.placa_carreta;
+              if (payload.origen) srvEx.origen = payload.origen;
+              if (payload.parada_actual) srvEx.parada_actual = payload.parada_actual;
+              if (Array.isArray(payload.puntos_carga)) srvEx.puntos_carga = payload.puntos_carga;
+              if (Array.isArray(payload.puntos_descarga)) srvEx.puntos_descarga = payload.puntos_descarga;
+              if (Array.isArray(payload.mercancias)) srvEx.mercancias = payload.mercancias;
+              if (Array.isArray(payload.tipo_operacion)) srvEx.tipo_operacion = payload.tipo_operacion;
+              if (payload.instrucciones !== undefined) srvEx.instrucciones = payload.instrucciones;
+            } else {
+              DB_LOCAL.servicios.unshift({
+                cod_servicio: codP,
+                id_empresa: payload.id_empresa || "TRP-001",
+                cliente: payload.cliente_razon_social || "Cliente",
+                ruc_cliente: payload.cliente_ruc || "",
+                id_conductor: payload.id_conductor || "",
+                placa_tracto: payload.placa_tracto || "V7X-890",
+                placa_carreta: payload.placa_carreta || "",
+                origen: payload.origen || "Lima",
+                parada_actual: payload.parada_actual || "Destino",
+                cantidad_destinos: (payload.puntos_descarga && payload.puntos_descarga.length) || 1,
+                puntos_carga: payload.puntos_carga || [],
+                puntos_descarga: payload.puntos_descarga || [],
+                mercancias: payload.mercancias || [],
+                tipo_operacion: payload.tipo_operacion || [],
+                estado: payload.estado || "Programado",
+                km_inicial: payload.km_inicial || 148500,
+                fecha_programada: payload.fecha_programada || "",
+                hora_programada: payload.hora_programada || "08:00",
+                fecha_registro: payload.fecha_registro || "",
+                hora_registro: payload.hora_registro || "",
+                fecha_cita: payload.fecha_cita || "",
+                instrucciones: payload.instrucciones || "",
+                auxiliar: payload.auxiliar || "",
+                evidencias: [],
+                eventos_historial: []
+              });
+            }
+          }
+        }
         if (payload.action === "conductor/subir_evidencia" && payload.cod_servicio) {
           const srv = DB_LOCAL.servicios.find(s => s.cod_servicio === payload.cod_servicio);
           if (srv) {
@@ -3006,6 +3154,8 @@
       actualizarBadgeSyncStatus("Sincronizando...", "warning");
 
       try {
+        // Primero vaciar la cola pendiente hacia Google Sheets para no traer estados viejos
+        await enviarPendientesNube().catch(() => 0);
         const data = await llamarApiGoogleSheets({
           action: "sistema/sync_bidireccional"
         });
@@ -3175,21 +3325,27 @@
                 }
               }
 
-              // Vincular al servicio correspondiente
+              // Vincular al servicio correspondiente (si existe en data.servicios, esperar datos oficiales y no pisar con stub)
               if (evNorm.cod_servicio) {
                 let srvMatch = (DB_LOCAL.servicios || []).find(s => s.cod_servicio === evNorm.cod_servicio);
                 if (!srvMatch) {
+                  const sCloudOficial = Array.isArray(data.servicios)
+                    ? data.servicios.find(sc => String(sc.COD_SERVICIO || sc.cod_servicio || "").trim() === evNorm.cod_servicio)
+                    : null;
+                  const estaAnuladoStub = leerServiciosAnulados().includes(evNorm.cod_servicio);
                   srvMatch = {
                     cod_servicio: evNorm.cod_servicio,
-                    id_empresa: evNorm.id_empresa,
-                    cliente: "Servicio en Curso",
+                    id_empresa: (sCloudOficial && (sCloudOficial.ID_EMPRESA || sCloudOficial.id_empresa)) || evNorm.id_empresa,
+                    cliente: (sCloudOficial && (sCloudOficial.CLIENTE_RAZON_SOCIAL || sCloudOficial.cliente)) || "Servicio en Curso",
                     conductor_nombre: evNorm.conductor,
-                    placa_tracto: evNorm.tracto,
-                    placa_carreta: evNorm.carreta,
-                    origen: "Base",
-                    parada_actual: evNorm.parada,
-                    estado: "En ruta",
-                    km_inicial: 148500,
+                    placa_tracto: (sCloudOficial && (sCloudOficial.PLACA_TRACTO || sCloudOficial.placa_tracto)) || evNorm.tracto,
+                    placa_carreta: (sCloudOficial && (sCloudOficial.PLACA_CARRETA || sCloudOficial.placa_carreta)) || evNorm.carreta,
+                    origen: (sCloudOficial && (sCloudOficial.ORIGEN || sCloudOficial.origen)) || "Base",
+                    parada_actual: (sCloudOficial && (sCloudOficial.PARADA_ACTUAL || sCloudOficial.destino)) || evNorm.parada,
+                    fecha_programada: (sCloudOficial && sCloudOficial.FECHA_PROGRAMADA) || "",
+                    hora_programada: (sCloudOficial && sCloudOficial.HORA_PROGRAMADA) || "08:00",
+                    estado: estaAnuladoStub ? "Anulado" : ((sCloudOficial && sCloudOficial.ESTADO_OPERATIVO) || "En ruta"),
+                    km_inicial: (sCloudOficial && sCloudOficial.KM_INICIAL) || 148500,
                     evidencias: []
                   };
                   DB_LOCAL.servicios.unshift(srvMatch);
@@ -3332,12 +3488,28 @@
             });
           }
 
-          // 3. SINCRONIZAR SERVICIOS Y RUTAS ASIGNADAS DESDE GOOGLE SHEETS
+          // 3. SINCRONIZAR SERVICIOS Y RUTAS ASIGNADAS DESDE GOOGLE SHEETS (Con protección de pendientes y anulados locales)
           if (Array.isArray(data.servicios) && data.servicios.length > 0) {
             const parseJsonSafe = (str) => { try { return (typeof str === 'string' && str.trim().startsWith('[')) ? JSON.parse(str) : null; } catch(e) { return null; } };
+            const srvAnulados = leerServiciosAnulados();
+            const codPendientesSrv = new Set(
+              leerPendientes()
+                .map(x => x && x.payload ? x.payload : null)
+                .filter(p => p && p.cod_servicio && /^supervisor\//.test(String(p.action || '')))
+                .map(p => String(p.cod_servicio).trim())
+            );
             data.servicios.forEach(sCloud => {
-              const cod = sCloud.COD_SERVICIO || sCloud.cod_servicio;
+              const cod = String(sCloud.COD_SERVICIO || sCloud.cod_servicio || "").trim();
               if (!cod) return;
+              const esAnuladoLocal = srvAnulados.includes(cod);
+              // Si hay cambios locales pendientes en cola para este servicio, nunca pisar con la nube
+              if (codPendientesSrv.has(cod)) {
+                if (esAnuladoLocal) {
+                  const sPend = DB_LOCAL.servicios.find(s => s.cod_servicio === cod);
+                  if (sPend) sPend.estado = "Anulado";
+                }
+                return;
+              }
               const idCndCloud = sCloud.ID_CONDUCTOR || sCloud.id_conductor || "";
               const cndMatchCloud = (DB_LOCAL.conductores || []).find(c => idCndCloud && c.id_conductor === idCndCloud);
               const nomCndCloud = sCloud.CONDUCTOR_NOMBRE || sCloud.conductor_nombre || (cndMatchCloud ? cndMatchCloud.nombre : "");
@@ -3348,30 +3520,42 @@
 
               const idx = DB_LOCAL.servicios.findIndex(s => s.cod_servicio === cod);
               if (idx >= 0) {
-                if (sCloud.ESTADO_OPERATIVO) DB_LOCAL.servicios[idx].estado = sCloud.ESTADO_OPERATIVO;
-                if (sCloud.PARADA_ACTUAL) DB_LOCAL.servicios[idx].parada_actual = sCloud.PARADA_ACTUAL;
-                if (sCloud.KM_INICIAL) DB_LOCAL.servicios[idx].km_inicial = sCloud.KM_INICIAL;
-                if (sCloud.KM_ACTUAL) DB_LOCAL.servicios[idx].km_actual = sCloud.KM_ACTUAL;
-                if (sCloud.KM_FINAL) DB_LOCAL.servicios[idx].km_final = sCloud.KM_FINAL;
-                if (idCndCloud) DB_LOCAL.servicios[idx].id_conductor = idCndCloud;
-                if (nomCndCloud) DB_LOCAL.servicios[idx].conductor_nombre = nomCndCloud;
-                if (sCloud.PLACA_TRACTO) DB_LOCAL.servicios[idx].placa_tracto = sCloud.PLACA_TRACTO;
-                if (sCloud.PLACA_CARRETA !== undefined && sCloud.PLACA_CARRETA !== "") DB_LOCAL.servicios[idx].placa_carreta = sCloud.PLACA_CARRETA;
-                if (sCloud.CLIENTE_RAZON_SOCIAL) DB_LOCAL.servicios[idx].cliente = sCloud.CLIENTE_RAZON_SOCIAL;
-                if (sCloud.CLIENTE_RUC) DB_LOCAL.servicios[idx].ruc_cliente = sCloud.CLIENTE_RUC;
-                if (sCloud.ORIGEN) DB_LOCAL.servicios[idx].origen = sCloud.ORIGEN;
-                if (sCloud.FECHA_PROGRAMADA) DB_LOCAL.servicios[idx].fecha_programada = sCloud.FECHA_PROGRAMADA;
-                if (sCloud.HORA_PROGRAMADA) DB_LOCAL.servicios[idx].hora_programada = sCloud.HORA_PROGRAMADA;
-                if (sCloud.INSTRUCCIONES) DB_LOCAL.servicios[idx].instrucciones = sCloud.INSTRUCCIONES;
-                if (sCloud.AUXILIAR !== undefined && sCloud.AUXILIAR !== "") DB_LOCAL.servicios[idx].auxiliar = sCloud.AUXILIAR;
-                if (tipoOpCloud) DB_LOCAL.servicios[idx].tipo_operacion = tipoOpCloud;
-                if (sCloud.FECHA_CITA) DB_LOCAL.servicios[idx].fecha_cita = sCloud.FECHA_CITA;
-                if (cargasCloud) DB_LOCAL.servicios[idx].puntos_carga = cargasCloud;
-                if (descargasCloud) {
-                  DB_LOCAL.servicios[idx].puntos_descarga = descargasCloud;
-                  DB_LOCAL.servicios[idx].cantidad_destinos = descargasCloud.length;
+                const srvLocal = DB_LOCAL.servicios[idx];
+                const editReciente = srvLocal._localUpdatedAt && (Date.now() - srvLocal._localUpdatedAt < 120000);
+                const esStubVacio = !srvLocal.cliente || srvLocal.cliente === "Servicio en Curso";
+                if ((esAnuladoLocal || srvLocal.estado === "Anulado" || srvLocal.estado === "Cancelado") && !esStubVacio) {
+                  srvLocal.estado = (srvLocal.estado === "Cancelado") ? "Cancelado" : "Anulado";
+                  return;
                 }
-                if (mercCloud) DB_LOCAL.servicios[idx].mercancias = mercCloud;
+                if (editReciente && !esStubVacio) return;
+                if (esAnuladoLocal || srvLocal.estado === "Anulado" || srvLocal.estado === "Cancelado") {
+                  srvLocal.estado = (srvLocal.estado === "Cancelado") ? "Cancelado" : "Anulado";
+                } else if (sCloud.ESTADO_OPERATIVO) {
+                  srvLocal.estado = sCloud.ESTADO_OPERATIVO;
+                }
+                if (sCloud.PARADA_ACTUAL) srvLocal.parada_actual = sCloud.PARADA_ACTUAL;
+                if (sCloud.KM_INICIAL) srvLocal.km_inicial = sCloud.KM_INICIAL;
+                if (sCloud.KM_ACTUAL) srvLocal.km_actual = sCloud.KM_ACTUAL;
+                if (sCloud.KM_FINAL) srvLocal.km_final = sCloud.KM_FINAL;
+                if (idCndCloud) srvLocal.id_conductor = idCndCloud;
+                if (nomCndCloud) srvLocal.conductor_nombre = nomCndCloud;
+                if (sCloud.PLACA_TRACTO) srvLocal.placa_tracto = sCloud.PLACA_TRACTO;
+                if (sCloud.PLACA_CARRETA !== undefined && sCloud.PLACA_CARRETA !== "") srvLocal.placa_carreta = sCloud.PLACA_CARRETA;
+                if (sCloud.CLIENTE_RAZON_SOCIAL) srvLocal.cliente = sCloud.CLIENTE_RAZON_SOCIAL;
+                if (sCloud.CLIENTE_RUC) srvLocal.ruc_cliente = sCloud.CLIENTE_RUC;
+                if (sCloud.ORIGEN) srvLocal.origen = sCloud.ORIGEN;
+                if (sCloud.FECHA_PROGRAMADA) srvLocal.fecha_programada = sCloud.FECHA_PROGRAMADA;
+                if (sCloud.HORA_PROGRAMADA) srvLocal.hora_programada = sCloud.HORA_PROGRAMADA;
+                if (sCloud.INSTRUCCIONES) srvLocal.instrucciones = sCloud.INSTRUCCIONES;
+                if (sCloud.AUXILIAR !== undefined && sCloud.AUXILIAR !== "") srvLocal.auxiliar = sCloud.AUXILIAR;
+                if (tipoOpCloud) srvLocal.tipo_operacion = tipoOpCloud;
+                if (sCloud.FECHA_CITA) srvLocal.fecha_cita = sCloud.FECHA_CITA;
+                if (cargasCloud) srvLocal.puntos_carga = cargasCloud;
+                if (descargasCloud) {
+                  srvLocal.puntos_descarga = descargasCloud;
+                  srvLocal.cantidad_destinos = descargasCloud.length;
+                }
+                if (mercCloud) srvLocal.mercancias = mercCloud;
               } else {
                 // Nuevo viaje creado en otra PC y guardado en Google Sheets
                 DB_LOCAL.servicios.push({
@@ -3387,7 +3571,7 @@
                   cantidad_destinos: descargasCloud ? descargasCloud.length : 1,
                   parada_actual: sCloud.PARADA_ACTUAL || sCloud.destino || "Destino",
                   paradas: descargasCloud || [{ id: "DST-1", orden: 1, nombre: sCloud.PARADA_ACTUAL || "Destino", estado: sCloud.ESTADO_OPERATIVO || "PENDIENTE" }],
-                  estado: sCloud.ESTADO_OPERATIVO || "Programado",
+                  estado: esAnuladoLocal ? "Anulado" : (sCloud.ESTADO_OPERATIVO || "Programado"),
                   alerta_retraso: "A TIEMPO",
                   km_inicial: sCloud.KM_INICIAL || 148500,
                   km_final: sCloud.KM_FINAL || null,
@@ -5826,8 +6010,14 @@ function confirmarAnularServicio() {
   }
   s.estado = 'Anulado';
   s.motivo_cancelacion = 'Anulado desde Programación';
+  s._localUpdatedAt = Date.now();
+  marcarServicioAnuladoLocal(codServicio, true);
   registrarAuditoriaProgramacion(codServicio, 'Anulación de Servicio', `Servicio ${codServicio} anulado.`);
   guardarBaseDatosLocal();
+
+  // Reemplazar en la cola cualquier programación previa de este mismo servicio antes de encolar Anulado
+  const colaFiltrada = leerPendientes().filter(item => !(item && item.payload && item.payload.cod_servicio === codServicio && /^supervisor\//.test(String(item.payload.action || ''))));
+  guardarPendientes(colaFiltrada);
 
   const payloadAnular = {
     action: "supervisor/asignar_ruta",
@@ -8612,6 +8802,7 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
           srvExist.hora_programada = hora;
           srvExist.fecha_cita = fechaCita;
           srvExist.instrucciones = obs;
+          srvExist._localUpdatedAt = Date.now();
           registrarAuditoriaProgramacion(codServicio, 'Edición de Programación', `Actualizado: ${origenPrincipal} → ${destinoPrincipal} (${cargasValidas.length} carga(s), ${descargasValidas.length} descarga(s)).`);
         }
       } else {
@@ -8647,6 +8838,7 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
           hora_registro: horaReg,
           fecha_cita: fechaCita,
           instrucciones: obs,
+          _localUpdatedAt: Date.now(),
           eventos: [],
           eventos_historial: [],
           evidencias: []
@@ -8658,7 +8850,12 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
 
       guardarBaseDatosLocal();
 
+      // Reemplazar en cola acciones anteriores del mismo servicio y encolar la más reciente
+      const colaSinDuplicados = leerPendientes().filter(item => !(item && item.payload && item.payload.cod_servicio === codServicio && /^supervisor\//.test(String(item.payload.action || ''))));
+      guardarPendientes(colaSinDuplicados);
+
       // Enviar y encolar a Google Sheets
+      const estadoPersistido = modoEditCod ? ((DB_LOCAL.servicios.find(s => s.cod_servicio === modoEditCod) || {}).estado || "Programado") : "Programado";
       const payloadAsignar = {
         action: "supervisor/asignar_ruta",
         cod_servicio: codServicio,
@@ -8675,7 +8872,7 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
         puntos_carga: cargasValidas,
         puntos_descarga: descargasValidas,
         mercancias: mercanciasValidas,
-        estado: "Programado",
+        estado: estadoPersistido,
         km_inicial: km,
         fecha_programada: fecha,
         hora_programada: hora,
@@ -8690,7 +8887,6 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
       enviarPendientesNube().then(n => {
         if (n > 0) {
           mostrarToast(`✅ Programación ${codServicio} guardada en Google Sheets`, "success");
-          ejecutarSincronizacionBidireccional(false);
         }
       }).catch(err => console.warn("Sync Sheets programacion:", err));
 
@@ -13288,11 +13484,13 @@ function abrirPortalEmpresaDesdeSuperAdmin(idEmpresa) {
 
       lucide.createIcons();
 
-      // 3. Conectar y sincronizar en segundo plano sin interrumpir la vista activa
-      if (APPS_SCRIPT_URL) {
-        ejecutarSincronizacionBidireccional(false).catch(e => console.warn(e));
-      }
+      // 3. Reaplicar pendientes locales primero, enviar cola pendiente y luego sincronizar nube
       reaplicarPendientesLocales();
+      if (APPS_SCRIPT_URL) {
+        enviarPendientesNube()
+          .then(() => ejecutarSincronizacionBidireccional(false))
+          .catch(e => console.warn(e));
+      }
       iniciarAutoSyncGoogleSheets();
 
       // Registro de Service Worker PWA

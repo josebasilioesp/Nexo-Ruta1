@@ -426,7 +426,7 @@ function procesarApiGetInterno(params) {
     return jsonResponse({ status: 'OK', mensaje: 'Registro guardado en Google Sheets con éxito' });
   }
 
-  if (action === 'supervisor/asignar_ruta' || action === 'supervisor/asignar_servicio' || action === 'supervisor/modificar_programacion' || action === 'supervisor/crear_programacion') {
+  if (action === 'supervisor/asignar_ruta' || action === 'supervisor/asignar_servicio' || action === 'supervisor/modificar_programacion' || action === 'supervisor/crear_programacion' || action === 'supervisor/anular_servicio') {
     let payload = params;
     if (params.data) {
       try { payload = JSON.parse(params.data); } catch(e) {}
@@ -713,7 +713,7 @@ function asignarServicioDirecto(payload) {
   // Validar si ya existía para actualizar todos los campos en vez de duplicar
   const data = sheetSrv.getDataRange().getValues();
   for (let i = 1; i < data.length; i++) {
-    if (data[i][0] === codServicio) {
+    if (String(data[i][0] || "").trim() === String(codServicio).trim()) {
       if (payload.cliente_razon_social || payload.cliente) sheetSrv.getRange(i + 1, 3).setValue(payload.cliente_razon_social || payload.cliente);
       if (payload.cliente_ruc !== undefined || payload.ruc_cliente !== undefined) sheetSrv.getRange(i + 1, 4).setValue(payload.cliente_ruc || payload.ruc_cliente || "");
       if (payload.id_conductor) sheetSrv.getRange(i + 1, 5).setValue(payload.id_conductor);
@@ -825,7 +825,7 @@ function eliminarServicioDirecto(codServicio) {
   if (!sheetSrv) return { status: "ERROR", mensaje: "Hoja Servicios no encontrada" };
   const data = sheetSrv.getDataRange().getValues();
   for (let i = 1; i < data.length; i++) {
-    if (data[i][0] === codServicio) {
+    if (String(data[i][0] || "").trim() === String(codServicio).trim()) {
       sheetSrv.deleteRow(i + 1);
       return { status: "OK", cod_servicio: codServicio, mensaje: "Servicio eliminado de Google Sheets" };
     }
@@ -1071,7 +1071,7 @@ function doPost(e) {
   try {
     const p = JSON.parse(e.postData.contents);
     accion = p.action;
-    conEscritura = !!(p.nuevoUsuario || p.nuevoConductor || p.actualizacionEstado || p.actualizacionGps);
+    conEscritura = !!(p.nuevoUsuario || p.nuevoConductor || p.actualizacionEstado || p.actualizacionGps || accion === 'supervisor/asignar_ruta' || accion === 'supervisor/modificar_programacion' || accion === 'supervisor/crear_programacion' || accion === 'supervisor/anular_servicio' || accion === 'supervisor/eliminar_servicio' || accion === 'supervisor/cancelar_servicio');
   } catch (err) {}
   const soloLectura = (accion === 'sistema/ping' || accion === 'auth/login' || (accion === 'sistema/sync_bidireccional' && !conEscritura));
   return soloLectura ? doPostInterno(e) : conBloqueo(function() { return doPostInterno(e); });
@@ -1091,7 +1091,7 @@ function doPostInterno(e) {
       return jsonResponse({ status: "OK", mensaje: "Conexión exitosa con Nexa Ruta Backend", version: "2026.1" });
     }
 
-    if (action === "supervisor/asignar_ruta" || action === "supervisor/asignar_servicio" || action === "supervisor/modificar_programacion" || action === "supervisor/crear_programacion") {
+    if (action === "supervisor/asignar_ruta" || action === "supervisor/asignar_servicio" || action === "supervisor/modificar_programacion" || action === "supervisor/crear_programacion" || action === "supervisor/anular_servicio") {
       return jsonResponse(asignarServicioDirecto(payload));
     }
 
@@ -2540,7 +2540,7 @@ function obtenerInfoServicio(codServicio) {
   const sheet = ss.getSheetByName("Servicios");
   const data = sheet.getDataRange().getValues();
   for (let i = 1; i < data.length; i++) {
-    if (data[i][0] === codServicio) {
+    if (String(data[i][0] || "").trim() === String(codServicio).trim()) {
       return {
         cod_servicio: data[i][0],
         id_empresa: data[i][1],
